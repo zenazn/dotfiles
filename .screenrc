@@ -1,0 +1,6 @@
+setenv SSH_AUTH_SOCK "$HOME/.authsock"
+
+altscreen on
+defscrollback 5000
+
+hardstatus alwayslastline "%{= kG}%?%-Lw%?%{r}(%{Y}%n*%f%t%?(%u)%?%{r})%{g}%?%+Lw%?%? %= %l    %m-%d-%Y %c"
