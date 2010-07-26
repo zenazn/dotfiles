@@ -1,6 +1,12 @@
+# For ssh-agent / screen support
 setenv SSH_AUTH_SOCK "$HOME/.authsock"
 
+# Alternate buffer for vim and things to emulate default bash behavior
 altscreen on
-defscrollback 5000
 
+# Very large scrollback buffers are useful
+defscrollback 9000
+
+# Awesome status line I invented myself. Kind of. It looks like this:
+# <list of screens, current one highlighted>             <load avg>   <time>
 hardstatus alwayslastline "%{= kG}%?%-Lw%?%{r}(%{Y}%n*%f%t%?(%u)%?%{r})%{g}%?%+Lw%?%? %= %l    %m-%d-%Y %c"
