@@ -1,3 +1,47 @@
 [user]
 	name = Carl Jackson
 	email = carl@avtok.com
+
+[alias]
+    a = add
+    au = add -u .
+    br = branch
+    ci = commit
+    co = checkout
+    cp = cherry-pick -x
+    d = diff
+    l = log
+    p = pull
+    st = status
+    w = whatchanged
+
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    interactive = auto
+    ui = true
+    pager = true
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[core]
+    pager = less -FRS
+    whitespace = fix, trailing-space, cr-at-eol
+
+[apply]
+    whitespace = fix
