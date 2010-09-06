@@ -26,3 +26,21 @@ then
     echo "Linking .ssh/rc"
     ln -s `pwd`/ssh/rc $HOME/.ssh/rc
 fi
+
+# Add some authorized keys
+if [ ! -e $HOME/.ssh/authorized_keys ]
+then
+    echo "" >> $HOME/.ssh/authorized_keys
+    chmod go-rwx $HOME/.ssh/authorized_keys
+fi
+for f in `ls ssh/keys`
+do
+    if [ ! -n "`grep carl@$f $HOME/.ssh/authorized_keys`" ]
+    then
+        read -p "Key carl@$f not in authorized_keys. Add (y/n)?"
+        if [ $REPLY == 'y' -o $REPLY == 'yes' ]
+        then
+            cat ssh/keys/$f >> $HOME/.ssh/authorized_keys
+        fi
+    fi
+done
