@@ -35,9 +35,6 @@ set ignorecase
 set infercase
 set smartcase
 
-" kj as escape
-imap kj <ESC>
-
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar
