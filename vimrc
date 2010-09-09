@@ -35,11 +35,11 @@ set ignorecase
 set infercase
 set smartcase
 
-" MacVim stuff
-if has("gui_macvim")
-    " Fullscreen
-    set fuoptions=maxvert,maxhorz
-    set guifont=Menlo:h10
+" kj as escape
+imap kj <ESC>
+
+" Are we running in a gui?
+if has("gui_running")
     " No toolbar
     set go-=T
     " No left scrollbar (eww)
@@ -50,5 +50,11 @@ if has("gui_macvim")
     set anti
     set columns=120
     set lines=60
+    if has("gui_macvim")
+        " Fullscreen
+        set fuoptions=maxvert,maxhorz
+        set guifont=Menlo:h10
+    elseif has("gui_gtk2")
+        set guifont=Inconsolata
+    end
 end
-

@@ -12,7 +12,7 @@
     d = diff
     l = log
     p = pull
-    st = status
+    s = status
     w = whatchanged
 
 [color]
