@@ -35,6 +35,9 @@ set ignorecase
 set infercase
 set smartcase
 
+" Did you forget to sudo?
+cmap w!! w !sudo tee % >/dev/null
+
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar
