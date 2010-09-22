@@ -8,6 +8,7 @@ au FileType tex setlocal tw=100
 
 " Autocompletion
 set wildmenu
+set wildmode=list:longest
 
 " Indentation and such
 set autoindent
@@ -35,8 +36,19 @@ set ignorecase
 set infercase
 set smartcase
 
+" Hidden buffers
+set hidden
+
+" Backspacing
+set backspace=indent,eol,start
+
 " Did you forget to sudo?
 cmap w!! w !sudo tee % >/dev/null
+
+" Useful remaps
+nnoremap ' `
+nnoremap ` '
+let mapleader = ','
 
 " Are we running in a gui?
 if has("gui_running")
