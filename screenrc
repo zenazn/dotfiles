@@ -1,3 +1,6 @@
+# Use a login shell
+shell -$SHELL
+
 # For ssh-agent / screen support
 setenv SSH_AUTH_SOCK "$HOME/.authsock"
 
