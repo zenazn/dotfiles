@@ -1,6 +1,10 @@
 " Don't emulate vi bugs
 set nocompatible
 
+" Load pathogen
+filetype off
+call pathogen#runtime_append_all_bundles()
+
 " Syntax highlighting
 syntax on
 filetype plugin indent on
