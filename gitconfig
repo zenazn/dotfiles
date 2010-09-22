@@ -42,6 +42,7 @@
 [core]
     pager = less -FRS
     whitespace = fix, trailing-space, cr-at-eol
+	editor = /usr/bin/vim
 
 [apply]
     whitespace = fix
