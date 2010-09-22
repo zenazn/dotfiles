@@ -13,3 +13,6 @@ defscrollback 9000
 # Awesome status line I invented myself. Kind of. It looks like this:
 # <list of screens, current one highlighted>             <load avg>   <time>
 hardstatus alwayslastline "%{= kG}%?%-Lw%?%{r}(%{Y}%n*%f%t%?(%u)%?%{r})%{g}%?%+Lw%?%? %= %l    %m-%d-%Y %c"
+
+# Splash screens were so 1990
+startup_message off
