@@ -49,10 +49,23 @@ set backspace=indent,eol,start
 " Did you forget to sudo?
 cmap w!! w !sudo tee % >/dev/null
 
-" Useful remaps
+" Useful (re)maps
 nnoremap ' `
 nnoremap ` '
 let mapleader = ','
+
+" NERDTree options
+let NERDTreeIgnore = ['\.pyc$', '\.swp$']
+nmap <leader>m :NERDTreeToggle<CR>
+
+" Peepcode shortcut
+nmap <leader><space> <leader>p
+
+" Basic skeleton files
+autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
+
+" Yankring
+let g:yankring_history_dir = "$HOME/.vim"
 
 " Are we running in a gui?
 if has("gui_running")
