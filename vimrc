@@ -67,6 +67,13 @@ autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 " Yankring
 let g:yankring_history_dir = "$HOME/.vim"
 
+" Trailing whitespace
+highlight ExtraWhitespace ctermbg=red guibg=red
+au ColorScheme * highlight ExtraWhitespace guibg=red
+au BufEnter * match ExtraWhitespace /\s\+$/
+au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+au InsertLeave * match ExtraWhiteSpace /\s\+$/
+
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar
