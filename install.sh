@@ -37,7 +37,7 @@ then
 fi
 for f in `ls ssh/keys`
 do
-    if [ ! -n "`grep carl@$f $HOME/.ssh/authorized_keys`" ]
+    if [ ! -n "`grep -i carl@$f $HOME/.ssh/authorized_keys`" ]
     then
         read -p "Key carl@$f not in authorized_keys. Add (y/n)? "
         if [ $REPLY == 'y' -o $REPLY == 'yes' ]
