@@ -11,6 +11,8 @@ do
         else
             ln -s `pwd`/$f $HOME/.$f
         fi
+    else
+        echo "Not linking $f: already exists"
     fi
 done
 
@@ -30,7 +32,7 @@ fi
 # Add some authorized keys
 if [ ! -e $HOME/.ssh/authorized_keys ]
 then
-    echo "" >> $HOME/.ssh/authorized_keys
+    touch $HOME/.ssh/authorized_keys
     chmod go-rwx $HOME/.ssh/authorized_keys
 fi
 for f in `ls ssh/keys`
