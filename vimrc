@@ -76,10 +76,10 @@ au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
 " Are we running in a gui?
 if has("gui_running")
-    " No toolbar
+    " No toolbar, left scrollbar, or menubar
     set go-=T
-    " No left scrollbar (eww)
     set go-=L
+    set go-=m
     " Awesome colorscheme
     colorscheme ir_black
     " Antialiasing
