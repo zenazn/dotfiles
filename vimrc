@@ -8,7 +8,6 @@ call pathogen#runtime_append_all_bundles()
 " Syntax highlighting
 syntax on
 filetype plugin indent on
-au FileType tex setlocal tw=100
 
 " Autocompletion
 set wildmenu
