@@ -57,9 +57,6 @@ let mapleader = ','
 let NERDTreeIgnore = ['\.pyc$', '\.swp$']
 nmap <leader>m :NERDTreeToggle<CR>
 
-" Peepcode shortcut
-nmap <leader><space> <leader>p
-
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
@@ -89,6 +86,9 @@ if has("gui_running")
         " Fullscreen
         set fuoptions=maxvert,maxhorz
         set guifont=Menlo:h10
+
+        " Peepcode shortcut
+        nmap <leader><space> <leader>p
     elseif has("gui_gtk2")
         set guifont=Inconsolata
     end
