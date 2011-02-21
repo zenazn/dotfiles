@@ -39,9 +39,6 @@ set ignorecase
 set infercase
 set smartcase
 
-" Hidden buffers
-set hidden
-
 " Backspacing
 set backspace=indent,eol,start
 
