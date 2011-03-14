@@ -8,7 +8,6 @@ call pathogen#runtime_append_all_bundles()
 " Syntax highlighting
 syntax on
 filetype plugin indent on
-au FileType tex setlocal tw=100
 
 " Autocompletion
 set wildmenu
@@ -61,9 +60,6 @@ let mapleader = ','
 let NERDTreeIgnore = ['\.pyc$', '\.swp$']
 nmap <leader>m :NERDTreeToggle<CR>
 
-" Peepcode shortcut
-nmap <leader><space> <leader>p
-
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
@@ -79,10 +75,10 @@ au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
 " Are we running in a gui?
 if has("gui_running")
-    " No toolbar
+    " No toolbar, left scrollbar, or menubar
     set go-=T
-    " No left scrollbar (eww)
     set go-=L
+    set go-=m
     " Awesome colorscheme
     colorscheme ir_black
     " Antialiasing
@@ -93,6 +89,9 @@ if has("gui_running")
         " Fullscreen
         set fuoptions=maxvert,maxhorz
         set guifont=Menlo:h10
+
+        " Peepcode shortcut
+        nmap <leader><space> <leader>p
     elseif has("gui_gtk2")
         set guifont=Inconsolata
     end
