@@ -16,7 +16,6 @@ set wildmode=list:longest
 
 " Indentation and such
 set autoindent
-set smartindent
 set tabstop=4
 set shiftwidth=4
 set smarttab
@@ -42,6 +41,10 @@ set smartcase
 
 " Hidden buffers
 set hidden
+
+" Try to keep backups and .swp files out of the working directory
+set directory=~/.tmp//,/tmp//,.
+set backupdir=~/.tmp//,/tmp//,.
 
 " Backspacing
 set backspace=indent,eol,start
