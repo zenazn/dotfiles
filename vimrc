@@ -73,6 +73,8 @@ au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
+set background=light
+
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar, left scrollbar, or menubar
@@ -80,7 +82,8 @@ if has("gui_running")
     set go-=L
     set go-=m
     " Awesome colorscheme
-    colorscheme ir_black
+    set background=dark
+    colorscheme solarized
     " Antialiasing
     set anti
     set columns=120
