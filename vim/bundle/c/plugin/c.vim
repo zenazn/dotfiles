@@ -129,9 +129,9 @@ let s:C_XtermDefaults         = '-fa courier -fs 12 -geometry 80x24'
 let s:C_GuiSnippetBrowser     = 'gui'										" gui / commandline
 let s:C_GuiTemplateBrowser    = 'gui'										" gui / explorer / commandline
 "
-let s:C_GlobalTemplateFile    = s:plugin_dir.'c-support/templates/Templates'
+let s:C_GlobalTemplateFile    = s:plugin_dir.'bundle/c/c-support/templates/Templates'
 let s:C_GlobalTemplateDir     = fnamemodify( s:C_GlobalTemplateFile, ":p:h" ).'/'
-let s:C_LocalTemplateFile     = $HOME.'/.vim/c-support/templates/Templates'
+let s:C_LocalTemplateFile     = $HOME.'/.vim/bundle/c/c-support/templates/Templates'
 let s:C_LocalTemplateDir      = fnamemodify( s:C_LocalTemplateFile, ":p:h" ).'/'
 let s:C_TemplateOverwrittenMsg= 'yes'
 let s:C_Ctrl_j								 = 'on'
