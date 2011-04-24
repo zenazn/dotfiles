@@ -7,5 +7,7 @@ elseif has('unix')
     nmap <buffer> T :!gnome-open "%:p:r.pdf"<CR><CR>
 end
 
+set spell
+
 " Hard-wrap
 setlocal tw=100

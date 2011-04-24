@@ -67,6 +67,9 @@ au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
+" Argh Python comments
+au! FileType python setl nosmartindent
+
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar, left scrollbar, or menubar
