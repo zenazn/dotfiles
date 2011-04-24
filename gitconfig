@@ -20,7 +20,7 @@
     status = auto
     branch = auto
     interactive = auto
-    ui = true
+    ui = auto
     pager = true
 
 [color "branch"]
@@ -41,9 +41,23 @@
 
 [core]
     pager = less -FRS
-    whitespace = fix, trailing-space, cr-at-eol
+	whitespace = fix,trailing-space,space-before-tab,cr-at-eol
 	editor = /usr/bin/vim
 	excludesfile = ~/.gitignore
 
 [apply]
     whitespace = fix
+[advice]
+	pushNonFastForward = false
+	statusHints = false
+[diff]
+	renames = copies
+	mnemonicprefix = true
+[branch]
+	autosetupmerge = true
+[push]
+	default = tracking
+[rerere]
+	enabled = true
+[merge]
+	stat = true

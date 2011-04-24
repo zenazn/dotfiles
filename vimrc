@@ -15,7 +15,6 @@ set wildmode=list:longest
 
 " Indentation and such
 set autoindent
-set smartindent
 set tabstop=4
 set shiftwidth=4
 set smarttab
@@ -38,6 +37,13 @@ set magic
 set ignorecase
 set infercase
 set smartcase
+
+" Hidden buffers
+set hidden
+
+" Try to keep backups and .swp files out of the working directory
+set directory=~/.tmp//,/tmp//,.
+set backupdir=~/.tmp//,/tmp//,.
 
 " Backspacing
 set backspace=indent,eol,start
@@ -70,6 +76,8 @@ au InsertLeave * match ExtraWhiteSpace /\s\+$/
 " Argh Python comments
 au! FileType python setl nosmartindent
 
+set background=light
+
 " Are we running in a gui?
 if has("gui_running")
     " No toolbar, left scrollbar, or menubar
@@ -77,7 +85,8 @@ if has("gui_running")
     set go-=L
     set go-=m
     " Awesome colorscheme
-    colorscheme ir_black
+    set background=dark
+    colorscheme solarized
     " Antialiasing
     set anti
     set columns=120
