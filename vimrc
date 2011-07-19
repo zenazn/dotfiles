@@ -15,7 +15,9 @@ set wildmode=list:longest
 
 " Indentation and such
 set autoindent
+set cindent
 set tabstop=4
+set softtabstop=4
 set shiftwidth=4
 set smarttab
 set expandtab
@@ -40,6 +42,11 @@ set smartcase
 
 " Hidden buffers
 set hidden
+
+" Ctags
+set tags=tags;/
+nnoremap <leader>d <C-w>}
+nnoremap <leader>z <C-w>z
 
 " Try to keep backups and .swp files out of the working directory
 set directory=~/.tmp//,/tmp//,.
