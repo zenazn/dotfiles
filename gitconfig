@@ -1,70 +1,70 @@
 [user]
-	name = Carl Jackson
-	email = carl@avtok.com
+  name = Carl Jackson
+  email = carl@avtok.com
 
 [alias]
-    a = add
-    ama = commit -a --amend -CHEAD
-    br = branch
-    co = checkout
-    cp = cherry-pick
-    cpx = cherry-pick -x
-    d = diff
-    dc = diff --cached
-    l = log
-    mkbr = "!f() { git checkout -b $1 origin; }; f"
-    p = pull
-    pop = stash pop
-    s = status
-    st = stash
-    stat = diff --stat
-    w = whatchanged
-    wip = !git add -A && git commit -m "wip"
-    up = pull --rebase
+  a = add
+  ama = commit -a --amend -CHEAD
+  br = branch
+  co = checkout
+  cp = cherry-pick
+  cpx = cherry-pick -x
+  d = diff
+  dc = diff --cached
+  l = log
+  mkbr = "!f() { git checkout -b $1 origin; }; f"
+  p = pull
+  pop = stash pop
+  s = status
+  st = stash
+  stat = diff --stat
+  w = whatchanged
+  wip = !git add -A && git commit -m "wip"
+  up = pull --rebase
 
 [color]
-    diff = auto
-    status = auto
-    branch = auto
-    interactive = auto
-    ui = auto
-    pager = true
+  diff = auto
+  status = auto
+  branch = auto
+  interactive = auto
+  ui = auto
+  pager = true
 
 [color "branch"]
-    current = yellow reverse
-    local = yellow
-    remote = green
+  current = yellow reverse
+  local = yellow
+  remote = green
 
 [color "diff"]
-    meta = yellow bold
-    frag = magenta bold
-    old = red bold
-    new = green bold
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
 
 [color "status"]
-    added = yellow
-    changed = green
-    untracked = cyan
+  added = yellow
+  changed = green
+  untracked = cyan
 
 [core]
-    pager = less -FRS
-	whitespace = fix,trailing-space,space-before-tab,cr-at-eol
-	editor = /usr/bin/vim
-	excludesfile = ~/.gitignore
+  pager = less -FRS
+  whitespace = fix,trailing-space,space-before-tab,cr-at-eol
+  editor = /usr/bin/vim
+  excludesfile = ~/.gitignore
 
 [apply]
-    whitespace = fix
+  whitespace = fix
 [advice]
-	pushNonFastForward = false
-	statusHints = false
+  pushNonFastForward = false
+  statusHints = false
 [diff]
-	renames = copies
-	mnemonicprefix = true
+  renames = copies
+  mnemonicprefix = true
 [branch]
-	autosetupmerge = true
+  autosetupmerge = true
 [push]
-	default = tracking
+  default = tracking
 [rerere]
-	enabled = true
+  enabled = true
 [merge]
-	stat = true
+  stat = true
