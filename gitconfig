@@ -4,17 +4,14 @@
 
 [alias]
     a = add
-    aa = add -A
     ama = commit -a --amend -CHEAD
-    au = add -u .
     br = branch
     co = checkout
-    cp = cherry-pick -x
+    cp = cherry-pick
+    cpx = cherry-pick -x
     d = diff
     dc = diff --cached
-    f = fetch
     l = log
-    last = diff HEAD^
     mkbr = "!f() { git checkout -b $1 origin; }; f"
     p = pull
     pop = stash pop
