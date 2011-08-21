@@ -23,6 +23,7 @@
     stat = diff --stat
     w = whatchanged
     wip = !git add -A && git commit -m "wip"
+    up = pull --rebase
 
 [color]
     diff = auto
