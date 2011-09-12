@@ -70,9 +70,6 @@ nmap <leader>m :NERDTreeToggle<CR>
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
-" Yankring
-let g:yankring_history_dir = "$HOME/.vim"
-
 " Trailing whitespace
 highlight ExtraWhitespace ctermbg=red guibg=red
 au ColorScheme * highlight ExtraWhitespace guibg=red
