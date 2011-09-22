@@ -6,7 +6,7 @@ filetype off
 call pathogen#runtime_append_all_bundles()
 
 " Syntax highlighting
-syntax on
+syntax enable
 filetype plugin indent on
 
 " Autocompletion
