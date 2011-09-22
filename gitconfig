@@ -13,7 +13,7 @@
   d = diff
   dc = diff --cached
   l = log
-  mkbr = "!f() { git checkout -b $1 origin; }; f"
+  mkbr = "!f() { git checkout -b $1 origin/master; }; f"
   p = pull
   pop = stash pop
   review = push origin HEAD:refs/for/master
