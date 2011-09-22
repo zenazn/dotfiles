@@ -67,7 +67,7 @@ nnoremap ` '
 let mapleader = ','
 
 " NERDTree options
-let NERDTreeIgnore = ['\.pyc$', '\.swp$']
+let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.cmi$', '\.cmo$']
 nmap <leader>m :NERDTreeToggle<CR>
 
 " Basic skeleton files
