@@ -1,5 +1,3 @@
-let g:tex_flavor = "latex"
-
 nmap <buffer> <C-T> :!pdflatex "%:p"<CR>
 
 if has("unix")

@@ -22,6 +22,8 @@ set shiftwidth=2
 set smarttab
 set expandtab
 
+autocmd BufNewFile,BufRead *.tex set ft=tex
+
 " Show matching brace
 set showmatch
 
