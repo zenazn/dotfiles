@@ -5,24 +5,25 @@ set nocompatible
 filetype off
 call pathogen#runtime_append_all_bundles()
 
+" Fix filetype detection
+autocmd BufNewFile,BufRead *.tex set ft=tex
+
 " Syntax highlighting
 syntax enable
-filetype plugin indent on
 
 " Autocompletion
 set wildmenu
 set wildmode=list:longest
 
 " Indentation and such
+" Most things should be handled by the filetype plugin
+filetype plugin indent on
 set autoindent
-set cindent
 set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set smarttab
 set expandtab
-
-autocmd BufNewFile,BufRead *.tex set ft=tex
 
 " Show matching brace
 set showmatch
