@@ -87,10 +87,11 @@ set background=light
 
 " Are we running in a gui?
 if has("gui_running")
-    " No toolbar, left scrollbar, or menubar
-    set go-=T
-    set go-=L
-    set go-=m
+    " No toolbar, right scrollbar, left scrollbar, or menubar
+    set guioptions-=T
+    set guioptions-=r
+    set guioptions-=L
+    set guioptions-=m
     " Awesome colorscheme
     set background=dark
     colorscheme solarized
