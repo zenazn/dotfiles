@@ -15,6 +15,9 @@ filetype plugin indent on
 " Autocompletion
 set wildmenu
 set wildmode=list:longest
+set wildignore+=.hg,.git,.svn " Version control
+"set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
+set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx " Various compiled formats
 
 " Indentation and such
 set autoindent
@@ -67,8 +70,8 @@ nnoremap ` '
 let mapleader = ','
 
 " NERDTree options
-let NERDTreeIgnore = ['\.pyc$', '\.swp$', '\.cmi$', '\.cmo$']
 nmap <leader>m :NERDTreeToggle<CR>
+let NERDTreeIgnore = ['\.vim$']
 
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
