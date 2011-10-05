@@ -28,7 +28,7 @@ set tabstop=2
 set showmatch
 
 " Visual bells
-set vb t_vb=
+set visualbell
 
 " Always show ruler
 set ruler
