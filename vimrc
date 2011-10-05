@@ -10,20 +10,19 @@ autocmd BufNewFile,BufRead *.tex set ft=tex
 
 " Syntax highlighting
 syntax enable
+filetype plugin indent on
 
 " Autocompletion
 set wildmenu
 set wildmode=list:longest
 
 " Indentation and such
-" Most things should be handled by the filetype plugin
-filetype plugin indent on
 set autoindent
-set tabstop=2
-set softtabstop=2
+set expandtab
 set shiftwidth=2
 set smarttab
-set expandtab
+set softtabstop=2
+set tabstop=2
 
 " Show matching brace
 set showmatch
@@ -38,13 +37,14 @@ set title
 " Search stuff
 set nohlsearch
 set incsearch
-set magic
 set ignorecase
-set infercase
 set smartcase
 
 " Hidden buffers
 set hidden
+
+" Automatically load changed buffers
+set autoread
 
 " Ctags
 set tags=tags;/
@@ -79,9 +79,6 @@ au ColorScheme * highlight ExtraWhitespace guibg=red
 au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
-
-" Argh Python comments
-au! FileType python setl nosmartindent
 
 set background=light
 
