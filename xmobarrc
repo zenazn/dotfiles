@@ -1,0 +1,16 @@
+Config
+  { font = "-misc-fixed-*-*-*-*-10-*-*-*-*-*-*-*"
+  , bgColor = "black"
+  , fgColor = "grey"
+  , position = Top
+  , lowerOnStart = True
+  , commands =
+    [ Run Network "wlan0" ["-L", "64", "-H", "256", "--normal", "green", "--high", "red"] 10
+    , Run Cpu ["-L", "10", "-H", "50", "--normal", "green", "--high", "red"] 10
+    , Run Memory ["-t", "Mem: <usedratio>%"] 10
+    , Run Battery ["-L", "20", "-H", "50", "--low", "red", "--normal", "yellow", "--high", "green", "-t", "<left> [<leftbar>]"] 10
+    , Run Date "%a %b %_d %Y %H:%M:%S" "date" 10
+    , Run StdinReader
+    ]
+  , template = "%StdinReader% }{ %cpu% | %memory% | %wlan0% | %battery% <fc=yellow>%date%</fc>"
+  }
