@@ -27,6 +27,10 @@ set smarttab
 set softtabstop=2
 set tabstop=2
 
+" Reformatting
+nnoremap Q gq
+vnoremap Q gq
+
 " Show matching brace
 set showmatch
 
