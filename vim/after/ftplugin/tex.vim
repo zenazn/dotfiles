@@ -10,7 +10,9 @@ if has("unix")
 endif
 
 
-set spell
+setlocal spell
 
 " Hard-wrap
 setlocal tw=100
+setlocal sw=4
+setlocal ts=4
