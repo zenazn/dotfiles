@@ -18,7 +18,7 @@
   pop = stash pop
   review = push origin HEAD:refs/for/master
   s = status
-  st = stash
+  st = stash --include-untracked
   stat = diff --stat
   w = whatchanged
   wip = !git add -A && git commit -m "wip"
