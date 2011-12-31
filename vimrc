@@ -65,9 +65,6 @@ set backupdir=~/.tmp//,/tmp//,.
 " Backspacing
 set backspace=indent,eol,start
 
-" Did you forget to sudo?
-cmap w!! w !sudo tee % >/dev/null
-
 " Useful (re)maps
 nnoremap ' `
 nnoremap ` '
@@ -75,7 +72,6 @@ let mapleader = ','
 
 " NERDTree options
 nmap <leader>m :NERDTreeToggle<CR>
-let NERDTreeIgnore = ['\.vim$']
 
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
