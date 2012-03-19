@@ -69,6 +69,7 @@ set backspace=indent,eol,start
 nnoremap ' `
 nnoremap ` '
 let mapleader = ','
+nnoremap Y y$
 
 " NERDTree options
 nmap <leader>m :NERDTreeToggle<CR>
