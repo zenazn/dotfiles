@@ -19,5 +19,5 @@ alias fingerprint='ssh-keygen -lF'
 alias H="cd $HOME/Dropbox/Harvard"
 alias ll='ls -alF'
 alias texclean='rm *.aux *.log'
-alias v='vim'
+alias v='vim -O'
 alias g='git'
