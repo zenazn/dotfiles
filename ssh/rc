@@ -1,2 +1,6 @@
+#!/bin/bash
+
 # If we are SSH agent forwarding, symlink it so screen can pick it up
-test $SSH_AUTH_SOCK && ln -sf "$SSH_AUTH_SOCK" "$HOME/.authsock"
+if [ -n "$SSH_AUTH_SOCK" ]; then
+  ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/authsock"
+fi

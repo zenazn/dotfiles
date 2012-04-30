@@ -2,7 +2,7 @@
 shell -$SHELL
 
 # For ssh-agent / screen support
-setenv SSH_AUTH_SOCK "$HOME/.authsock"
+setenv SSH_AUTH_SOCK "$HOME/.ssh/authsock"
 
 # Alternate buffer for vim and things to emulate default bash behavior
 altscreen on
