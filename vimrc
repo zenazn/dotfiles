@@ -31,9 +31,6 @@ set tabstop=2
 nnoremap Q gq
 vnoremap Q gq
 
-" Make Y work in a sane way
-map Y y$
-
 " Show matching brace
 set showmatch
 
