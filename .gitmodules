@@ -28,3 +28,9 @@
 [submodule "vim/bundle/markdown"]
 	path = vim/bundle/markdown
 	url = https://github.com/plasticboy/vim-markdown.git
+[submodule "vim/bundle/command-t"]
+	path = vim/bundle/command-t
+	url = git://git.wincent.com/command-t.git
+[submodule "vim/bundle/css3"]
+	path = vim/bundle/css3
+	url = https://github.com/hail2u/vim-css3-syntax.git
