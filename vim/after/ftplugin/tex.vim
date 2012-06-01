@@ -13,6 +13,6 @@ endif
 setlocal spell
 
 " Hard-wrap
-setlocal tw=100
+setlocal tw=80
 setlocal sw=4
 setlocal ts=4
