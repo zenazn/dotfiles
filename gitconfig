@@ -1,11 +1,10 @@
 [user]
-  name = Carl Jackson
-  email = carl@avtok.com
+	name = Carl Jackson
+	email = carl@avtok.com
 
 [alias]
-  a = add
-  aa = add -A
   ama = commit --amend -CHEAD
+  amend = commit --amend
   br = branch
   co = checkout
   cp = cherry-pick
@@ -14,15 +13,15 @@
   dc = diff --cached
   l = log
   mkbr = "!f() { git checkout -b $1 origin/master; }; f"
-  p = pull
   pop = stash pop
+  pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
   review = push origin HEAD:refs/for/master
   s = status
   st = stash --include-untracked
   stat = diff --stat
+  up = pull --rebase
   w = whatchanged
   wip = !git add -A && git commit -m "wip"
-  up = pull --rebase
 
 [color]
   diff = auto
