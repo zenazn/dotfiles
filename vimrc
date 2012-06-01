@@ -55,8 +55,6 @@ set autoread
 
 " Ctags
 set tags=tags;/
-nnoremap <leader>d <C-w>}
-nnoremap <leader>z <C-w>z
 
 " Try to keep backups and .swp files out of the working directory
 set directory=~/.tmp//,/tmp//,.
@@ -68,11 +66,27 @@ set backspace=indent,eol,start
 " Useful (re)maps
 nnoremap ' `
 nnoremap ` '
-let mapleader = ','
 nnoremap Y y$
 
-" NERDTree options
-nmap <leader>m :NERDTreeToggle<CR>
+" Leader maps
+let mapleader = ','
+
+nmap <leader>gb :Gblame<CR>
+nmap <leader>ge :Gedit<CR>
+nmap <leader>gc :Gcommit<CR>
+nmap <leader>gd :Gdiff<CR>
+nmap <leader>gg :Ggrep<Space>
+nmap <leader>gs :Gstatus<CR>
+nmap <leader>gw :Gbrowse<CR>
+vmap <leader>gw :Gbrowse<CR>
+nmap <leader>gl :Glog<CR><CR><CR>:copen<CR>
+
+nmap <leader>cc :cclose<CR>
+nmap <leader>co :copen<CR>
+
+nmap <leader>m  :NERDTreeToggle<CR>
+
+nmap <leader>z  :pclose<CR>
 
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
