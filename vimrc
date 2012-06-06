@@ -16,6 +16,7 @@ filetype plugin indent on
 set wildmenu
 set wildmode=list:longest
 set wildignore+=.hg,.git,.svn " Version control
+set wildignore+=tags " ctags
 "set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
 set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx " Various compiled formats
 
@@ -52,9 +53,6 @@ set hidden
 
 " Automatically load changed buffers
 set autoread
-
-" Ctags
-set tags=tags;/
 
 " Try to keep backups and .swp files out of the working directory
 set directory=~/.tmp//,/tmp//,.
