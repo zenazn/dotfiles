@@ -82,7 +82,12 @@ nmap <leader>gl :Glog<CR><CR><CR>:copen<CR>
 nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
 
-nmap <leader>m  :NERDTreeToggle<CR>
+nmap <leader>s  :sp<CR>
+nmap <leader>v  :vsp<CR>
+
+nmap <leader><Space> :NERDTreeToggle<CR>
+
+nmap <leader>m  :make<CR>
 
 nmap <leader>z  :pclose<CR>
 
