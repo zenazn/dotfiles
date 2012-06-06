@@ -3,7 +3,7 @@ set nocompatible
 
 " Load pathogen
 filetype off
-call pathogen#runtime_append_all_bundles()
+call pathogen#infect()
 
 " Fix filetype detection
 autocmd BufNewFile,BufRead *.tex set ft=tex
