@@ -98,7 +98,10 @@ au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
-set background=light
+" Colors!
+set t_Co=256
+set background=dark
+colorscheme solarized
 
 " Are we running in a gui?
 if has("gui_running")
@@ -107,9 +110,6 @@ if has("gui_running")
   set guioptions-=r
   set guioptions-=L
   set guioptions-=m
-  " Awesome colorscheme
-  set background=dark
-  colorscheme solarized
   " Antialiasing
   set anti
   set columns=120
