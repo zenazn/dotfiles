@@ -94,17 +94,17 @@ nmap <leader>z  :pclose<CR>
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
+" Colors!
+set t_Co=256
+set background=dark
+colorscheme solarized
+
 " Trailing whitespace
 highlight ExtraWhitespace ctermbg=red guibg=red
 au ColorScheme * highlight ExtraWhitespace guibg=red
 au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
-
-" Colors!
-set t_Co=256
-set background=dark
-colorscheme solarized
 
 " Are we running in a gui?
 if has("gui_running")
