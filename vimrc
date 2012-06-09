@@ -13,6 +13,27 @@ autocmd BufNewFile,BufRead *.json set ft=javascript
 syntax enable
 filetype plugin indent on
 
+" Display
+set ruler
+set title
+set showcmd
+set showmode
+set showmatch
+
+" Indentation
+set autoindent
+set expandtab
+set shiftwidth=2
+set smarttab
+set softtabstop=2
+set tabstop=2
+
+" Search
+set nohlsearch
+set incsearch
+set ignorecase
+set smartcase
+
 " Autocompletion
 set wildmenu
 set wildmode=list:longest
@@ -21,51 +42,55 @@ set wildignore+=tags " ctags
 "set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
 set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx " Various compiled formats
 
-" Indentation and such
-set autoindent
-set expandtab
-set shiftwidth=2
-set smarttab
-set softtabstop=2
-set tabstop=2
-
-" Reformatting
-nnoremap Q gq
-vnoremap Q gq
-
-" Show matching brace
-set showmatch
-
-" Visual bells
+" Other behaviors
+set autoread
+set backspace=indent,eol,start
+set hidden
+set nofoldenable
 set visualbell
 
-" Always show ruler
-set ruler
-set title
+fu! SingleQuote(str)
+  return "'" . substitute(copy(a:str), "'", "''", 'g') . "'"
+endfu
+fu! Cabbrev(key, value)
+  exe printf('cabbrev <expr> %s (getcmdtype() == ":" && getcmdpos() <= %d) ? %s : %s',
+    \ a:key, 1+len(a:key), SingleQuote(a:value), SingleQuote(a:key))
+endfu
 
-" Search stuff
-set nohlsearch
-set incsearch
-set ignorecase
-set smartcase
-
-" Hidden buffers
-set hidden
-
-" Automatically load changed buffers
-set autoread
+" ctags / cscope
+set tags=tags;/
+if has("cscope")
+  set cscopetagorder=1
+  set cscopetag
+  " Try to load databases
+  set nocscopeverbose
+  if filereadable("cscope.out")
+    cs add cscope.out
+  elseif $CSCOPE_DB != ""
+    cs add $CSCOPE_DB
+  endif
+  set cscopeverbose
+else
+  " Use tjump
+  call Cabbrev('tag', 'tjump')
+  nnoremap <C-]> g<C-]>
+  vnoremap <C-]> g<C-]>
+  nnoremap <C-w>] <C-w>g<C-]>
+end
 
 " Try to keep backups and .swp files out of the working directory
 set directory=~/.tmp//,/tmp//,.
 set backupdir=~/.tmp//,/tmp//,.
 
-" Backspacing
-set backspace=indent,eol,start
+" Keep more data
+set history=50
+set undolevels=1000
 
 " Useful (re)maps
 nnoremap ' `
 nnoremap ` '
 nnoremap Y y$
+map Q gq
 
 " Leader maps
 let mapleader = ','
@@ -82,6 +107,7 @@ nmap <leader>gl :Glog<CR><CR><CR>:copen<CR>
 
 nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
+nmap <leader>z  :pclose<CR>
 
 nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
@@ -90,10 +116,13 @@ nmap <leader><Space> :NERDTreeToggle<CR>
 
 nmap <leader>m  :make<CR>
 
-nmap <leader>z  :pclose<CR>
+vmap <leader>s  :!sort<CR>
 
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
+
+" Open NERDTree if we don't open any files
+au vimenter * if !argc() | NERDTree | endif
 
 " Colors!
 set t_Co=256
