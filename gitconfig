@@ -1,6 +1,6 @@
 [user]
-	name = Carl Jackson
-	email = carl@avtok.com
+  name = Carl Jackson
+  email = carl@avtok.com
 
 [alias]
   ama = commit --amend -CHEAD
