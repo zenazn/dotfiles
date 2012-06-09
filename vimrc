@@ -7,6 +7,7 @@ call pathogen#infect()
 
 " Fix filetype detection
 autocmd BufNewFile,BufRead *.tex set ft=tex
+autocmd BufNewFile,BufRead *.json set ft=javascript
 
 " Syntax highlighting
 syntax enable
