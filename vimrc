@@ -36,7 +36,7 @@ set wildmode=list:longest
 set wildignore+=.hg,.git,.svn " Version control
 set wildignore+=tags " ctags
 "set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
-set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx " Various compiled formats
+set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx,*.lo,*.la " Various compiled formats
 
 " Other behaviors
 set autoread
