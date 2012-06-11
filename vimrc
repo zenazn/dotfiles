@@ -117,9 +117,6 @@ vmap <leader>s  :!sort<CR>
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
-" Open NERDTree if we don't open any files
-au vimenter * if !argc() | NERDTree | endif
-
 " Colors!
 set t_Co=256
 set background=dark
