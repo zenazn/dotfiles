@@ -105,8 +105,10 @@ nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
 nmap <leader>z  :pclose<CR>
 
+" Dunno how I feel about these...
 nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
+nmap <leader>q  :q<CR>
 
 nmap <leader><Space> :NERDTreeToggle<CR>
 
