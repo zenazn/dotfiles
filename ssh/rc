@@ -3,4 +3,5 @@
 # If we are SSH agent forwarding, symlink it so screen can pick it up
 if [ -n "$SSH_AUTH_SOCK" ]; then
   ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/authsock"
+  export SSH_AUTH_SOCK="$HOME/.ssh/authsock"
 fi
