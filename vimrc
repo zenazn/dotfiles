@@ -116,6 +116,8 @@ nmap <leader>m  :make<CR>
 
 vmap <leader>s  :!sort<CR>
 
+nmap <leader><leader>  :confirm w<CR>
+
 " Basic skeleton files
 autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
