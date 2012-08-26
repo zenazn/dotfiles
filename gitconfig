@@ -15,9 +15,11 @@
   mkbr = "!f() { git checkout -b $1 origin/master; }; f"
   pop = stash pop
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
+  rb = "!f() { git checkout --no-track -b $1 origin/master; git branch --set-upstream origin $1; }; f"
   review = push origin HEAD:refs/for/master
   s = status
   st = stash --include-untracked
+  sup = !git stash && git pull --rebase && git stash pop
   stat = diff --stat
   up = pull --rebase
   w = whatchanged
