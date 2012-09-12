@@ -37,3 +37,6 @@
 [submodule "vim/bundle/ruby"]
 	path = vim/bundle/ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
+[submodule "vim/bundle/coq"]
+	path = vim/bundle/coq
+	url = https://github.com/jvoorhis/coq.vim.git
