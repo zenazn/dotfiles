@@ -10,6 +10,7 @@ syntax enable
 filetype plugin indent on
 
 " Display
+set encoding=utf-8
 set ruler
 set title
 set showcmd
@@ -23,6 +24,7 @@ set shiftwidth=2
 set smarttab
 set softtabstop=2
 set tabstop=2
+set shiftround
 
 " Search
 set nohlsearch
@@ -35,8 +37,11 @@ set wildmenu
 set wildmode=list:longest
 set wildignore+=.hg,.git,.svn " Version control
 set wildignore+=tags " ctags
+set wildignore+=*.aux,*.out,*.toc " LaTeX
 "set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
-set wildignore+=*.o,*.pyc,*.aux,*.cmi,*.cmo,*.cmx,*.lo,*.la " Various compiled formats
+set wildignore+=*.o,*.lo,*.la " C
+set wildignore+=*.pyc,*.cmi,*.cmo,*.cmx " Python and OCaml
+set completeopt=longest,menu,preview
 
 " Other behaviors
 set autoread
@@ -44,6 +49,15 @@ set backspace=indent,eol,start
 set hidden
 set nofoldenable
 set visualbell
+set ttyfast
+set colorcolumn=+1
+set formatoptions=tcqn
+set textwidth=80
+
+" NERDTree
+let g:NERDTreeMinimalUI = 1
+let g:NERDTreeMapHelp = '`'
+
 
 fu! SingleQuote(str)
   return "'" . substitute(copy(a:str), "'", "''", 'g') . "'"
