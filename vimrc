@@ -50,14 +50,12 @@ set hidden
 set nofoldenable
 set visualbell
 set ttyfast
-set colorcolumn=+1
 set formatoptions=tcqn
 set textwidth=80
 
 " NERDTree
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeMapHelp = '`'
-
 
 fu! SingleQuote(str)
   return "'" . substitute(copy(a:str), "'", "''", 'g') . "'"
