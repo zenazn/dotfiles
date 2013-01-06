@@ -34,3 +34,6 @@
 [submodule "vim/bundle/ruby"]
 	path = vim/bundle/ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
+[submodule "vim/bundle/rust"]
+	path = vim/bundle/rust
+	url = git://github.com/bryanjswift/vim-rust.git
