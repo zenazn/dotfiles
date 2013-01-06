@@ -43,6 +43,8 @@ set wildignore+=*.o,*.lo,*.la " C
 set wildignore+=*.pyc,*.cmi,*.cmo,*.cmx " Python and OCaml
 set completeopt=longest,menu,preview
 
+let NERDTreeIgnore = ['\.o']
+
 " Other behaviors
 set autoread
 set backspace=indent,eol,start
