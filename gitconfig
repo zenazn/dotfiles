@@ -5,6 +5,7 @@
 [alias]
   ama = commit --amend -CHEAD
   amend = commit --amend
+  au = add -u
   br = branch
   co = checkout
   cp = cherry-pick
