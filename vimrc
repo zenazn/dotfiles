@@ -20,11 +20,14 @@ set showmatch
 " Indentation
 set autoindent
 set expandtab
+set shiftround
 set shiftwidth=2
 set smarttab
 set softtabstop=2
 set tabstop=2
-set shiftround
+
+set list!
+set listchars=tab:>-
 
 " Search
 set nohlsearch
