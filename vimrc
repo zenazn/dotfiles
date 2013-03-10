@@ -1,4 +1,3 @@
-" Don't emulate vi bugs
 set nocompatible
 
 " Load pathogen
@@ -46,17 +45,17 @@ set wildignore+=*.o,*.lo,*.la " C
 set wildignore+=*.pyc,*.cmi,*.cmo,*.cmx " Python and OCaml
 set completeopt=longest,menu,preview
 
-let NERDTreeIgnore = ['\.o']
+let NERDTreeIgnore = ['\.o', '\.bc']
 
 " Other behaviors
 set autoread
 set backspace=indent,eol,start
+set formatoptions=tcqnl
 set hidden
 set nofoldenable
-set visualbell
-set ttyfast
-set formatoptions=tcqn
 set textwidth=80
+set ttyfast
+set visualbell
 
 " NERDTree
 let g:NERDTreeMinimalUI = 1
@@ -122,7 +121,6 @@ nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
 nmap <leader>z  :pclose<CR>
 
-" Dunno how I feel about these...
 nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
 nmap <leader>q  :q<CR>
@@ -130,8 +128,6 @@ nmap <leader>q  :q<CR>
 nmap <leader><Space> :NERDTreeToggle<CR>
 
 nmap <leader>m  :make<CR>
-
-vmap <leader>s  :!sort<CR>
 
 nmap <leader><leader>  :confirm w<CR>
 
