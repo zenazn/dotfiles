@@ -37,6 +37,3 @@
 [submodule "vim/bundle/rust"]
 	path = vim/bundle/rust
 	url = git://github.com/bryanjswift/vim-rust.git
-[submodule "vim/bundle/multiple-cursors"]
-	path = vim/bundle/multiple-cursors
-	url = git@github.com:terryma/vim-multiple-cursors.git
