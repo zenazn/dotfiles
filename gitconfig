@@ -72,3 +72,4 @@
   enabled = true
 [merge]
   stat = true
+  conflictstyle = diff3
