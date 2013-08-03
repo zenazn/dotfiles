@@ -19,7 +19,7 @@ function _prompt_command {
   git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ "$?" = "0" ]; then
     printf "\033[33m[$git_branch"
-    if ! git diff-index --quiet HEAD; then
+    if ! git diff --quiet HEAD; then
       printf " \033[31;1m*\033[0;33m] "
     else
       printf "] "
