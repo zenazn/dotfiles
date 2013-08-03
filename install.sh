@@ -74,6 +74,13 @@ function is_server {
   return 0
 }
 
+if ! git config --get-regexp submodule* > /dev/null; then
+  if ask "Initialize submodules?"; then
+    git submodule init
+    git submodule update
+  fi
+fi
+
 # Vroom vroom!
 install_dot "bash_aliases"
 install_dot "gitconfig"
