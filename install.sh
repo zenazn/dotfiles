@@ -34,6 +34,21 @@ function install_dot {
   install "$1" ".$1"
 }
 
+function ask {
+  local question="$1" default_y="$2" yn
+  if [ -z "$default_y" ]; then
+    read -p "$question (y/N)? "
+  else
+    read -p "$question (Y/n)? "
+  fi
+  yn=$(echo "$REPLY" | tr "A-Z" "a-z")
+  if [ -z "$default_y" ]; then
+    test $yn == 'y' -o $yn == 'yes'
+  else
+    test $yn == 'n' -o $yn == 'no'
+  fi
+}
+
 # Run the given command under a me-only umask. Useful for atomically creating
 # sensitive files and directories.
 function umask_mine {
@@ -96,9 +111,7 @@ if is_server; then
   # Prompt to install SSH keys, but only on servers
   for host in $(ls ssh/keys); do
     if grep -is "carl@$host" "$HOME/.ssh/authorized_keys"; then
-      read -p "Key carl@$host not in authorized_keys. Add (y/n)? "
-      if [ $REPLY == 'y' -o $REPLY == 'yes' ]
-      then
+      if ask "Can I add carl@$host to authorized_keys?"; then
         cat "ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
       fi
     fi
