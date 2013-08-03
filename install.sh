@@ -3,6 +3,7 @@
 ROOT=$(cd "$(dirname "$0")" && pwd)
 
 function green { printf "\033[32m$1\033[0m\n"; }
+function yellow { printf "\033[33m$1\033[0m\n"; }
 function red { printf "\033[31m$1\033[0m\n"; }
 
 # Install a file or directory to a given path by symlinking it, printing nice
@@ -10,7 +11,7 @@ function red { printf "\033[31m$1\033[0m\n"; }
 function install {
   local from="$1" to="$2" from_="$ROOT/$1" to_="$HOME/$2"
   if [ ! -e "$to_" ]; then
-    green "Linking ~/$to => $from"
+    yellow "Linking ~/$to => $from"
 
     if [ -d "$from_" ]; then
       ln -s "$from_/" "$to_"
