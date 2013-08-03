@@ -29,4 +29,4 @@ function _prompt_command {
 
 [ -f "$HOME/.bash_aliases" ] && source "$HOME/.bash_aliases"
 [ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
-[ -d "$HOME/.profile.d/" ] && source "$HOME/.profile.d/*"
+[ -d "$HOME/.profile.d/" ] && source "$HOME"/.profile.d/*
