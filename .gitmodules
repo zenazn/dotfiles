@@ -37,3 +37,9 @@
 [submodule "vim/bundle/rust"]
 	path = vim/bundle/rust
 	url = git://github.com/bryanjswift/vim-rust.git
+[submodule "vim/bundle/golang"]
+	path = vim/bundle/golang
+	url = git@github.com:jnwhiteh/vim-golang.git
+[submodule "vim/bundle/gocode"]
+	path = vim/bundle/gocode
+	url = https://github.com/Blackrush/vim-gocode
