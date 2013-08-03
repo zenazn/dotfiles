@@ -83,6 +83,10 @@ install_dot "tmux.conf"
 install_dot "vim"
 install_dot "vimrc"
 
+mkdir "$HOME/.profile.d"
+install_dot "profile"
+install_dot "profile.d/jump"
+
 if ! is_server; then
   install_dot "gvimrc"
 

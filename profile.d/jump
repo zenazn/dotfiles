@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Jump!
+# Usage:
+#
+#     # Add this to your profile
+#     mkjump qq path/to/place/you/want/to/jump <<EOF
+#     any-alias anywhere
+#     have as/many/of/these/as/you/like
+#     EOF
+#
+#     # Try this!
+#     qq direct<Tab>  # Tab complete some subdirectory of the target
+#     qq an<Tab>      # Tab complete the above alias
+#     qq              # Go to the target directory itself
+#
+# I personally use this for jumping to various projects under ~/git
+
+function __jump_table_lookup {
+  local cmd="$1"
+  local search="$2"
+  local aliases="${cmd}_JUMP_ALIASES"
+  local root="${cmd}_JUMP_ROOT"
+
+  echo "${!aliases}" | awk "$search"
+  ls "${!root}" | awk "{ print \$1 \" ${!root}/\" \$1 }" | awk "$search"
+}
+function __jump_target {
+  local cmd="$1"
+  local key="$2"
+
+  if [ -z "$key" ]; then
+    local root="${cmd}_JUMP_ROOT"
+    cd "${!root}"
+  else
+    local target=$(__jump_table_lookup "$cmd" "/^$key / { print \$2 }" | head)
+    if [ -z "$target" ]; then
+      echo "Unknown jump target $key"
+      return 1
+    else
+      cd "$target"
+    fi
+  fi
+}
+function __jump_completion {
+  local cmd="${COMP_WORDS[0]}"
+  local prefix="${COMP_WORDS[COMP_CWORD]}"
+
+  local options=$(__jump_table_lookup "$cmd" "/^$prefix/ { print \$1 }")
+  COMPREPLY=($(compgen -W "$options" -- "$prefix"))
+}
+
+function mkjump {
+  local cmd="$1"
+  local root="$2"
+
+  # Read in a list of aliases from stdin (protip: pass a heredoc)
+  read -r -d '' "${cmd}_JUMP_ALIASES"
+  # And store the jump root as well. We only keep $cmd around
+  eval "${cmd}_JUMP_ROOT='$root'"
+
+  alias $cmd="__jump_target '$cmd'"
+  complete -F __jump_completion "$cmd"
+}
