@@ -1,48 +1,106 @@
 #!/bin/bash
 
-for f in `ls | egrep -v "README|install|ssh"`
-do
-    if [ ! -e $HOME/.$f ]
-    then
-        echo "Linking $f"
-        if [ -d $f ]
-        then
-            ln -s `pwd`/$f/ $HOME/.$f
-        else
-            ln -s `pwd`/$f $HOME/.$f
-        fi
-    else
-        echo "Not linking $f: already exists"
-    fi
-done
+ROOT=$(cd "$(dirname "$0")" && pwd)
 
-# We need to special-case the .ssh folder -- there's often a lot of other stuff
-# in that directory that we don't want to stomp over
-if [ ! -e $HOME/.ssh ]
-then
-    mkdir $HOME/.ssh
-    chmod go-rwx $HOME/.ssh
+function green { printf "\033[32m$1\033[0m\n"; }
+function red { printf "\033[31m$1\033[0m\n"; }
+
+# Install a file or directory to a given path by symlinking it, printing nice
+# things along the way.
+function install {
+  local from="$1" to="$2" from_="$ROOT/$1" to_="$HOME/$2"
+  if [ ! -e "$to_" ]; then
+    echo -n "Linking ~/$to => $from "
+
+    if [ -d "$from_" ]; then
+      ln -s "$from_/" "$to_"
+    else
+      ln -s "$from_" "$to_"
+    fi
+
+    green "[DONE]"
+  else
+    local link
+    link=$(readlink "$to_")
+    if [ "$?" == 0 -a \( "$link" == "$from_" -o "$link" == "$from_/" \) ]; then
+      green "Link ~/$to => $from is already ponies!"
+    else
+      red "Error linking ~/$to to $from: $to already exists!"
+    fi
+  fi
+}
+
+function install_dot {
+  install "$1" ".$1"
+}
+
+# Run the given command under a me-only umask. Useful for atomically creating
+# sensitive files and directories.
+function umask_mine {
+  local old_umask=$(umask) ret
+  "$@"
+  ret="$?"
+  umask "$old_umask"
+  return "$ret"
+}
+
+function is_mac { test "$(uname -s)" == "Darwin"; }
+function is_linux { test "$(uname -s)" == "Linux"; }
+
+# Try to detect if we're on a server or a personal computer.
+function is_server {
+  is_mac && return 1
+  if is_linux; then
+    dpkg -l ubuntu-desktop &>/dev/null && return 1
+    test "$(uname -r)" == *server* && return 0
+    test "$(uname -r)" == *linode* && return 0
+  fi
+
+  red "Couldn't tell if this was a server or desktop, just guessing!"
+  return 0
+}
+
+# Vroom vroom!
+install_dot "bash_aliases"
+install_dot "gitconfig"
+install_dot "screenrc"
+install_dot "tmux.conf"
+install_dot "vim"
+install_dot "vimrc"
+
+if ! is_server; then
+  install_dot "gvimrc"
+
+  if is_linux; then
+    install_dot "Xresources"
+    install_dot "xmobarrc"
+    install_dot "xmonad"
+  fi
 fi
-if [ ! -e $HOME/.ssh/rc ]
-then
-    echo "Linking .ssh/rc"
-    ln -s `pwd`/ssh/rc $HOME/.ssh/rc
+
+# The SSH folder most likely already exists, and in any event we don't want to
+# manage it ourselves. If we are creating it for the first time, however, we
+# should lock down the permissions
+if [ ! -e "$HOME/.ssh" ]; then
+  umask_mine mkdir "$HOME/.ssh"
 fi
+
+install_dot "ssh/rc"
 
 # Add some authorized keys
-if [ ! -e $HOME/.ssh/authorized_keys ]
-then
-    touch $HOME/.ssh/authorized_keys
-    chmod go-rwx $HOME/.ssh/authorized_keys
+if [ ! -e $HOME/.ssh/authorized_keys ]; then
+  umask_mine touch "$HOME/.ssh/authorized_keys"
 fi
-for f in `ls ssh/keys`
-do
-    if [ ! -n "`grep -i carl@$f $HOME/.ssh/authorized_keys`" ]
-    then
-        read -p "Key carl@$f not in authorized_keys. Add (y/n)? "
-        if [ $REPLY == 'y' -o $REPLY == 'yes' ]
-        then
-            cat ssh/keys/$f >> $HOME/.ssh/authorized_keys
-        fi
+
+if is_server; then
+  # Prompt to install SSH keys, but only on servers
+  for host in $(ls ssh/keys); do
+    if grep -is "carl@$host" "$HOME/.ssh/authorized_keys"; then
+      read -p "Key carl@$host not in authorized_keys. Add (y/n)? "
+      if [ $REPLY == 'y' -o $REPLY == 'yes' ]
+      then
+        cat "ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
+      fi
     fi
-done
+  done
+fi
