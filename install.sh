@@ -10,15 +10,13 @@ function red { printf "\033[31m$1\033[0m\n"; }
 function install {
   local from="$1" to="$2" from_="$ROOT/$1" to_="$HOME/$2"
   if [ ! -e "$to_" ]; then
-    echo -n "Linking ~/$to => $from "
+    green "Linking ~/$to => $from"
 
     if [ -d "$from_" ]; then
       ln -s "$from_/" "$to_"
     else
       ln -s "$from_" "$to_"
     fi
-
-    green "[DONE]"
   else
     local link
     link=$(readlink "$to_")
