@@ -27,5 +27,6 @@ function _prompt_command {
   fi
 }
 
-[ -f /usr/local/etc/bash_completion ] && source /usr/local/etc/bash_completion
-[ -d "$HOME/.profile.d/" ] && source "$HOME"/.profile.d/*
+for file in $(ls "$HOME/.profile.d/"); do
+  source "$HOME/.profile.d/$file"
+done
