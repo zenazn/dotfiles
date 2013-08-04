@@ -88,7 +88,6 @@ if ! git config --get-regexp submodule* > /dev/null; then
 fi
 
 # Vroom vroom!
-install_dot "bash_aliases"
 install_dot "gitconfig"
 install_dot "screenrc"
 install_dot "tmux.conf"
@@ -98,6 +97,7 @@ install_dot "vimrc"
 mkdir -p "$HOME/.profile.d"
 install_dot "profile"
 install_dot "profile.d/10-jump"
+install_dot "profile.d/20-aliases"
 
 if ! is_server; then
   install_dot "gvimrc"
