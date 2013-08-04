@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Detect and load bash-completion
+if [ -f /usr/local/etc/bash_completion ]; then
+  source /usr/local/etc/bash_completion
+  HAS_BASH_COMPLETION=1
+elif [ -f /etc/bash_completion ]; then
+  source /etc/bash_completion
+  HAS_BASH_COMPLETION=1
+fi
+
+function bash_complete {
+  [ "$HAS_BASH_COMPLETION" = 1 ] && complete "$@"
+}
