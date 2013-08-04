@@ -97,7 +97,7 @@ install_dot "vimrc"
 
 mkdir -p "$HOME/.profile.d"
 install_dot "profile"
-install_dot "profile.d/01-jump"
+install_dot "profile.d/10-jump"
 
 if ! is_server; then
   install_dot "gvimrc"
