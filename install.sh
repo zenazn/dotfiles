@@ -72,8 +72,8 @@ function is_server {
   is_mac && return 1
   if is_linux; then
     dpkg -l ubuntu-desktop &>/dev/null && return 1
-    test "$(uname -r)" == *server* && return 0
-    test "$(uname -r)" == *linode* && return 0
+    [[ "$(uname -r)" == *server* ]] && return 0
+    [[ "$(uname -r)" == *linode* ]] && return 0
   fi
 
   red "Couldn't tell if this was a server or desktop, just guessing!"
