@@ -10,6 +10,12 @@ function red { printf "\033[31m$1\033[0m\n"; }
 # things along the way.
 function install {
   local from="$1" to="$2" from_="$ROOT/$1" to_="$HOME/$2"
+
+  if [ ! -e "$from_" ]; then
+    red "ERROR: $from doesn't exist! This is an error in $0"
+    return 1
+  fi
+
   if [ ! -e "$to_" ]; then
     yellow "Linking ~/$to => $from"
 
@@ -91,7 +97,7 @@ install_dot "vimrc"
 
 mkdir -p "$HOME/.profile.d"
 install_dot "profile"
-install_dot "profile.d/jump"
+install_dot "profile.d/01-jump"
 
 if ! is_server; then
   install_dot "gvimrc"
