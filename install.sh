@@ -48,9 +48,9 @@ function ask {
   fi
   yn=$(echo "$REPLY" | tr "A-Z" "a-z")
   if [ -z "$default_y" ]; then
-    test $yn == 'y' -o $yn == 'yes'
+    test "$yn" == 'y' -o "$yn" == 'yes'
   else
-    test $yn == 'n' -o $yn == 'no'
+    test "$yn" == 'n' -o "$yn" == 'no'
   fi
 }
 
