@@ -98,6 +98,7 @@ mkdir -p "$HOME/.profile.d"
 install_dot "profile"
 install_dot "profile.d/10-jump"
 install_dot "profile.d/20-aliases"
+is_mac && install_dot "profile.d/30-mac"
 
 if ! is_server; then
   install_dot "gvimrc"

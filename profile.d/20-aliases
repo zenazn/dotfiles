@@ -27,6 +27,3 @@ alias cpr='rsync -v --progress'
 alias ll='ls -alF'
 alias tmux='tmux has &> /dev/null && tmux attach || tmux'
 alias utc="date -u"
-
-# Mac
-alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
