@@ -20,6 +20,9 @@ function _prompt_command {
   if [ "$ret" -ne 0 ]; then
     printf "\033[31m$ret\n"
   fi
+  if [ -n "$NO_DYNAMIC_PROMPT" ]; then
+    return
+  fi
   git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ "$?" = "0" ]; then
     local git_extra
