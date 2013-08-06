@@ -15,7 +15,7 @@ alias g='git'
 alias gs='g s'
 alias gg="git grep"
 alias HEAD="git rev-parse HEAD"
-bash_complete -o default -F _git g
+bash_complete -o default -o nospace -F _git g
 
 # vim
 alias v='vim -O'
