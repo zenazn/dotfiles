@@ -23,18 +23,14 @@ function _prompt_command {
 }
 
 function _prompt_git {
-  local git_branch
   [ -n "$NO_DYNAMIC_PROMPT" ] && return
   [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = 'true' ] || return
 
-  git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
-  if [ "$?" = "0" ]; then
-    local git_extra
-    if ! git diff --quiet HEAD; then
-      git_extra=" \033[31;1m*\033[0;33m"
-    fi
-    printf "\033[33m[$git_branch$git_extra] "
+  local branch=$(git rev-parse --abbrev-ref HEAD) modified
+  if ! git diff --quiet HEAD; then
+    modified=" \033[31;1m*\033[0;33m"
   fi
+  printf "\033[33m[$branch$modified] "
 }
 
 for file in $(ls "$HOME/.profile.d/"); do
