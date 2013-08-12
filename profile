@@ -10,19 +10,23 @@ TITLE="\[\033]0;\u@\h: \w\007\]"
 PROMPT_COMMAND="_prompt_command"
 #PS1="\033[32m\h:\W \u\$\033[0m $TITLE"
 if [ -z "$TERM_PROGRAM" ]; then
-  PS1="\033[35m\u@\h:\w\$\033[0m $TITLE"
+  PS1="\$(_prompt_git)\033[35m\u@\h:\w\$\033[0m $TITLE"
 else
-  PS1="\033[32m\w\$\033[0m $TITLE"
+  PS1="\$(_prompt_git)\033[32m\w\$\033[0m $TITLE"
 fi
 
 function _prompt_command {
-  local ret="$?" git_branch
+  local ret="$?"
   if [ "$ret" -ne 0 ]; then
-    printf "\033[31m$ret\n"
+    printf "\033[31m$ret\033[0m\n"
   fi
-  if [ -n "$NO_DYNAMIC_PROMPT" ]; then
-    return
-  fi
+}
+
+function _prompt_git {
+  local git_branch
+  [ -n "$NO_DYNAMIC_PROMPT" ] && return
+  [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = 'true' ] || return
+
   git_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
   if [ "$?" = "0" ]; then
     local git_extra
