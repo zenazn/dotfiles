@@ -138,8 +138,6 @@ autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
 
 " Colors!
 set t_Co=256
-"set background=dark
-"colorscheme solarized
 
 " Trailing whitespace
 highlight ExtraWhitespace ctermbg=red guibg=red
