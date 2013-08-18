@@ -25,5 +25,4 @@ bash_complete -o default -F _command vimwhich
 # Other aliases
 alias cpr='rsync -v --progress'
 alias ll='ls -alF'
-alias tmux='tmux has &> /dev/null && tmux attach || tmux'
 alias utc="date -u"
