@@ -101,6 +101,7 @@ install_dot "profile.d/10-completion"
 install_dot "profile.d/20-aliases"
 is_mac && install_dot "profile.d/30-mac"
 is_linux && install_dot "profile.d/30-linux"
+install_dot "profile.d/40-golang"
 
 if ! is_server; then
   install_dot "gvimrc"
