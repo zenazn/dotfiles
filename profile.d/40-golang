@@ -2,5 +2,5 @@
 export GOPATH="$HOME/go"
 export PATH="$PATH:$GOPATH/bin"
 
-mkjump gogo "$HOME/go/src/github.com/zenazn" <<EOF
+mkjump gogogo "$HOME/go/src/github.com/zenazn" <<EOF
 EOF
