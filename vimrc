@@ -151,4 +151,6 @@ set grepprg=ack\ -k
 " There's a bug in Vim 7.4 where a YAML file containing a SSH key will
 " essentially hang. This is a workaround
 " http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=719510
-set re=1
+if exists("&regexpengine")
+  set regexpengine=1
+endif
