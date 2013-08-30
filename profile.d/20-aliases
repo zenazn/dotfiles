@@ -4,7 +4,7 @@
 alias fingerprint='ssh-keygen -lF'
 alias murder="ssh -O exit"
 alias avtok='ssh -At avtok.com screen -UxRR'
-alias proxy='ssh -ND 8800 avtok.com'
+alias proxy='ssh -ND 8800 relay'
 
 # gpg
 alias clearsign='gpg --clearsign -a'
