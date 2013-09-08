@@ -18,7 +18,7 @@
 	url = https://github.com/scrooloose/nerdtree.git
 [submodule "vim/bundle/puppet"]
 	path = vim/bundle/puppet
-	url = git@github.com:rodjek/vim-puppet.git
+	url = https://github.com/rodjek/vim-puppet.git
 [submodule "vim/bundle/ruby"]
 	path = vim/bundle/ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
