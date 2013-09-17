@@ -1,8 +1,8 @@
 # Use a login shell
 shell -$SHELL
 
-# Make sure we're using ^A as our escape character
-escape ^aa
+# Use C-z as our escape character
+escape ^zz
 
 # For ssh-agent / screen support
 setenv SSH_AUTH_SOCK "$HOME/.ssh/authsock"
