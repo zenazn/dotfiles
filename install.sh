@@ -58,6 +58,7 @@ function ask {
 # sensitive files and directories.
 function umask_mine {
   local old_umask=$(umask) ret
+  umask 0077
   "$@"
   ret="$?"
   umask "$old_umask"
