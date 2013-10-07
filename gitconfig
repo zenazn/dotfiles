@@ -17,6 +17,7 @@
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
   rb = "!f() { git checkout -b $1 origin/master; git config \"branch.$1.merge\" \"refs/heads/$1\"; }; f"
   s = status
+  sign = commit --amend -CHEAD --gpg-sign
   st = stash --include-untracked
   sup = "!git stash && git pull --rebase && git stash pop"
   up = pull --rebase
