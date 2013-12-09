@@ -3,6 +3,7 @@
 export EDITOR="vim"
 export VISUAL="vim"
 export CLICOLOR="1"
+export HISTSIZE="9000"
 
 export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
