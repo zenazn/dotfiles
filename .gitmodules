@@ -34,3 +34,6 @@
 [submodule "vim/bundle/gocode"]
 	path = vim/bundle/gocode
 	url = https://github.com/Blackrush/vim-gocode.git
+[submodule "vim/bundle/jsx"]
+	path = vim/bundle/jsx
+	url = git@github.com:mxw/vim-jsx.git
