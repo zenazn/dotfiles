@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Jump tables for ~/git
+mkjump t "$HOME/git" <<EOF
+EOF
+
+gh() {
+  local url
+
+  url=$(git config --get remote.origin.url)
+  if [ $? != 0 ]; then
+    exit $?
+  fi
+  if [ "${url:0:15}" == "git@github.com:" ]; then
+    url=${url:15}
+  elif [ "${url:0:19}" == "https://github.com/" ]; then
+    url=${url:19}
+  else
+    echo "What kind of remote URL is $url anyways?"
+    exit 1
+  fi
+  url="https://github.com/${url%.git}"
+  open "$url"
+}
