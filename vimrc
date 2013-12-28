@@ -145,4 +145,17 @@ au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
-set grepprg=ack\ -k
+if executable("ag") == 1
+  set grepprg=ag\ --nogroup\ --nocolor
+elseif executable("ack") == 1
+  set grepprg=ack\ -k
+end
+
+" This speeds up ctrlp *a lot*.
+let g:ctrlp_user_command = {
+  \ 'types': {
+    \ 1: ['.git', 'cd %s && git ls-files . -co --exclude-standard'],
+    \ 2: ['.hg', 'hg --cwd %s locate -I .'],
+    \ },
+  \ 'fallback': 'find %s -type f'
+  \ }
