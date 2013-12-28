@@ -37,3 +37,6 @@
 [submodule "vim/bundle/jsx"]
 	path = vim/bundle/jsx
 	url = git@github.com:mxw/vim-jsx.git
+[submodule "vim/bundle/vinegar"]
+	path = vim/bundle/vinegar
+	url = git@github.com:tpope/vim-vinegar.git
