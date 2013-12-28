@@ -37,7 +37,7 @@ set smartcase
 " Autocompletion
 set wildmenu
 set wildmode=list:longest
-set wildignore+=.hg,.git,.svn " Version control
+set wildignore+=.hg/,.git/,.svn/ " Version control
 set wildignore+=tags " ctags
 set wildignore+=*.aux,*.out,*.toc " LaTeX
 "set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.pdf " Images and PDFs
