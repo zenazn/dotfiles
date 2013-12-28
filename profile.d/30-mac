@@ -5,7 +5,7 @@ alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resourc
 
 # Host completion for mosh (not actually a mac thing, but since I only install
 # it on my macs let's put it here for now)
-if [ which -s mosh ]; then
+if which -s mosh; then
   _mosh() {
       _get_comp_words_by_ref -n : cur prev
     _known_hosts_real -a "$cur"
