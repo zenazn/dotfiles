@@ -45,7 +45,7 @@ set wildignore+=*.o,*.lo,*.la " C
 set wildignore+=*.pyc,*.cmi,*.cmo,*.cmx " Python and OCaml
 set completeopt=longest,menu,preview
 
-let NERDTreeIgnore = ['\.o', '\.bc']
+let NERDTreeIgnore = ['\.o', '\.bc', '\.pyc']
 let NERDTreeHijackNetrw=0
 
 " Other behaviors
