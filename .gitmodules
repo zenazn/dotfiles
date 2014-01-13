@@ -10,12 +10,18 @@
 [submodule "vim/bundle/fugitive"]
 	path = vim/bundle/fugitive
 	url = https://github.com/tpope/vim-fugitive.git
+[submodule "vim/bundle/gocode"]
+	path = vim/bundle/gocode
+	url = https://github.com/Blackrush/vim-gocode.git
 [submodule "vim/bundle/html5"]
 	path = vim/bundle/html5
 	url = https://github.com/othree/html5.vim.git
 [submodule "vim/bundle/javascript"]
 	path = vim/bundle/javascript
 	url = https://github.com/pangloss/vim-javascript.git
+[submodule "vim/bundle/jsx"]
+	path = vim/bundle/jsx
+	url = https://github.com/mxw/vim-jsx.git
 [submodule "vim/bundle/nerdtree"]
 	path = vim/bundle/nerdtree
 	url = https://github.com/scrooloose/nerdtree.git
@@ -28,15 +34,6 @@
 [submodule "vim/bundle/rust"]
 	path = vim/bundle/rust
 	url = https://github.com/bryanjswift/vim-rust.git
-[submodule "vim/bundle/golang"]
-	path = vim/bundle/golang
-	url = https://github.com/jnwhiteh/vim-golang.git
-[submodule "vim/bundle/gocode"]
-	path = vim/bundle/gocode
-	url = https://github.com/Blackrush/vim-gocode.git
-[submodule "vim/bundle/jsx"]
-	path = vim/bundle/jsx
-	url = git@github.com:mxw/vim-jsx.git
 [submodule "vim/bundle/vinegar"]
 	path = vim/bundle/vinegar
-	url = git@github.com:tpope/vim-vinegar.git
+	url = https://github.com/tpope/vim-vinegar.git
