@@ -5,8 +5,6 @@ export VISUAL="vim"
 export CLICOLOR="1"
 export HISTSIZE="9000"
 
-export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
-
 TITLE="\[\033]0;\u@\h: \w\007\]"
 PROMPT_COMMAND="_prompt_command"
 #PS1="\033[32m\h:\W \u\$\033[0m $TITLE"

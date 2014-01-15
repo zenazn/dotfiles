@@ -1,5 +1,8 @@
 #!/bin/bash
 
+prepend_to_path "/usr/local/bin"
+prepend_to_path "/usr/local/sbin"
+
 # Lock the screen
 alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 
