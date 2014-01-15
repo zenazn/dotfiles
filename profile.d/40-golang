@@ -1,6 +1,6 @@
 #!/bin/bash
 export GOPATH="$HOME/go"
-add_to_path "$GOPATH/bin"
+path_push "$GOPATH/bin"
 
 mkjump z "$HOME/go/src/github.com/zenazn" <<EOF
 EOF

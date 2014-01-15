@@ -2,14 +2,11 @@
 
 export PATH
 
-add_to_path() {
-  if ! grep -q "\(^\|:\)$1\(:\|$\)" <<< "$PATH"; then
-    PATH="$PATH:$1"
-  fi
+path_push() {
+  PATH="${PATH/":$1"}:$1"
 }
-prepend_to_path() {
-  local path=$(echo "$PATH" | tr : "\n" | grep -v "$1" | tr "\n" :)
-  PATH="$1:${path%:}"
+path_unshift() {
+  PATH="$1:${PATH/"$1:"}"
 }
 
-[ -d "$HOME/bin" ] && add_to_path "$HOME/bin"
+[ -d "$HOME/bin" ] && path_push "$HOME/bin"
