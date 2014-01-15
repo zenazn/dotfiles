@@ -7,7 +7,6 @@ export HISTSIZE="9000"
 
 TITLE="\[\033]0;\u@\h: \w\007\]"
 PROMPT_COMMAND="_prompt_command"
-#PS1="\033[32m\h:\W \u\$\033[0m $TITLE"
 if [ -z "$TERM_PROGRAM" ]; then
   BASE_PS1="\[\033[35m\]\u@\h:\w\$\[\033[0m\] $TITLE"
 else
@@ -34,6 +33,6 @@ function _prompt_git {
   printf "\[\033[33m\][$branch$modified] "
 }
 
-for file in $(ls "$HOME/.profile.d/"); do
-  source "$HOME/.profile.d/$file"
+for file in "$HOME"/.profile.d/*; do
+  source "$file"
 done
