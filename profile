@@ -26,8 +26,13 @@ function _prompt_git {
   [ -n "$NO_DYNAMIC_PROMPT" ] && return
   [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = 'true' ] || return
 
-  local branch=$(git rev-parse --abbrev-ref HEAD) modified
-  if ! git diff --quiet HEAD; then
+  local branch modified
+  branch=$(git symbolic-ref --quiet --short HEAD)
+  if [ "$?" != 0 ]; then
+    branch="HEAD"
+  fi
+
+  if ! git diff --quiet HEAD 2>/dev/null; then
     modified=" \[\033[31;1m\]*\[\033[0;33m\]"
   fi
   printf "\[\033[33m\][$branch$modified] "
