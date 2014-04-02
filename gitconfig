@@ -18,6 +18,7 @@
   rb = "!f() { if [ -z \"$1\" ]; then echo You must provide a branch name; exit 1; fi; git checkout -b $1 origin/master; git config \"branch.$1.merge\" \"refs/heads/$1\"; }; f"
   s = status
   sign = commit --amend -CHEAD --gpg-sign
+  showsig = show --show-signature
   st = stash --include-untracked
   sup = "!git stash && git pull --rebase && git stash pop"
   up = pull --rebase
