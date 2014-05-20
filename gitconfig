@@ -13,6 +13,7 @@
   cpx = cherry-pick -x
   d = diff
   dc = diff --cached
+  ff = merge --ff-only
   l = log
   pop = stash pop
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
