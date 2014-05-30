@@ -4,3 +4,5 @@ path_push "$GOPATH/bin"
 
 mkjump z "$HOME/go/src/github.com/zenazn" <<EOF
 EOF
+
+alias gotags="gotags -R . > tags"

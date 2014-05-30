@@ -26,3 +26,4 @@ bash_complete -o default -F _command vimwhich
 alias cpr='rsync -v --progress'
 alias ll='ls -alF'
 alias utc="date -u"
+alias pbtxt="pbpaste|pbcopy"
