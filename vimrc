@@ -159,3 +159,7 @@ let g:ctrlp_user_command = {
     \ },
   \ 'fallback': 'find %s -type f'
   \ }
+
+if !executable("go")
+  let g:go_disable_autoinstall = 1
+end
