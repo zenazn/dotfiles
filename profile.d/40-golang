@@ -1,6 +1,7 @@
 #!/bin/bash
 export GOPATH="$HOME/go"
 path_push "$GOPATH/bin"
+[ -d "/usr/local/opt/go/libexec/bin" ] && path_push "/usr/local/opt/go/libexec/bin"
 
 mkjump z "$HOME/go/src/github.com/zenazn" <<EOF
 EOF
