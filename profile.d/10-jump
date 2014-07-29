@@ -33,7 +33,7 @@ function __jump_target {
     local root="${cmd}_JUMP_ROOT"
     cd "${!root}"
   else
-    local target=$(__jump_table_lookup "$cmd" "/^$key / { print \$2 }" | head)
+    local target=$(__jump_table_lookup "$cmd" "/^$key / { print \$2 }" | head -n 1)
     if [ -z "$target" ]; then
       echo "Unknown jump target $key"
       return 1
