@@ -1,6 +1,3 @@
-[submodule "vim/bundle/coffeescript"]
-	path = vim/bundle/coffeescript
-	url = https://github.com/kchmck/vim-coffee-script.git
 [submodule "vim/bundle/css3"]
 	path = vim/bundle/css3
 	url = https://github.com/hail2u/vim-css3-syntax.git
@@ -28,9 +25,6 @@
 [submodule "vim/bundle/ruby"]
 	path = vim/bundle/ruby
 	url = https://github.com/vim-ruby/vim-ruby.git
-[submodule "vim/bundle/rust"]
-	path = vim/bundle/rust
-	url = https://github.com/bryanjswift/vim-rust.git
 [submodule "vim/bundle/vinegar"]
 	path = vim/bundle/vinegar
 	url = https://github.com/tpope/vim-vinegar.git
