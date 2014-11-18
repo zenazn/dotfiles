@@ -1,1 +1,4 @@
+#!/bin/bash
+
+path_unshift "/usr/local/bin"
 alias ls='ls --color=auto'
