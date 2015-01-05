@@ -163,3 +163,5 @@ let g:ctrlp_user_command = {
 if !executable("go")
   let g:go_disable_autoinstall = 1
 end
+
+let g:go_fmt_command = "goimports"
