@@ -108,12 +108,6 @@ install_dot "profile.d/40-golang"
 
 if ! is_server; then
   install_dot "gvimrc"
-
-  if is_linux; then
-    install_dot "Xresources"
-    install_dot "xmobarrc"
-    install_dot "xmonad"
-  fi
 fi
 
 # The SSH folder most likely already exists, and in any event we don't want to
