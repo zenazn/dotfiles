@@ -72,6 +72,7 @@ function is_linux { test "$(uname -s)" == "Linux"; }
 function is_server {
   is_mac && return 1
   if is_linux; then
+    [ -d /vagrant ] && return 1
     dpkg -l ubuntu-desktop &>/dev/null && return 1
     [[ "$(uname -r)" == *server* ]] && return 0
     [[ "$(uname -r)" == *linode* ]] && return 0
