@@ -82,10 +82,8 @@ function is_server {
   return 0
 }
 
-if ! git config --get-regexp submodule* > /dev/null; then
-  git submodule init
-  git submodule update
-fi
+git submodule init
+git submodule update
 
 # Vroom vroom!
 install_dot "gitconfig"
