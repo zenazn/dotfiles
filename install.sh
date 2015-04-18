@@ -83,10 +83,8 @@ function is_server {
 }
 
 if ! git config --get-regexp submodule* > /dev/null; then
-  if ask "Initialize submodules?"; then
-    git submodule init
-    git submodule update
-  fi
+  git submodule init
+  git submodule update
 fi
 
 # Vroom vroom!
