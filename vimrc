@@ -58,6 +58,10 @@ set textwidth=80
 set ttyfast
 set visualbell
 
+if v:version > 703 || v:version == 703 && has("patch541")
+  set formatoptions+=j " Delete comment character when joining commented lines
+endif
+
 " NERDTree
 let g:NERDTreeMinimalUI = 1
 let g:NERDTreeMapHelp = '`'
