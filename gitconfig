@@ -77,3 +77,12 @@
 
 [include]
   path = ~/.gitoverride
+[http]
+  cookiefile = /Users/carl/.gitcookies
+[alias]
+  change = codereview change
+  gofmt = codereview gofmt
+  mail = codereview mail
+  pending = codereview pending
+  submit = codereview submit
+  sync = codereview sync
