@@ -29,7 +29,7 @@ set list!
 set listchars=tab:>-
 
 " Search
-set nohlsearch
+set hlsearch
 set incsearch
 set ignorecase
 set smartcase
@@ -57,6 +57,7 @@ set nofoldenable
 set textwidth=80
 set ttyfast
 set visualbell
+set nojoinspaces
 
 if v:version > 703 || v:version == 703 && has("patch541")
   set formatoptions+=j " Delete comment character when joining commented lines
@@ -125,6 +126,8 @@ nmap <leader>gl :Glog<CR><CR><CR>:copen<CR>
 nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
 nmap <leader>z  :pclose<CR>
+
+nmap <leader>.  :nohlsearch<CR>
 
 nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
