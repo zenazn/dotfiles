@@ -9,3 +9,5 @@ mkjump z "$HOME/go/src/github.com/zenazn" <<EOF
 EOF
 
 alias gotags="gotags -R . > tags"
+
+export GO15VENDOREXPERIMENT=1
