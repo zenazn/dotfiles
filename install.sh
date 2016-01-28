@@ -126,15 +126,8 @@ if is_server; then
   for host in $(ls ssh/keys); do
     if ! grep -iq "carl@$host" "$HOME/.ssh/authorized_keys"; then
       if ask "Can I add carl@$host to authorized_keys?"; then
-        cat "ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
+        cat "$ROOT/ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
       fi
     fi
   done
-fi
-
-# If we're on a vagrant box, nuke authorized_keys from orbit and only allow
-# trusted keys access (by default Vagrant does some exciting things with public
-# keys).
-if [ -d /vagrant ]; then
-  cat "$ROOT"/ssh/keys/* > "$HOME/.ssh/authorized_keys"
 fi
