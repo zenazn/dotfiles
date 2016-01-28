@@ -121,9 +121,9 @@ if [ ! -e $HOME/.ssh/authorized_keys ]; then
   umask_mine touch "$HOME/.ssh/authorized_keys"
 fi
 
-if is_server; then
+if [ ! is_server -a ! -e "/vagrant" ]; then
   # Prompt to install SSH keys, but only on servers
-  for host in $(ls ssh/keys); do
+  for host in $(ls "$ROOT/ssh/keys"); do
     if ! grep -iq "carl@$host" "$HOME/.ssh/authorized_keys"; then
       if ask "Can I add carl@$host to authorized_keys?"; then
         cat "$ROOT/ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
