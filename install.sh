@@ -82,6 +82,7 @@ function is_server {
   return 0
 }
 
+cd "$ROOT"
 git submodule init
 git submodule update
 
