@@ -33,6 +33,9 @@ set hlsearch
 set incsearch
 set ignorecase
 set smartcase
+if has("patch-7.4.941")
+  set tagcase=match
+end
 
 " Autocompletion
 set wildmenu
