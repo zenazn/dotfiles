@@ -48,9 +48,6 @@ set wildignore+=*.o,*.lo,*.la " C
 set wildignore+=*.pyc,*.cmi,*.cmo,*.cmx " Python and OCaml
 set completeopt=longest,menu,preview
 
-let NERDTreeIgnore = ['\.o', '\.bc', '\.pyc']
-let NERDTreeHijackNetrw=0
-
 " Other behaviors
 set autoread
 set backspace=indent,eol,start
@@ -65,10 +62,6 @@ set nojoinspaces
 if v:version > 703 || v:version == 703 && has("patch541")
   set formatoptions+=j " Delete comment character when joining commented lines
 endif
-
-" NERDTree
-let g:NERDTreeMinimalUI = 1
-let g:NERDTreeMapHelp = '`'
 
 fu! SingleQuote(str)
   return "'" . substitute(copy(a:str), "'", "''", 'g') . "'"
@@ -135,8 +128,6 @@ nmap <leader>.  :nohlsearch<CR>
 nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
 nmap <leader>q  :q<CR>
-
-nmap <leader><Space> :NERDTreeToggle<CR>
 
 nmap <leader>m  :make<CR>
 
