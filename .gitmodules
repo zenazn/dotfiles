@@ -10,9 +10,6 @@
 [submodule "vim/bundle/puppet"]
 	path = vim/bundle/puppet
 	url = https://github.com/rodjek/vim-puppet.git
-[submodule "vim/bundle/ruby"]
-	path = vim/bundle/ruby
-	url = https://github.com/vim-ruby/vim-ruby.git
 [submodule "vim/bundle/vinegar"]
 	path = vim/bundle/vinegar
 	url = https://github.com/tpope/vim-vinegar.git
