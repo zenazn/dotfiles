@@ -22,7 +22,7 @@
   s = status
   showsig = show --show-signature
   sign = commit --amend -CHEAD --gpg-sign
-  st = stash --include-untracked
+  st = -c commit.gpgsign=false stash --include-untracked
   sup = "!git stash && git pull --rebase && git stash pop"
   up = pull --rebase
   wip = !git add -A && git commit -m "wip"
