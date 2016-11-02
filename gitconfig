@@ -86,3 +86,5 @@
   pending = codereview pending
   submit = codereview submit
   sync = codereview sync
+[rebase]
+	autosquash = true

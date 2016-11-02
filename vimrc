@@ -129,7 +129,7 @@ nmap <leader>s  :sp<CR>
 nmap <leader>v  :vsp<CR>
 nmap <leader>q  :q<CR>
 
-nmap <leader>m  :make<CR>
+nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
 
 nmap <leader><leader>  :confirm w<CR>
 
@@ -169,3 +169,7 @@ let g:go_fmt_command = "goimports"
 
 " This makes opening Ruby files much faster
 let g:ruby_path = []
+
+if executable("fzf")
+  let g:ctrlp_cmd = 'FZF'
+end
