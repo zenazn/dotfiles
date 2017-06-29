@@ -18,7 +18,8 @@
   l = log
   pop = stash pop
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
-  rb = "!f() { if [ -z \"$1\" ]; then echo You must provide a branch name; exit 1; fi; git checkout -b \"$1\" origin/master; git config \"branch.$1.merge\" \"refs/heads/$1\"; }; f"
+  rb = "!f() { if [ -z \"$1\" ]; then echo You must provide a branch name; exit 1; fi; git checkout -b \"$1\" $(git config rb.branch); git config \"branch.$1.merge\" \"refs/heads/$1\"; }; f"
+  re = "!git rebase $(git config rb.branch)"
   s = status
   showsig = show --show-signature
   sign = commit --amend -CHEAD --gpg-sign
@@ -87,4 +88,7 @@
   submit = codereview submit
   sync = codereview sync
 [rebase]
-	autosquash = true
+  autosquash = true
+
+[rb]
+  branch = origin/master
