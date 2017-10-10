@@ -32,7 +32,12 @@ function _prompt_git {
     branch="HEAD"
   fi
 
-  if ! git diff --quiet HEAD 2>/dev/null; then
+  # This is a tiny bit faster than other methods, but suffers from caching
+  # problems when you e.g., `touch` a file. However, I don't use `touch` that
+  # often, this is easily cleaned up by running `git status` (which I run fairly
+  # often anyways), and performance is much more important to me than
+  # correctness.
+  if ! git diff-index --quiet --cached HEAD || ! git diff-files --quiet; then
     modified=" \[\033[31;1m\]*\[\033[0;33m\]"
   fi
   printf "\[\033[33m\][$branch$modified] "
