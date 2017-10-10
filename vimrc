@@ -174,3 +174,7 @@ let g:ruby_path = []
 if executable("fzf")
   let g:ctrlp_cmd = 'FZF'
 end
+
+let g:omni_sql_no_default_maps = 1
+
+let g:javascript_plugin_flow = 1
