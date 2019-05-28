@@ -3,7 +3,7 @@
 path_unshift "/usr/local/bin"
 path_unshift "/usr/local/sbin"
 
-alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+#alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 alias bupdate='brew update --rebase && brew upgrade'
 
 # Host completion for mosh (not actually a mac thing, but since I only install

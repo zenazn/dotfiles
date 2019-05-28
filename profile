@@ -5,12 +5,11 @@ export VISUAL="vim"
 export CLICOLOR="1"
 export HISTSIZE="9000"
 
-TITLE="\[\033]0;\u@\h: \w\007\]"
 PROMPT_COMMAND="_prompt_command"
 if [ -z "$TERM_PROGRAM" ]; then
-  BASE_PS1="\[\033[35m\]\u@\h:\w\$\[\033[0m\] $TITLE"
+  BASE_PS1="\[\033[35m\]\u@\h:\w\$\[\033[0m\] \[\033]0;\u@\h: \w\007\]"
 else
-  BASE_PS1="\[\033[32m\]\w\$\[\033[0m\] $TITLE"
+  BASE_PS1="\[\033[32m\]\w\$\[\033[0m\] \[\033]0;\W\007\]"
 fi
 PS1="$BASE_PS1"
 

@@ -5,15 +5,10 @@ alias fingerprint='ssh-keygen -lF'
 alias murder="ssh -O exit"
 alias dev="mosh dev.avtok.com -- tmux new -AD -s dev"
 
-# gpg
-alias clearsign='gpg --clearsign -a'
-alias encsign='gpg -sea -r'
-alias trust='gpg --list-keys --list-options show-uid-validity'
-
 # git
 alias g='git'
 alias gs='g s'
-alias gg="git grep"
+alias gg="git grep -I"
 alias HEAD="git rev-parse HEAD"
 bash_complete -o default -o nospace -F _git g
 
