@@ -3,8 +3,7 @@
 path_unshift "/usr/local/bin"
 path_unshift "/usr/local/sbin"
 
-#alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
-alias bupdate='brew update --rebase && brew upgrade'
+alias bupdate='brew update && brew upgrade'
 
 # Host completion for mosh (not actually a mac thing, but since I only install
 # it on my macs let's put it here for now)
@@ -15,12 +14,6 @@ if which -s mosh; then
   }
   shopt -u hostcomplete && bash_complete -F _mosh mosh
 fi
-
-vm() {
-  pushd ~/git/vm &>/dev/null
-  vagrant ssh -p
-  popd &>/dev/null
-}
 
 if which -s aws; then
   complete -C aws_completer aws

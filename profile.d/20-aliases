@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # ssh
-alias fingerprint='ssh-keygen -lF'
 alias murder="ssh -O exit"
 alias dev="mosh dev.avtok.com -- tmux new -AD -s dev"
 
@@ -21,4 +20,3 @@ bash_complete -o default -F _command vimwhich
 alias cpr='rsync -v --progress'
 alias ll='ls -alF'
 alias utc="date -u"
-alias pbtxt="pbpaste|pbcopy"
