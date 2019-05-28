@@ -3,8 +3,7 @@
 # ssh
 alias fingerprint='ssh-keygen -lF'
 alias murder="ssh -O exit"
-alias avtok='ssh -At avtok.com screen -UxRR'
-alias proxy='ssh -ND 8800 oobii'
+alias dev="mosh dev.avtok.com -- tmux new -AD -s dev"
 
 # gpg
 alias clearsign='gpg --clearsign -a'
