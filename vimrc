@@ -133,9 +133,6 @@ nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
 
 nmap <leader><leader>  :confirm w<CR>
 
-" Basic skeleton files
-autocmd! BufNewFile * silent! 0r ~/.vim/skel/template.%:e
-
 " Colors!
 set t_Co=256
 set background=light
