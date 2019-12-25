@@ -22,3 +22,4 @@ subtree javascript  pangloss/vim-javascript
 subtree jsx         mxw/vim-jsx
 subtree ruby        vim-ruby/vim-ruby
 subtree vinegar     tpope/vim-vinegar
+subtree fzf.vim     junegunn/fzf.vim
