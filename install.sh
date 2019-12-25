@@ -83,47 +83,46 @@ function is_server {
 }
 
 cd "$ROOT"
-git submodule init
-git submodule update
 
 # Vroom vroom!
 install_dot "gitconfig"
 install_dot "tmux.conf"
 install_dot "vim"
 install_dot "vimrc"
+install_dot "zshrc"
 
-mkdir -p "$HOME/.profile.d"
-install_dot "profile"
-install_dot "profile.d/01-path"
-install_dot "profile.d/10-jump"
-install_dot "profile.d/10-completion"
-install_dot "profile.d/20-aliases"
-is_mac && install_dot "profile.d/30-mac"
-is_linux && install_dot "profile.d/30-linux"
-install_dot "profile.d/40-git"
-install_dot "profile.d/41-golang"
+#mkdir -p "$HOME/.profile.d"
+#install_dot "profile"
+#install_dot "profile.d/01-path"
+#install_dot "profile.d/10-jump"
+#install_dot "profile.d/10-completion"
+#install_dot "profile.d/20-aliases"
+#is_mac && install_dot "profile.d/30-mac"
+#is_linux && install_dot "profile.d/30-linux"
+#install_dot "profile.d/40-git"
+#install_dot "profile.d/41-golang"
 
 # The SSH folder most likely already exists, and in any event we don't want to
 # manage it ourselves. If we are creating it for the first time, however, we
 # should lock down the permissions
-if [ ! -e "$HOME/.ssh" ]; then
-  umask_mine mkdir "$HOME/.ssh"
-fi
-
-install_dot "ssh/rc"
-
-# Add some authorized keys
-if [ ! -e $HOME/.ssh/authorized_keys ]; then
-  umask_mine touch "$HOME/.ssh/authorized_keys"
-fi
-
-if [ ! is_server -a ! -e "/vagrant" ]; then
-  # Prompt to install SSH keys, but only on servers
-  for host in $(ls "$ROOT/ssh/keys"); do
-    if ! grep -iq "carl@$host" "$HOME/.ssh/authorized_keys"; then
-      if ask "Can I add carl@$host to authorized_keys?"; then
-        cat "$ROOT/ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
-      fi
-    fi
-  done
-fi
+#if [ ! -e "$HOME/.ssh" ]; then
+#  umask_mine mkdir "$HOME/.ssh"
+#fi
+#
+#install_dot "ssh/rc"
+#
+## Add some authorized keys
+#if [ ! -e $HOME/.ssh/authorized_keys ]; then
+#  umask_mine touch "$HOME/.ssh/authorized_keys"
+#fi
+#
+#if [ ! is_server -a ! -e "/vagrant" ]; then
+#  # Prompt to install SSH keys, but only on servers
+#  for host in $(ls "$ROOT/ssh/keys"); do
+#    if ! grep -iq "carl@$host" "$HOME/.ssh/authorized_keys"; then
+#      if ask "Can I add carl@$host to authorized_keys?"; then
+#        cat "$ROOT/ssh/keys/$host" >> "$HOME/.ssh/authorized_keys"
+#      fi
+#    fi
+#  done
+#fi
