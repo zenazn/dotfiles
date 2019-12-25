@@ -102,6 +102,8 @@ nnoremap ` '
 nnoremap Y y$
 map Q gq
 
+nnoremap <C-p> :Files<CR>
+
 " Leader maps
 let mapleader = ','
 
@@ -140,33 +142,20 @@ au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
 
-if executable("ag") == 1
-  set grepprg=ag\ --nogroup\ --nocolor
-elseif executable("ack") == 1
-  set grepprg=ack\ -k
+if executable("rg")
+  set grepprg=rg\ -n
 end
 
-" This speeds up ctrlp *a lot*.
-let g:ctrlp_user_command = {
-  \ 'types': {
-    \ 1: ['.git', 'cd %s && git ls-files . -co --exclude-standard'],
-    \ 2: ['.hg', 'hg --cwd %s locate -I .'],
-    \ },
-  \ 'fallback': 'find %s -type f'
-  \ }
+" Language stuff
 
 if !executable("go")
   let g:go_disable_autoinstall = 1
 end
-
 let g:go_fmt_command = "goimports"
+let g:go_template_autocreate = 0
 
 " This makes opening Ruby files much faster
 let g:ruby_path = []
-
-if executable("fzf")
-  let g:ctrlp_cmd = 'FZF'
-end
 
 let g:omni_sql_no_default_maps = 1
 
