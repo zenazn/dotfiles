@@ -88,7 +88,6 @@ git submodule update
 
 # Vroom vroom!
 install_dot "gitconfig"
-install_dot "screenrc"
 install_dot "tmux.conf"
 install_dot "vim"
 install_dot "vimrc"
@@ -103,10 +102,6 @@ is_mac && install_dot "profile.d/30-mac"
 is_linux && install_dot "profile.d/30-linux"
 install_dot "profile.d/40-git"
 install_dot "profile.d/41-golang"
-
-if ! is_server; then
-  install_dot "gvimrc"
-fi
 
 # The SSH folder most likely already exists, and in any event we don't want to
 # manage it ourselves. If we are creating it for the first time, however, we
