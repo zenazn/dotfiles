@@ -20,10 +20,9 @@ that are part of Git repositories).
 :G {args}               but chdir to the repository tree first.  For some
                         subcommands, a Fugitive command is called instead.
 
-                                                *:Git!*
 :Git! {args}            Like |:Git|, but capture the output into a temp file,
-:Git --no-pager {args}  and |:split| that temp file.  Use :0Git to
-:Git -P {args}          |:edit| the temp file instead.  A temp file is always
+:Git --paginate {args}  and |:split| that temp file.  Use :0Git to
+:Git -p {args}          |:edit| the temp file instead.  A temp file is always
                         used for diff and log commands.
 
                                                 *:Gstatus*
@@ -103,9 +102,23 @@ that are part of Git repositories).
 :Glgrep[!] [args]       |:lgrep|[!] with git-grep as 'grepprg'.
 :0Git[!] grep [args]
 
+                                                *:Git-difftool*
+:Git[!] difftool [args] Invoke `git diff [args]` and load the changes into the
+                        quickfix list.  Each changed hunk gets a separate
+                        quickfix entry unless you pass an option like
+                        --name-only or --name-status.  Jumps to the first
+                        change unless [!] is given.
+
+:Git difftool -y [args] Invoke `git diff [args]`, open each changed file in a
+                        new tab, and invoke `:Gdiffsplit!` against the
+                        appropriate commit.
+
+                                                *:Git-mergetool*
+:Git mergetool [args]   Like |:Git-difftool|, but target merge conflicts.
+
                                                  *:Gclog* *:Glog*
 :Gclog[!] [args]        Use git-log [args] to load the commit history into the
-:Glog[!] [args]         |quickfix| list.  Jump to the first commit unless [!]
+:Glog[!] [args]         |quickfix| list.  Jumps to the first commit unless [!]
                         is given.
 
 :{range}Gclog[!] [args] Use git-log -L to load previous revisions of the given
@@ -194,7 +207,7 @@ that are part of Git repositories).
                         focus on the current window.  During a merge conflict,
                         this is a three-way diff against the "ours" and
                         "theirs" ancestors.  Additional d2o and d3o maps are
-                        provided to to obtain the hunk from the "ours" or
+                        provided to obtain the hunk from the "ours" or
                         "theirs" ancestor, respectively.
 
 :Gdiffsplit! {object}   Like |:Gdiffsplit|, but retain focus on the current
