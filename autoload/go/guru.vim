@@ -415,7 +415,6 @@ function! go#guru#Referrers(selected) abort
 endfunction
 
 function! go#guru#SameIds(showstatus) abort
-
   " check if the version of Vim being tested supports matchaddpos()
   if !exists("*matchaddpos")
     call go#util#EchoError("GoSameIds requires 'matchaddpos'. Update your Vim/Neovim version.")
@@ -478,7 +477,7 @@ function! s:same_ids_highlight(exit_val, output, mode) abort
     let l:matches = add(l:matches, [str2nr(pos[-2]), str2nr(pos[-1]), str2nr(poslen)])
   endfor
 
-  call matchaddpos('goSameId', l:matches)
+  call go#util#HighlightPositions('goSameId', l:matches)
 
   if go#config#AutoSameids()
     " re-apply SameIds at the current cursor position at the time the buffer
@@ -493,7 +492,7 @@ endfunction
 " ClearSameIds returns 0 when it removes goSameId groups and non-zero if no
 " goSameId groups are found.
 function! go#guru#ClearSameIds() abort
-  let l:cleared = go#util#ClearGroupFromMatches('goSameId')
+  let l:cleared = go#util#ClearHighlights('goSameId')
 
   if !l:cleared
     return 1
