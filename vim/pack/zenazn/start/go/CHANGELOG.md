@@ -51,6 +51,7 @@ IMPROVEMENTS:
 * Add highlighting of sections reported by gopls diagnostics' errors
   and warnings.
   [[GH-2569]](https://github.com/fatih/vim-go/pull/2569)
+  [[GH-2643]](https://github.com/fatih/vim-go/pull/2643)
 * Make the highlighting of fzf decls configurable.
   [[GH-2572]](https://github.com/fatih/vim-go/pull/2572)
   [[GH-2579]](https://github.com/fatih/vim-go/pull/2579)
@@ -61,6 +62,8 @@ IMPROVEMENTS:
   disabled.
   [[GH-2605]](https://github.com/fatih/vim-go/pull/2605)
   [[GH-2609]](https://github.com/fatih/vim-go/pull/2609)
+  [[GH-2638]](https://github.com/fatih/vim-go/pull/2638)
+  [[GH-2640]](https://github.com/fatih/vim-go/pull/2640)
 * Add a buffer level option, `b:go_fmt_options`, to control formatting options
   per buffer.
   [[GH-2613]](https://github.com/fatih/vim-go/pull/2613)
@@ -76,6 +79,18 @@ IMPROVEMENTS:
   projects, `g:go_diagnostics_enabled` controls whether all diagnostics are
   processed or only the diagnostics for the current buffer.
   [[GH-2612]](https://github.com/fatih/vim-go/pull/2612)
+* Explain how to find and detect multiple copies of vim-go in the FAQ.
+  [[GH-2632]](https://github.com/fatih/vim-go/pull/2632)
+* Update the issue template to ask for the gopls version and
+  `:GoReportGitHubIssue` to provide it.
+  [[GH-2630]](https://github.com/fatih/vim-go/pull/2630)
+* Use text properties when possible for some highlighting cases.
+  [[GH-2652]](https://github.com/fatih/vim-go/pull/2652)
+  [[GH-2662]](https://github.com/fatih/vim-go/pull/2662)
+  [[GH-2663]](https://github.com/fatih/vim-go/pull/2663)
+  [[GH-2672]](https://github.com/fatih/vim-go/pull/2672)
+  [[GH-2678]](https://github.com/fatih/vim-go/pull/2678)
+
 
 BUG FIXES:
 * Fix removal of missing directories from gopls workspaces.
@@ -103,6 +118,9 @@ BUG FIXES:
   [[GH-2556]](https://github.com/fatih/vim-go/pull/2556)
 * Expand struct variable correctly in the variables debug window.
   [[GH-2574]](https://github.com/fatih/vim-go/pull/2574)
+* Show output from errcheck when there are failures other than problems it can
+  report.
+  [[GH-2667]](https://github.com/fatih/vim-go/pull/2667)
 
 ## v1.21 - (September 11, 2019)
 

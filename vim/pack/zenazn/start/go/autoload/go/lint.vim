@@ -99,9 +99,9 @@ function! go#lint#Gometa(bang, autosave, ...) abort
 
     if a:autosave || a:bang
       call win_gotoid(l:winid)
-      return
+    else
+      call go#list#JumpToFirst(l:listtype)
     endif
-    call go#list#JumpToFirst(l:listtype)
   endif
 endfunction
 
@@ -137,9 +137,9 @@ function! go#lint#Diagnostics(bang, ...) abort
 
     if a:bang
       call win_gotoid(l:winid)
-      return
+    else
+      call go#list#JumpToFirst(l:listtype)
     endif
-    call go#list#JumpToFirst(l:listtype)
   endif
 endfunction
 
@@ -165,10 +165,9 @@ function! go#lint#Golint(bang, ...) abort
 
   if a:bang
     call win_gotoid(l:winid)
-    return
+  else
+    call go#list#JumpToFirst(l:listtype)
   endif
-
-  call go#list#JumpToFirst(l:listtype)
 endfunction
 
 " Vet calls 'go vet' on the current directory. Any warnings are populated in
@@ -240,10 +239,12 @@ function! go#lint#Errcheck(bang, ...) abort
   let l:listtype = go#list#Type("GoErrCheck")
   if l:err != 0
     let l:winid = win_getid(winnr())
-    let errformat = "%f:%l:%c:\ %m, %f:%l:%c\ %#%m"
 
-    " Parse and populate our location list
-    call go#list#ParseFormat(l:listtype, errformat, split(out, "\n"), 'Errcheck')
+    if l:err == 1
+      let l:errformat = "%f:%l:%c:\ %m,%f:%l:%c\ %#%m"
+      " Parse and populate our location list
+      call go#list#ParseFormat(l:listtype, l:errformat, split(out, "\n"), 'Errcheck')
+    endif
 
     let l:errors = go#list#Get(l:listtype)
     if empty(l:errors)
@@ -252,8 +253,8 @@ function! go#lint#Errcheck(bang, ...) abort
     endif
 
     if !empty(errors)
-      call go#list#Populate(l:listtype, errors, 'Errcheck')
-      call go#list#Window(l:listtype, len(errors))
+      call go#list#Populate(l:listtype, l:errors, 'Errcheck')
+      call go#list#Window(l:listtype, len(l:errors))
       if !a:bang
         call go#list#JumpToFirst(l:listtype)
       else
