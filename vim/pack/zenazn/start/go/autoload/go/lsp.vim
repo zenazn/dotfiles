@@ -431,8 +431,8 @@ function! s:newlsp() abort
   endfunction
 
   function! l:lsp.err_cb(ch, msg) dict abort
-    if a:msg =~ '^\tPort = \d\+$' && !get(self, 'debugport', 0)
-      let self.debugport = substitute(a:msg, 'debug server listening on port \(\d\+\).*$', '\1', '')
+    if a:msg =~ '^\d\{4}/\d\d/\d\d\ \d\d:\d\d:\d\d debug server listening on port \d\+$' && !get(self, 'debugport', 0)
+      let self.debugport = substitute(a:msg, '\d\{4}/\d\d/\d\d\ \d\d:\d\d:\d\d debug server listening on port \(\d\+\).*$', '\1', '')
     endif
 
     call s:debug('stderr', a:msg)
@@ -744,7 +744,12 @@ function! s:sameIDsHandler(next, msg) abort dict
         \ 'enclosing': [],
       \ }
 
-  for l:loc in a:msg
+  let l:msg = a:msg
+  if a:msg is v:null
+    let l:msg = []
+  endif
+
+  for l:loc in l:msg
     if l:loc.uri !=# l:furi
       continue
     endif
@@ -787,9 +792,15 @@ endfunction
 function! s:referencesHandler(next, msg) abort dict
   let l:result = []
 
-  call sort(a:msg, funcref('s:compareLocations'))
+  let l:msg = a:msg
 
-  for l:loc in a:msg
+  if l:msg is v:null
+    let l:msg = []
+  endif
+
+  call sort(l:msg, funcref('s:compareLocations'))
+
+  for l:loc in l:msg
     let l:fname = go#path#FromURI(l:loc.uri)
     let l:line = l:loc.range.start.line+1
     let l:bufnr = bufnr(l:fname)
