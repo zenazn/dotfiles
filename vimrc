@@ -153,6 +153,8 @@ if !executable("go")
 end
 let g:go_fmt_command = "goimports"
 let g:go_template_autocreate = 0
+hi SpellBad cterm=bold ctermbg=gray
+hi SpellRare cterm=bold ctermbg=darkgray
 
 " This makes opening Ruby files much faster
 let g:ruby_path = []
