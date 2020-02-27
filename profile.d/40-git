@@ -9,16 +9,15 @@ gh() {
 
   url=$(git config --get remote.origin.url)
   if [ $? != 0 ]; then
-    exit $?
+    return $?
   fi
-  if [ "${url:0:15}" == "git@github.com:" ]; then
-    url=${url:15}
-  elif [ "${url:0:19}" == "https://github.com/" ]; then
-    url=${url:19}
+  if [ "${url:0:4}" == "git@" ]; then
+    url=$(echo "$url" | sed -E 's|^git@([^:]+):([^.]+)(\.git)?$|https://\1/\2|')
+  elif [ "${url:0:8}" == "https://" ]; then
+    url="${url%.git}"
   else
     echo "What kind of remote URL is $url anyways?"
-    exit 1
+    return 1
   fi
-  url="https://github.com/${url%.git}"
   open "$url"
 }
