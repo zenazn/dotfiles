@@ -1,4 +1,6 @@
-# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go)
+# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go) [![GitHub Actions Status](https://github.com/fatih/vim-go/workflows/test/badge.svg)](https://github.com/fatih/vim-go/actions)
+
+
 
 <p align="center">
   <img style="float: right;" src="assets/vim-go.png" alt="Vim-go logo"/>
@@ -13,8 +15,8 @@ This plugin adds Go language support for Vim, with the following main features:
 * Quickly execute your current file(s) with `:GoRun`.
 * Improved syntax highlighting and folding.
 * Debug programs with integrated `delve` support with `:GoDebugStart`.
-* Completion support via `gocode` and `gopls`.
-* `gofmt` or `goimports` on save keeps the cursor position and undo history.
+* Completion and many other features support via `gopls`.
+* formatting on save keeps the cursor position and undo history.
 * Go to symbol/declaration with `:GoDef`.
 * Look up documentation with `:GoDoc` or `:GoDocBrowser`.
 * Easily import packages via `:GoImport`, remove them via `:GoDrop`.
@@ -30,6 +32,8 @@ This plugin adds Go language support for Vim, with the following main features:
   `:GoCallees`, and `:GoReferrers`.
 * ... and many more! Please see [doc/vim-go.txt](doc/vim-go.txt) for more
   information.
+* The `gopls` instance can be shared with other Vim plugins.
+* Vim-go's use of `gopls` can be disabled.
 
 ## Install
 
