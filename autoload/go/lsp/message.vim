@@ -26,6 +26,13 @@ function! go#lsp#message#Initialize(wd) abort
                 \     'snippetSupport': go#config#GoplsUsePlaceholders() ? v:true : v:false,
                 \   },
                 \ },
+                \ 'codeAction': {
+                \   'codeActionLiteralSupport': {
+                \     'codeActionKind': {
+                \       'valueSet': ['source.organizeImports'],
+                \     },
+                \   },
+                \ },
               \ }
             \ },
             \ 'workspaceFolders': [s:workspaceFolder(0, a:wd)],
@@ -45,6 +52,44 @@ function! go#lsp#message#Shutdown() abort
   return {
           \ 'notification': 0,
           \ 'method': 'shutdown',
+       \ }
+endfunction
+
+function! go#lsp#message#Format(file) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/formatting',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'options': {
+          \     'insertSpaces': v:false,
+          \   },
+          \ }
+       \ }
+endfunction
+
+function! go#lsp#message#CodeActionImports(file) abort
+  return s:codeAction('source.organizeImports', a:file)
+endfunction
+
+function! s:codeAction(name, file) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/codeAction',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'range': {
+          \     'start': {'line': 0, 'character': 0},
+          \     'end': {'line': line('$'), 'character': 0},
+          \   },
+          \   'context': {
+          \     'only': [a:name],
+          \   },
+          \ }
        \ }
 endfunction
 
@@ -76,6 +121,19 @@ function! go#lsp#message#TypeDefinition(file, line, col) abort
   return {
           \ 'notification': 0,
           \ 'method': 'textDocument/typeDefinition',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'position': s:position(a:line, a:col)
+          \ }
+       \ }
+endfunction
+
+function! go#lsp#message#Implementation(file, line, col) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/implementation',
           \ 'params': {
           \   'textDocument': {
           \       'uri': go#path#ToURI(a:file)
@@ -174,7 +232,7 @@ endfunction
 
 function! go#lsp#message#ChangeWorkspaceFolders(add, remove) abort
   let l:addDirs = map(copy(a:add), function('s:workspaceFolder', []))
-  let l:removeDirs = map(copy(a:add), function('s:workspaceFolder', []))
+  let l:removeDirs = map(copy(a:remove), function('s:workspaceFolder', []))
 
   return {
           \ 'notification': 1,
@@ -196,7 +254,7 @@ function! go#lsp#message#ConfigurationResult(items) abort
   for l:item in a:items
     let l:config = {
           \ 'buildFlags': [],
-          \ 'hoverKind': 'NoDocumentation',
+          \ 'hoverKind': 'Structured',
           \ }
     let l:buildtags = go#config#BuildTags()
     if buildtags isnot ''
@@ -204,10 +262,13 @@ function! go#lsp#message#ConfigurationResult(items) abort
     endif
 
     let l:deepCompletion = go#config#GoplsDeepCompletion()
-    let l:fuzzyMatching = go#config#GoplsFuzzyMatching()
+    let l:matcher = go#config#GoplsMatcher()
     let l:completeUnimported = go#config#GoplsCompleteUnimported()
     let l:staticcheck = go#config#GoplsStaticCheck()
     let l:usePlaceholder = go#config#GoplsUsePlaceholders()
+    let l:tempModfile = go#config#GoplsTempModfile()
+    let l:analyses = go#config#GoplsAnalyses()
+    let l:local = go#config#GoplsLocal()
 
     if l:deepCompletion isnot v:null
       if l:deepCompletion
@@ -217,12 +278,8 @@ function! go#lsp#message#ConfigurationResult(items) abort
       endif
     endif
 
-    if l:fuzzyMatching isnot v:null
-      if l:fuzzyMatching
-        let l:config.fuzzyMatching = v:true
-      else
-        let l:config.fuzzyMatching = v:false
-      endif
+    if l:matcher isnot v:null
+        let l:config.matcher = l:matcher
     endif
 
     if l:completeUnimported isnot v:null
@@ -247,6 +304,22 @@ function! go#lsp#message#ConfigurationResult(items) abort
       else
         let l:config.usePlaceholders = v:false
       endif
+    endif
+
+    if l:tempModfile isnot v:null
+      if l:tempModfile
+        let l:config.tempModfile = v:true
+      else
+        let l:config.tempModfile = v:false
+      endif
+    endif
+
+    if l:analyses isnot v:null
+      let l:config.analyses = l:analyses
+    endif
+
+    if l:local isnot v:null
+      let l:config.local = l:local
     endif
 
     let l:result = add(l:result, l:config)

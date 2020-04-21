@@ -307,6 +307,10 @@ function! go#config#FmtAutosave() abort
 	return get(g:, "go_fmt_autosave", 1)
 endfunction
 
+function! go#config#ImportsAutosave() abort
+  return get(g:, 'go_imports_autosave', 1)
+endfunction
+
 function! go#config#SetFmtAutosave(value) abort
   let g:go_fmt_autosave = a:value
 endfunction
@@ -349,6 +353,10 @@ endfunction
 
 function! go#config#FmtCommand() abort
   return get(g:, "go_fmt_command", "gofmt")
+endfunction
+
+function! go#config#ImportsMode() abort
+  return get(g:, "go_imports_mode", "goimports")
 endfunction
 
 function! go#config#FmtOptions() abort
@@ -507,6 +515,10 @@ function! go#config#ReferrersMode() abort
   return get(g:, 'go_referrers_mode', 'gopls')
 endfunction
 
+function! go#config#ImplementsMode() abort
+  return get(g:, 'go_implements_mode', 'guru')
+endfunction
+
 function! go#config#GoplsCompleteUnimported() abort
   return get(g:, 'go_gopls_complete_unimported', v:null)
 endfunction
@@ -515,8 +527,11 @@ function! go#config#GoplsDeepCompletion() abort
   return get(g:, 'go_gopls_deep_completion', v:null)
 endfunction
 
-function! go#config#GoplsFuzzyMatching() abort
-  return get(g:, 'go_gopls_fuzzy_matching', v:null)
+function! go#config#GoplsMatcher() abort
+  if !exists('g:go_gopls_matcher') && get(g:, 'g:go_gopls_fuzzy_matching', v:null) is 1
+    return 'fuzzy'
+  endif
+  return get(g:, 'go_gopls_matcher', v:null)
 endfunction
 
 function! go#config#GoplsStaticCheck() abort
@@ -527,12 +542,28 @@ function! go#config#GoplsUsePlaceholders() abort
   return get(g:, 'go_gopls_use_placeholders', v:null)
 endfunction
 
+function! go#config#GoplsTempModfile() abort
+  return get(g:, 'go_gopls_temp_modfile', v:null)
+endfunction
+
+function! go#config#GoplsAnalyses() abort
+  return get(g:, 'go_gopls_analyses', v:null)
+endfunction
+
+function! go#config#GoplsLocal() abort
+  return get(g:, 'go_gopls_local', v:null)
+endfunction
+
 function! go#config#GoplsEnabled() abort
   return get(g:, 'go_gopls_enabled', 1)
 endfunction
 
 function! go#config#DiagnosticsEnabled() abort
   return get(g:, 'go_diagnostics_enabled', 0)
+endfunction
+
+function! go#config#GoplsOptions() abort
+  return get(g:, 'go_gopls_options', [])
 endfunction
 
 " Set the default value. A value of "1" is a shortcut for this, for
