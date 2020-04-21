@@ -59,34 +59,9 @@ if v:version > 703 || v:version == 703 && has("patch541")
   set formatoptions+=j " Delete comment character when joining commented lines
 endif
 
-fu! SingleQuote(str)
-  return "'" . substitute(copy(a:str), "'", "''", 'g') . "'"
-endfu
-fu! Cabbrev(key, value)
-  exe printf('cabbrev <expr> %s (getcmdtype() == ":" && getcmdpos() <= %d) ? %s : %s',
-    \ a:key, 1+len(a:key), SingleQuote(a:value), SingleQuote(a:key))
-endfu
-
-" ctags / cscope
+" Look for tags recursively upwards from current directory
 set tags=tags;/
-if has("cscope")
-  set cscopetagorder=1
-  set cscopetag
-  " Try to load databases
-  set nocscopeverbose
-  if filereadable("cscope.out")
-    cs add cscope.out
-  elseif $CSCOPE_DB != ""
-    cs add $CSCOPE_DB
-  endif
-  set cscopeverbose
-else
-  " Use tjump
-  call Cabbrev('tag', 'tjump')
-  nnoremap <C-]> g<C-]>
-  vnoremap <C-]> g<C-]>
-  nnoremap <C-w>] <C-w>g<C-]>
-end
+nmap <C-]> <Plug>(fzf_tags)
 
 " Try to keep backups and .swp files out of the working directory
 set directory=~/.tmp//,/tmp//,.
