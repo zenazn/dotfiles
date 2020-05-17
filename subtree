@@ -25,3 +25,4 @@ subtree vinegar     tpope/vim-vinegar
 subtree fzf.vim     junegunn/fzf.vim
 subtree rhubarb     tpope/vim-rhubarb
 subtree fzf-tags    zackhsi/fzf-tags
+subtree rust        rust-lang/rust.vim
