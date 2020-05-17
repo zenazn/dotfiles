@@ -1505,10 +1505,21 @@ function! s:GlobComplete(lead, pattern) abort
 endfunction
 
 function! fugitive#CompletePath(base, ...) abort
-  let dir = a:0 == 1 ? a:1 : a:0 == 3 ? a:3 : s:Dir()
-  let tree = s:Tree(dir) . '/'
-  let strip = '^\%(:/:\=\|:(top)\|:(top,literal)\|:(literal,top)\|:(literal)\)'
-  let base = substitute(a:base, strip, '', '')
+  let dir = a:0 == 1 ? a:1 : a:0 >= 3 ? a:3 : s:Dir()
+  let stripped = matchstr(a:base, '^\%(:/:\=\|:(top)\|:(top,literal)\|:(literal,top)\)')
+  let base = strpart(a:base, len(stripped))
+  if len(stripped) || a:0 < 4
+    let root = s:Tree(dir)
+  else
+    let root = a:4
+  endif
+  if root !=# '/' && len(root)
+    let root .= '/'
+  endif
+  if empty(stripped)
+    let stripped = matchstr(a:base, '^\%(:(literal)\|:\)')
+    let base = strpart(a:base, len(stripped))
+  endif
   if base =~# '^\.git/'
     let pattern = s:gsub(base[5:-1], '/', '*&').'*'
     let matches = s:GlobComplete(dir . '/', pattern)
@@ -1520,14 +1531,14 @@ function! fugitive#CompletePath(base, ...) abort
     call map(matches, "'.git/' . v:val")
   elseif base =~# '^\~/'
     let matches = map(s:GlobComplete(expand('~/'), base[2:-1] . '*'), '"~/" . v:val')
-  elseif a:base =~# '^/\|^\a\+:\|^\.\.\=/\|^:(literal)'
+  elseif a:base =~# '^/\|^\a\+:\|^\.\.\=/'
     let matches = s:GlobComplete('', base . '*')
-  elseif len(tree) > 1
-    let matches = s:GlobComplete(tree, s:gsub(base, '/', '*&').'*')
+  elseif len(root)
+    let matches = s:GlobComplete(root, s:gsub(base, '/', '*&').'*')
   else
     let matches = []
   endif
-  call map(matches, 's:fnameescape(s:Slash(matchstr(a:base, strip) . v:val))')
+  call map(matches, 's:fnameescape(s:Slash(stripped . v:val))')
   return matches
 endfunction
 
@@ -1536,18 +1547,21 @@ function! fugitive#PathComplete(...) abort
 endfunction
 
 function! s:CompleteHeads(dir) abort
+  if empty(a:dir)
+    return []
+  endif
   let dir = fugitive#Find('.git/', a:dir)
   return sort(filter(['HEAD', 'FETCH_HEAD', 'ORIG_HEAD'] + s:merge_heads, 'filereadable(dir . v:val)')) +
-        \ sort(s:LinesError('rev-parse', '--symbolic', '--branches', '--tags', '--remotes')[0])
+        \ sort(s:LinesError([a:dir, 'rev-parse', '--symbolic', '--branches', '--tags', '--remotes'])[0])
 endfunction
 
 function! fugitive#CompleteObject(base, ...) abort
-  let dir = a:0 == 1 ? a:1 : a:0 == 3 ? a:3 : s:Dir()
+  let dir = a:0 == 1 ? a:1 : a:0 >= 3 ? a:3 : s:Dir()
+  let tree = s:Tree(dir)
   let cwd = getcwd()
-  let tree = s:Tree(dir) . '/'
   let subdir = ''
-  if len(tree) > 1 && s:cpath(tree, cwd[0 : len(tree) - 1])
-    let subdir = strpart(cwd, len(tree)) . '/'
+  if len(tree) && s:cpath(tree . '/', cwd[0 : len(tree)])
+    let subdir = strpart(cwd, len(tree) + 1) . '/'
   endif
 
   if a:base =~# '^\.\=/\|^:(' || a:base !~# ':'
@@ -1563,9 +1577,7 @@ function! fugitive#CompleteObject(base, ...) abort
       endif
       let results += s:FilterEscape(heads, a:base)
     endif
-    if !empty(tree)
-      let results += a:0 == 1 ? fugitive#CompletePath(a:base, dir) : fugitive#CompletePath(a:base)
-    endif
+    let results += a:0 == 1 || a:0 >= 3 ? fugitive#CompletePath(a:base, 0, '', dir, a:0 >= 4 ? a:4 : tree) : fugitive#CompletePath(a:base)
     return results
 
   elseif a:base =~# '^:'
@@ -1580,8 +1592,8 @@ function! fugitive#CompleteObject(base, ...) abort
     endif
 
   else
-    let tree = matchstr(a:base, '.*[:/]')
-    let entries = s:LinesError(['ls-tree', substitute(tree,  ':\zs\./', '\=subdir', '')], dir)[0]
+    let parent = matchstr(a:base, '.*[:/]')
+    let entries = s:LinesError(['ls-tree', substitute(parent,  ':\zs\./', '\=subdir', '')], dir)[0]
     call map(entries,'s:sub(v:val,"^04.*\\zs$","/")')
     call map(entries,'tree.s:sub(v:val,".*\t","")')
 
@@ -1598,24 +1610,25 @@ function! s:CompleteSub(subcommand, A, L, P, ...) abort
   elseif !a:0
     return fugitive#CompleteObject(a:A, s:Dir())
   elseif type(a:1) == type(function('tr'))
-    return call(a:1, [a:A, a:L, a:P])
+    return call(a:1, [a:A, a:L, a:P] + (a:0 > 1 ? a:2 : []))
   else
     return s:FilterEscape(a:1, a:A)
   endif
 endfunction
 
 function! s:CompleteRevision(A, L, P, ...) abort
-  return s:FilterEscape(s:CompleteHeads(s:Dir()), a:A)
+  return s:FilterEscape(s:CompleteHeads(a:0 ? a:1 : s:Dir()), a:A)
 endfunction
 
-function! s:CompleteRemote(A, L, P) abort
+function! s:CompleteRemote(A, L, P, ...) abort
+  let dir = a:0 ? a:1 : s:Dir()
   let remote = matchstr(a:L, '\u\w*[! ] *\zs\S\+\ze ')
   if !empty(remote)
-    let matches = s:LinesError('ls-remote', remote)[0]
+    let matches = s:LinesError([dir, 'ls-remote', remote])[0]
     call filter(matches, 'v:val =~# "\t" && v:val !~# "{"')
     call map(matches, 's:sub(v:val, "^.*\t%(refs/%(heads/|tags/)=)=", "")')
   else
-    let matches = s:LinesError('remote')[0]
+    let matches = s:LinesError([dir, 'remote'])[0]
   endif
   return s:FilterEscape(matches, a:A)
 endfunction
@@ -2608,7 +2621,8 @@ function! s:Aliases(dir) abort
 endfunction
 
 function! fugitive#Complete(lead, ...) abort
-  let dir = a:0 == 1 ? a:1 : a:0 == 3 ? a:3 : s:Dir()
+  let dir = a:0 == 1 ? a:1 : a:0 >= 3 ? a:3 : s:Dir()
+  let root = a:0 >= 4 ? a:4 : s:Tree(s:Dir())
   let pre = a:0 > 1 ? strpart(a:1, 0, a:2) : ''
   let subcmd = matchstr(pre, '\u\w*[! ] *\zs[[:alnum:]-]\+\ze ')
   if empty(subcmd)
@@ -2616,15 +2630,20 @@ function! fugitive#Complete(lead, ...) abort
   elseif a:0 ==# 2 && subcmd =~# '^\%(commit\|revert\|push\|fetch\|pull\|merge\|rebase\)$'
     let cmdline = substitute(a:1, '\u\w*\([! ] *\)' . subcmd, 'G' . subcmd, '')
     let caps_subcmd = substitute(subcmd, '\%(^\|-\)\l', '\u&', 'g')
-    return fugitive#{caps_subcmd}Complete(a:lead, cmdline, a:2 + len(cmdline) - len(a:1))
+    return fugitive#{caps_subcmd}Complete(a:lead, cmdline, a:2 + len(cmdline) - len(a:1), dir, root)
   elseif pre =~# ' -- '
-    return fugitive#CompletePath(a:lead, dir)
+    return fugitive#CompletePath(a:lead, a:1, a:2, dir, root)
   elseif a:lead =~# '^-'
     let results = split(s:ChompDefault('', dir, subcmd, '--git-completion-helper'), ' ')
   else
-    return fugitive#CompleteObject(a:lead, dir)
+    return fugitive#CompleteObject(a:lead, a:1, a:2, dir, root)
   endif
   return filter(results, 'strpart(v:val, 0, strlen(a:lead)) ==# a:lead')
+endfunction
+
+function! fugitive#CompleteForWorkingDir(A, L, P, ...) abort
+  let path = a:0 ? a:1 : getcwd()
+  return fugitive#Complete(a:A, a:L, a:P, FugitiveExtractGitDir(path), path)
 endfunction
 
 " Section: :Gcd, :Glcd
@@ -3786,9 +3805,10 @@ function! s:RevertSubcommand(line1, line2, range, bang, mods, options) abort
   return {'insert_args': ['--edit']}
 endfunction
 
-function! fugitive#CommitComplete(A, L, P) abort
+function! fugitive#CommitComplete(A, L, P, ...) abort
+  let dir = a:0 ? a:1 : s:Dir()
   if a:A =~# '^--fixup=\|^--squash='
-    let commits = s:LinesError(['log', '--pretty=format:%s', '@{upstream}..'])[0]
+    let commits = s:LinesError([dir, 'log', '--pretty=format:%s', '@{upstream}..'])[0]
     let pre = matchstr(a:A, '^--\w*=''\=') . ':/^'
     if pre =~# "'"
       call map(commits, 'pre . string(tr(v:val, "|\"^$*[]", "......."))[1:-1]')
@@ -3798,27 +3818,27 @@ function! fugitive#CommitComplete(A, L, P) abort
       return s:FilterEscape(map(commits, 'pre . tr(v:val, "\\ !^$*?[]()''\"`&;<>|#", "....................")'), a:A)
     endif
   else
-    return s:CompleteSub('commit', a:A, a:L, a:P, function('fugitive#CompletePath'))
+    return s:CompleteSub('commit', a:A, a:L, a:P, function('fugitive#CompletePath'), a:000)
   endif
   return []
 endfunction
 
-function! fugitive#RevertComplete(A, L, P) abort
-  return s:CompleteSub('revert', a:A, a:L, a:P, function('s:CompleteRevision'))
+function! fugitive#RevertComplete(A, L, P, ...) abort
+  return s:CompleteSub('revert', a:A, a:L, a:P, function('s:CompleteRevision'), a:000)
 endfunction
 
 " Section: :Git merge, :Git rebase, :Git pull
 
-function! fugitive#MergeComplete(A, L, P) abort
-  return s:CompleteSub('merge', a:A, a:L, a:P, function('s:CompleteRevision'))
+function! fugitive#MergeComplete(A, L, P, ...) abort
+  return s:CompleteSub('merge', a:A, a:L, a:P, function('s:CompleteRevision'), a:000)
 endfunction
 
-function! fugitive#RebaseComplete(A, L, P) abort
-  return s:CompleteSub('rebase', a:A, a:L, a:P, function('s:CompleteRevision'))
+function! fugitive#RebaseComplete(A, L, P, ...) abort
+  return s:CompleteSub('rebase', a:A, a:L, a:P, function('s:CompleteRevision'), a:000)
 endfunction
 
-function! fugitive#PullComplete(A, L, P) abort
-  return s:CompleteSub('pull', a:A, a:L, a:P, function('s:CompleteRemote'))
+function! fugitive#PullComplete(A, L, P, ...) abort
+  return s:CompleteSub('pull', a:A, a:L, a:P, function('s:CompleteRemote'), a:000)
 endfunction
 
 function! s:MergeSubcommand(line1, line2, range, bang, mods, options) abort
@@ -4131,9 +4151,6 @@ function! s:GrepSubcommand(line1, line2, range, bang, mods, options) abort
   exe s:DirCheck(dir)
   let listnr = a:line1 == 0 ? a:line1 : a:line2
   let cmd = ['--no-pager', 'grep', '-n', '--no-color', '--full-name']
-  if fugitive#GitVersion(2, 19)
-    call add(cmd, '--column')
-  endif
   let tree = s:Tree(dir)
   let args = a:options.args
   if get(args, 0, '') =~# '^-O\|--open-files-in-pager$'
@@ -4169,11 +4186,16 @@ function! s:GrepSubcommand(line1, line2, range, bang, mods, options) abort
   endif
 endfunction
 
+function! fugitive#GrepCommand(line1, line2, range, bang, mods, arg) abort
+  return fugitive#Command(a:line1, a:line2, a:range, a:bang, a:mods,
+        \ "grep -O " . (fugitive#GitVersion(2, 19) ? "--column " : "") . a:arg)
+endfunction
+
 let s:log_diff_context = '{"filename": fugitive#Find(v:val . from, a:dir), "lnum": get(offsets, v:key), "module": strpart(v:val, 0, len(a:state.base_module)) . from}'
 
 function! s:LogFlushQueue(state, dir) abort
   let queue = remove(a:state, 'queue')
-  if a:state.child_found && get(a:state, 'ignore_summary')
+  if a:state.child_found && get(a:state, 'ignore_commit')
     call remove(queue, 0)
   elseif len(queue) && len(a:state.target) && len(get(a:state, 'parents', []))
     let from = substitute(a:state.target, '^/', ':', '')
@@ -4310,11 +4332,13 @@ function! fugitive#LogCommand(line1, count, range, bang, mods, args, type) abort
         let state.ignore_summary = 1
       endif
     endif
+    let state.ignore_commit = 1
   elseif a:count > 0
     if !s:HasOpt(args, '--merges', '--no-merges')
       call insert(extra_args, '--no-merges')
     endif
     call add(args, '-L' . a:line1 . ',' . a:count . ':' . path[1:-1])
+    let state.ignore_commit = 1
   endif
   if len(path) && empty(filter(copy(args), 'v:val =~# "^[^-]"'))
     let owner = s:Owner(@%, dir)
@@ -4710,12 +4734,12 @@ endfunction
 
 " Section: :Git push, :Git fetch
 
-function! fugitive#PushComplete(A, L, P) abort
-  return s:CompleteSub('push', a:A, a:L, a:P, function('s:CompleteRemote'))
+function! fugitive#PushComplete(A, L, P, ...) abort
+  return s:CompleteSub('push', a:A, a:L, a:P, function('s:CompleteRemote'), a:000)
 endfunction
 
-function! fugitive#FetchComplete(A, L, P) abort
-  return s:CompleteSub('fetch', a:A, a:L, a:P, function('s:CompleteRemote'))
+function! fugitive#FetchComplete(A, L, P, ...) abort
+  return s:CompleteSub('fetch', a:A, a:L, a:P, function('s:CompleteRemote'), a:000)
 endfunction
 
 function! s:AskPassArgs(dir) abort
