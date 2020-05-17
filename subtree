@@ -12,17 +12,20 @@ function subtree() {
   local name repo
   name="$1"
   repo="$2"
+  branch="${3:-master}"
 
-  git subtree "$operation" --squash --prefix "vim/pack/zenazn/start/$name" "https://github.com/$repo.git" master
+  git subtree "$operation" --squash --prefix "vim/pack/zenazn/start/$name" "https://github.com/$repo.git" "$branch"
 }
 
-subtree fugitive    tpope/vim-fugitive
-subtree go          fatih/vim-go
-subtree javascript  pangloss/vim-javascript
-subtree jsx         mxw/vim-jsx
-subtree ruby        vim-ruby/vim-ruby
-subtree vinegar     tpope/vim-vinegar
-subtree fzf.vim     junegunn/fzf.vim
-subtree rhubarb     tpope/vim-rhubarb
-subtree fzf-tags    zackhsi/fzf-tags
-subtree rust        rust-lang/rust.vim
+#       local name      github repo name                  branch
+subtree fugitive        tpope/vim-fugitive
+subtree go              fatih/vim-go
+subtree javascript      pangloss/vim-javascript
+subtree jsx             mxw/vim-jsx
+subtree ruby            vim-ruby/vim-ruby
+subtree vinegar         tpope/vim-vinegar
+subtree fzf.vim         junegunn/fzf.vim
+subtree rhubarb         tpope/vim-rhubarb
+subtree fzf-tags        zackhsi/fzf-tags
+subtree rust            rust-lang/rust.vim
+subtree languageclient  autozimu/LanguageClient-neovim    next
