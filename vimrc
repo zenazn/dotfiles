@@ -137,3 +137,6 @@ let g:ruby_path = []
 let g:omni_sql_no_default_maps = 1
 
 let g:javascript_plugin_flow = 1
+
+let g:rustfmt_autosave = 1
+let g:rust_clip_command = 'pbcopy'
