@@ -469,7 +469,7 @@ endfunction
 " ------------------------------------------------------------------
 " History[:/]
 " ------------------------------------------------------------------
-function! s:all_files()
+function! fzf#vim#_recent_files()
   return fzf#vim#_uniq(map(
     \ filter([expand('%')], 'len(v:val)')
     \   + filter(map(s:buflisted_sorted(), 'bufname(v:val)'), 'len(v:val)')
@@ -534,7 +534,7 @@ endfunction
 
 function! fzf#vim#history(...)
   return s:fzf('history-files', {
-  \ 'source':  s:all_files(),
+  \ 'source':  fzf#vim#_recent_files(),
   \ 'options': ['-m', '--header-lines', !empty(expand('%')), '--prompt', 'Hist> ']
   \}, a:000)
 endfunction
@@ -700,7 +700,7 @@ function! fzf#vim#ag(query, ...)
   let query = empty(a:query) ? '^(?=.)' : a:query
   let args = copy(a:000)
   let ag_opts = len(args) > 1 && type(args[0]) == s:TYPE.string ? remove(args, 0) : ''
-  let command = ag_opts . ' ' . fzf#shellescape(query)
+  let command = ag_opts . ' -- ' . fzf#shellescape(query)
   return call('fzf#vim#ag_raw', insert(args, command, 0))
 endfunction
 
@@ -1214,7 +1214,7 @@ function! fzf#vim#maps(mode, ...)
   let curr = ''
   for line in split(cout, "\n")
     if line =~ "^\t"
-      let src = '  '.join(reverse(reverse(split(split(line)[-1], '/'))[0:2]), '/')
+      let src = "\t".substitute(matchstr(line, '/\zs[^/\\]*\ze$'), ' [^ ]* ', ':', '')
       call add(list, printf('%s %s', curr, s:green(src, 'Comment')))
       let curr = ''
     else
