@@ -1,6 +1,19 @@
+_has() {
+  whence -p "$1" > /dev/null
+}
+_path_prepend() {
+  if [ -d "$1" ]; then
+    export PATH="$1:$PATH"
+  fi
+}
+
 # Environment
-export VISUAL=vim
-export EDITOR=vim
+if _has nvim; then
+  export EDITOR=nvim
+else
+  export EDITOR=vim
+fi
+export VISUAL="$EDITOR"
 export CLICOLOR="1"
 
 # History
@@ -42,7 +55,9 @@ function _set_prompt {
   # Report exit status of last process if it was unsuccessful
   PROMPT=$'%(?..%F{red}%?%f\n)'
   # Git branch and modification status, if applicable
-  PROMPT+=$(_prompt_git)
+  if _has git; then
+    PROMPT+=$(_prompt_git)
+  fi
   # Path to file
   PROMPT+='%F{green}%~$%f '
 }
@@ -52,4 +67,17 @@ precmd_functions+=( _set_prompt )
 # Aliases
 alias g=git
 alias gg='git grep'
-alias v=vim
+alias gs='git status'
+alias v="$EDITOR -O"
+alias vim="$(whence -p "$EDITOR") -O"
+
+# gcloud
+source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+# source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+_has fd && export FZF_DEFAULT_COMMAND='fd --type f'
+
+_has ndoenv && eval "$(nodenv init -)"
+_has pyenv && eval "$(pyenv init -)"
+_path_prepend "/usr/local/opt/postgresql@11/bin"
+_path_prepend "$HOME/.poetry/bin"
+_path_prepend "$HOME/bin"
