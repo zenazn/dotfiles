@@ -91,6 +91,9 @@ install_dot "vim"
 install_dot "vimrc"
 install_dot "zshrc"
 
+mkdir -p "$HOME/.config"
+install_dot "config/nvim"
+
 #mkdir -p "$HOME/.profile.d"
 #install_dot "profile"
 #install_dot "profile.d/01-path"
