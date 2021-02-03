@@ -26,11 +26,10 @@ endfunction
 function! rhubarb#HomepageForUrl(url) abort
   let domain_pattern = 'github\.com'
   let domains = get(g:, 'github_enterprise_urls', get(g:, 'fugitive_github_domains', []))
-  call map(copy(domains), 'substitute(v:val, "/$", "", "")')
   for domain in domains
-    let domain_pattern .= '\|' . escape(split(domain, '://')[-1], '.')
+    let domain_pattern .= '\|' . escape(split(substitute(domain, '/$', '', ''), '://')[-1], '.')
   endfor
-  let base = matchstr(a:url, '^\%(https\=://\%([^@/:]*@\)\=\|git://\|git@\|ssh://git@\)\=\zs\('.domain_pattern.'\)[/:].\{-\}\ze\%(\.git\)\=/\=$')
+  let base = matchstr(a:url, '^\%(https\=://\%([^@/:]*@\)\=\|git://\|git@\|ssh://git@\|org-\d\+@\|ssh://org-\d\+@\)\=\zs\('.domain_pattern.'\)[/:].\{-\}\ze\%(\.git\)\=/\=$')
   if index(domains, 'http://' . matchstr(base, '^[^:/]*')) >= 0
     return 'http://' . tr(base, ':', '/')
   elseif !empty(base)
