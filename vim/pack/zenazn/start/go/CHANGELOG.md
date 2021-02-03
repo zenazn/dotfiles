@@ -1,5 +1,208 @@
 ## unplanned
 
+BACKWARDS INCOMPATIBILITIES:
+* Remove g:go_autodetect_gopath.
+  [[GH-3078]](https://github.com/fatih/vim-go/pull/3078)
+
+IMPROVEMENTS:
+* Clarify allowed values for `gopls` related configuration options.
+  [[GH-3016]](https://github.com/fatih/vim-go/pull/3016)
+  [[GH-3017]](https://github.com/fatih/vim-go/pull/3017)
+* Add `g:go_fillstruct_mode` to allow `:GoFillStruct` to be satisfied by either
+  `fillstruct` or by `gopls`.
+  [[GH-3018]](https://github.com/fatih/vim-go/pull/3018)
+* Add `:GoDebugTestFunc` to debug the test function surrounding the current
+  cursor location.
+  [[GH-3011]](https://github.com/fatih/vim-go/pull/3011)
+* Implicitly add a workspace when a file from a module is opened.
+  [[GH-3028]](https://github.com/fatih/vim-go/pull/3028)
+* Add support for using static check as the gometalinter.
+  [[GH-3036]](https://github.com/fatih/vim-go/pull/3036)
+  [[GH-3133]](https://github.com/fatih/vim-go/pull/3133)
+* Add `g:go_debug_mappings` to allow the debug key mappings to be customized.
+  [[GH-3035]](https://github.com/fatih/vim-go/pull/3035)
+* Use `gopls` as the default instead of `guru` to satisfy `:GoImplements`.
+  [[GH-3034]](https://github.com/fatih/vim-go/pull/3034)
+* Deprecate g:go_diagnostics_enabled` and add `g:go_diagnostics_level` to allow
+  more finely grained control of the handling of diagnostics messages.
+  [[GH-3050]](https://github.com/fatih/vim-go/pull/3050)
+  [[GH-3052]](https://github.com/fatih/vim-go/pull/3052)
+  [[GH-3119]](https://github.com/fatih/vim-go/pull/3119)
+* Add support for allowing `g:go_gopls_local`  to specify different local
+  imports values per workspace.
+  [[GH-3053]](https://github.com/fatih/vim-go/pull/3053)
+* Improve `:GoDecls` and `:GoDeclsDir` display.
+  [[GH-3081]](https://github.com/fatih/vim-go/pull/3081)
+* Preserve existing window layout when debugging and `g:go_debug_windows` is
+  empty.
+  [[GH-3068]](https://github.com/fatih/vim-go/pull/3068)
+* Show identifier in fzf's preview window with `:GoDecls` and `:GoDeclsDir`.
+  [[GH-3083]](https://github.com/fatih/vim-go/pull/3083)
+* Use `gopls` for `:GoCallers`.
+  [[GH-3088]](https://github.com/fatih/vim-go/pull/3088)
+  [[GH-3090]](https://github.com/fatih/vim-go/pull/3090)
+  [[GH-3141]](https://github.com/fatih/vim-go/pull/3141)
+  [[GH-3142]](https://github.com/fatih/vim-go/pull/3142)
+* Update denite integration to work with python3.9.
+  [[GH-3097]](https://github.com/fatih/vim-go/pull/3097)
+* Add syntax highlighting for go.sum files.
+  [[GH-3102]](https://github.com/fatih/vim-go/pull/3102)
+* Change the default from metalinter to staticcheck.
+  [[GH-3126]](https://github.com/fatih/vim-go/pull/3126)
+* Add `g:go_debug_preserve_layout` to prevent `:GoDebug` and friends from
+  closing windows.
+  [[GH-3125]](https://github.com/fatih/vim-go/pull/3125)
+
+BUG FIXES:
+* Remove implications that terminal mode is only applied for Neovim.
+  [[GH-3010]](https://github.com/fatih/vim-go/pull/3010)
+* Correct documentation to clearly show the default value for
+  `g:go_gopls_options`.
+  [[GH-3019]](https://github.com/fatih/vim-go/pull/3019)
+* Allow truthy values for `g:go_gopls_gofumpt`.
+  [[GH-3017]](https://github.com/fatih/vim-go/pull/3017)
+  [[GH-3022]](https://github.com/fatih/vim-go/pull/3022)
+* Fix quickfix title for `:GoMetaLinter`.
+  [[GH-3040]](https://github.com/fatih/vim-go/pull/3040)
+* Change key mapping for (go-debug-halt) to F8 to resolve collision with key
+  mapping for (go-debug-print).
+  [[GH-3047]](https://github.com/fatih/vim-go/pull/3047)
+* Handle gopls v0.5.2 addition of a prefix on the expected code actions names.
+  [[GH-3077]](https://github.com/fatih/vim-go/pull/3077)
+* Make sure all buffers' mappings are restored when debugging stops.
+  [[GH-3048]](https://github.com/fatih/vim-go/pull/3048)
+* Return early when `g:go_referrers_modes` is `gopls` and `gopls` is disabled.
+  [[GH-3090]](https://github.com/fatih/vim-go/pull/3090)
+* Handle yet another error format produced by golangci-lint.
+  [[GH-3094]](https://github.com/fatih/vim-go/pull/3094)
+* Handle additional ways that gopls can provide links for godoc.
+  [[GH-3112]](https://github.com/fatih/vim-go/pull/3112)
+* Remove implication that `g:go_def_reuse_buffer` only applies to split variant
+  of jumping to a definition.
+  [[GH-3128]](https://github.com/fatih/vim-go/pull/3128)
+
+## v1.24 - (September 15, 2020)
+
+IMPROVEMENTS:
+* Clarify how `g:go_imports_autosave` and `g:go_fmt_autosave` interact.
+  [[GH-2893]](https://github.com/fatih/vim-go/pull/2893)
+* Document what the working directory will be for `:GoRun`.
+  [[GH-2898]](https://github.com/fatih/vim-go/pull/2898)
+* Add Ultisnip snippet for wrapping errors.
+  [[GH-2883]](https://github.com/fatih/vim-go/pull/2883)
+* Beautify the godoc pop up window border.
+  [[GH-2900]](https://github.com/fatih/vim-go/pull/2900)
+* Default `g:go_doc_url` to https://pkg.go.dev.
+  [[GH-2884]](https://github.com/fatih/vim-go/pull/2884)
+* Default `g:go_gopls_options` to `[-remote=auto]` to share gopls instances
+  with other plugins and multiple instances of Vim.
+  [[GH-2905]](https://github.com/fatih/vim-go/pull/2905)
+* Use the module root as the working directory when renaming so that all
+  references to the symbol will be renamed when in module aware mode and
+  `g:go_rename_command` is set to `gopls`.
+  [[GH-2917]](https://github.com/fatih/vim-go/pull/2917)
+* Change `g:go_rename_command`'s default to `gopls`.
+  [[GH-2922]](https://github.com/fatih/vim-go/pull/2922)
+* Do not send unnecessary textDocument/didChange notifications to `gopls`.
+  [[GH-2902]](https://github.com/fatih/vim-go/pull/2902)
+  [[GH-2930]](https://github.com/fatih/vim-go/pull/2930)
+* Stop the debugger when the process being debugged exits.
+  [[GH-2921]](https://github.com/fatih/vim-go/pull/2921)
+* Use the module package cache as a source of packages candidates when trying
+  to complete package names.
+  [[GH-2936]](https://github.com/fatih/vim-go/pull/2936)
+  [[GH-2939]](https://github.com/fatih/vim-go/pull/2939)
+* Allow interaction with Vim while waiting for a breakpoint to be hit while
+  debugging.
+  [[GH-2932]](https://github.com/fatih/vim-go/pull/2932)
+* Refactor Vim signs used for debugging breakpoints to avoid id collision with
+  other plugins.
+  [[GH-2943]](https://github.com/fatih/vim-go/pull/2943)
+* Refactor debugger's rpc response handling to be asynchronous so that Vim will
+  be responsive while the program being debugged is executing.
+  [[GH-2948]](https://github.com/fatih/vim-go/pull/2948)
+  [[GH-2952]](https://github.com/fatih/vim-go/pull/2952)
+* Warn when the debugger breaks in a file that has changed since debugging started.
+  [[GH-2950]](https://github.com/fatih/vim-go/pull/2950)
+* Enable `go-run` mappings that use the terminal to work with Vim in addition to Neovim.
+  [[GH-2956]](https://github.com/fatih/vim-go/pull/2956)
+* Use existing diagnostics for the file when the file hasn't changed and
+  `g:go_metalinter_command` is `gopls`.
+  [[GH-2960]](https://github.com/fatih/vim-go/pull/2960)
+* Add a new option, `g:go_code_completion_icase`, to allow ignoring case when
+  filtering completion results.
+  [[GH-2961]](https://github.com/fatih/vim-go/pull/2961)
+ * Make sure tools are not cross-compiled with `:GoInstallBinaries` and
+   `:GoUpdateBinaries`.
+   [[GH-2982]](https://github.com/fatih/vim-go/pull/2982)
+   [[GH-2988]](https://github.com/fatih/vim-go/pull/2988)
+* Add `:GoDebugHalt` to allow a program being debugged to be paused before it
+  hits a breakpoint.
+  [[GH-2983]](https://github.com/fatih/vim-go/pull/2983)
+* Clear highlighting of the current line when after resuming when debugging.
+  [[GH-2984]](https://github.com/fatih/vim-go/pull/2984)
+* Add `:GoDebugAttach` to debug a running process.
+  [[GH-2989]](https://github.com/fatih/vim-go/pull/2989)
+* Add `g:go_term_reuse` option to allow the reuse of a terminal window.
+  [[GH-2990]](https://github.com/fatih/vim-go/pull/2990)
+* Add official support for using `gopls`' `gofumpt` workspace setting via
+  `g:go_gopls_gofumpt`.
+  [[GH-2994]](https://github.com/fatih/vim-go/pull/2994)
+  [[GH-3005]](https://github.com/fatih/vim-go/pull/3005)
+* Add support for using `gopls`' workspace settings that are otherwise not yet
+  officially supported by vim-go.
+  [[GH-2994]](https://github.com/fatih/vim-go/pull/2994)
+
+BUG FIXES:
+* Fix call to non-existent function in terminal mode edge case.
+  [[GH-2895]](https://github.com/fatih/vim-go/pull/2895)
+* Do not show errors when adding a text property for highlighting fails.
+  [[GH-2892]](https://github.com/fatih/vim-go/pull/2892)
+* Include `errcheck` in `g:go_metalinter_enabled`'s default.
+  [[GH-2903]](https://github.com/fatih/vim-go/pull/2903)
+* Fix display of completion selection information on command-line when
+  `g:go_echo_go_info` is enabled.
+  [[GH-2907]](https://github.com/fatih/vim-go/pull/2907)
+* Prevent `:GoDebugBreakpoint` from causing delve to exit.
+  [[GH-2908]](https://github.com/fatih/vim-go/pull/2908)
+* Use the resolved directory name for `gopls`' working directory when `go.mod`
+  is in a symlinked path.
+  [[GH-2913]](https://github.com/fatih/vim-go/pull/2913)
+* Fix buffer reuse with `:GoDef`.
+  [[GH-2928]](https://github.com/fatih/vim-go/pull/2928)
+* Handle breakpoints that are already set before calling `:GoDebugStart` or
+  `:GoDebugTest` in some locales that cause the `sign place` output to vary.
+  [[GH-2921]](https://github.com/fatih/vim-go/pull/2921)
+* Handle diagnostic errors at the end of a .go file.
+  [[GH-2942]](https://github.com/fatih/vim-go/pull/2942)
+* Fix the `go-implements` mapping to use respect `g:go_implements_mode`.
+  [[GH-2944]](https://github.com/fatih/vim-go/pull/2944)
+* Handle null results from `gopls` when getting definitions or type definitions
+  from virtual files.
+  [[GH-2951]](https://github.com/fatih/vim-go/pull/2951)
+* Fix warning when Neovim is older than v0.4.0.
+  [[GH-2959]](https://github.com/fatih/vim-go/pull/2959)
+* Correct documentation that referred to `g:go_imports_command` to refer to
+  `g:go_imports_mode`  instead.
+  [[GH-2969]](https://github.com/fatih/vim-go/pull/2969)
+* Remove reference to gocode in error message when `g:go_info_mode` is set to
+  an unsupported value.
+  [[GH-2978]](https://github.com/fatih/vim-go/pull/2978)
+* Make sure debugging commands are configured when debugging a second time
+  within a single Vim session.
+  [[GH-2985]](https://github.com/fatih/vim-go/pull/2985)
+* Correct documentation in for `:GoModifyTags` when adding a specific tag
+  value.
+  [[GH-3001]](https://github.com/fatih/vim-go/pull/3001)
+* Fix the path given to `gopls` when `let g:go_metalinter='gopls'` and
+  `:GoMetaLinter` is called without any arguments.
+  [[GH-2992]](https://github.com/fatih/vim-go/pull/2992)
+* Do not override a user's configuration for `GoDebugBreakpoint` or
+  `GoDebugCurrent` highlight groups.
+  [[GH-2998]](https://github.com/fatih/vim-go/pull/2998)
+* Apply `gopls` text edits correctly that insert solitary newlines.
+  [[GH-3000]](https://github.com/fatih/vim-go/pull/3000)
+
 ## v1.23 - (May 16, 2020)
 
 BACKWARDS INCOMPATIBILITIES:

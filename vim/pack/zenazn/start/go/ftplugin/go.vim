@@ -79,14 +79,16 @@ augroup vim-go-buffer
 
   " The file is registered (textDocument/DidOpen) with gopls in plugin/go.vim
   " on the FileType event.
-  " TODO(bc): handle all the other events that may be of interest to gopls,
-  " too (e.g.  BufFilePost , CursorHold , CursorHoldI, FileReadPost,
-  " StdinReadPre, BufWritePost, TextChange, TextChangedI)
+
   if go#util#has_job()
-    autocmd BufWritePost <buffer> call go#lsp#DidChange(expand('<afile>:p'))
-    autocmd FileChangedShellPost <buffer> call go#lsp#DidChange(expand('<afile>:p'))
+    autocmd BufWritePost,FileChangedShellPost <buffer> call go#lsp#DidChange(expand('<afile>:p'))
     autocmd BufDelete <buffer> call go#lsp#DidClose(expand('<afile>:p'))
   endif
+
+  " send the textDocument/didChange notification when idle. go#lsp#DidChange
+  " will not send an event if the buffer hasn't changed since the last
+  " notification.
+  autocmd CursorHold,CursorHoldI <buffer> call go#lsp#DidChange(expand('<afile>:p'))
 
   autocmd BufEnter,CursorHold <buffer> call go#auto#update_autocmd()
 
@@ -122,19 +124,6 @@ augroup vim-go-buffer
     " previous buffer's diagnostics aren't used.
     "autocmd BufWinEnter <buffer> call go#lsp#ClearDiagnosticHighlights()
   endif
-
-  autocmd BufEnter <buffer>
-        \  if go#config#AutodetectGopath() && !exists('b:old_gopath')
-        \|   let b:old_gopath = exists('$GOPATH') ? $GOPATH : -1
-        \|   let $GOPATH = go#path#Detect()
-        \| endif
-  autocmd BufLeave <buffer>
-        \  if exists('b:old_gopath')
-        \|   if b:old_gopath isnot -1
-        \|     let $GOPATH = b:old_gopath
-        \|   endif
-        \|   unlet b:old_gopath
-        \| endif
 augroup end
 
 " restore Vi compatibility settings

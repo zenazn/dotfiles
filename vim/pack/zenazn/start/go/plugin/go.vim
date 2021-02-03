@@ -24,7 +24,7 @@ function! s:checkVersion() abort
       echom "If you really want to continue you can set this to make the error go away:"
       echom "    let g:go_version_warning = 0"
       echom "Note that some features may error out or behave incorrectly."
-      echom "Please do not report bugs unless you're using at least Vim 8.0.1453 or Neovim 0.3.2."
+      echom "Please do not report bugs unless you're using at least Vim 8.0.1453 or Neovim 0.4.0."
       echohl None
 
       " Make sure people see this.
@@ -49,6 +49,7 @@ let s:packages = {
       \ 'golint':        ['golang.org/x/lint/golint@master'],
       \ 'gopls':         ['golang.org/x/tools/gopls@latest', {}, {'after': function('go#lsp#Restart', [])}],
       \ 'golangci-lint': ['github.com/golangci/golangci-lint/cmd/golangci-lint@master'],
+      \ 'staticcheck':   ['honnef.co/go/tools/cmd/staticcheck@latest'],
       \ 'gomodifytags':  ['github.com/fatih/gomodifytags@master'],
       \ 'gorename':      ['golang.org/x/tools/cmd/gorename@master'],
       \ 'gotags':        ['github.com/jstemmer/gotags@master'],
@@ -85,6 +86,10 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   endif
 
   let go_bin_path = go#path#BinPath()
+
+  let [l:goos, l:goarch] = go#util#hostosarch()
+  let Restore_goos = go#util#SetEnv('GOOS', l:goos)
+  let Restore_goarch = go#util#SetEnv('GOARCH', l:goarch)
 
   " change $GOBIN so go get can automatically install to it
   let Restore_gobin = go#util#SetEnv('GOBIN', go_bin_path)
@@ -155,10 +160,8 @@ function! s:GoInstallBinaries(updateBinaries, ...)
       if l:importPath =~ "@"
         let Restore_modules = go#util#SetEnv('GO111MODULE', 'on')
         let l:tmpdir = go#util#tempdir('vim-go')
-        let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-        let l:dir = getcwd()
         try
-          execute l:cd . fnameescape(l:tmpdir)
+          let l:dir = go#util#Chdir(l:tmpdir)
           let l:get_cmd = copy(l:get_base_cmd)
 
           if len(l:pkg) > 1 && get(l:pkg[1], l:platform, []) isnot []
@@ -173,12 +176,9 @@ function! s:GoInstallBinaries(updateBinaries, ...)
           if l:err
             call go#util#EchoError(printf('Error installing %s: %s', l:importPath, l:out))
           endif
-
-          call call(Restore_modules, [])
         finally
-          execute l:cd . fnameescape(l:dir)
+          call go#util#Chdir(l:dir)
         endtry
-        call call(Restore_modules, [])
       else
         let l:get_cmd = copy(l:get_base_cmd)
         let l:get_cmd += ['-d']
@@ -218,6 +218,8 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   " restore back!
   call call(Restore_path, [])
   call call(Restore_gobin, [])
+  call call(Restore_goarch, [])
+  call call(Restore_goos, [])
 
   if resetshellslash
     set shellslash
@@ -274,12 +276,7 @@ function! s:register()
     return
   endif
 
-  let l:RestoreGopath = function('s:noop')
-  if go#config#AutodetectGopath()
-    let l:RestoreGopath = go#util#SetEnv('GOPATH', go#path#Detect())
-  endif
   call go#lsp#DidOpen(expand('<afile>:p'))
-  call call(l:RestoreGopath, [])
 endfunction
 
 function! s:noop(...) abort
