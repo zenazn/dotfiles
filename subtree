@@ -28,4 +28,3 @@ subtree fzf.vim         junegunn/fzf.vim
 subtree rhubarb         tpope/vim-rhubarb
 subtree fzf-tags        zackhsi/fzf-tags
 subtree rust            rust-lang/rust.vim
-subtree languageclient  autozimu/LanguageClient-neovim    next

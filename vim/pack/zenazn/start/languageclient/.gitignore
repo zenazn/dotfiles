@@ -1,7 +1,0 @@
-doc/tags
-__pycache__
-.pytest_cache
-.idea
-target
-rplugin/python3/tests
-tests/data/.vim/plugged
