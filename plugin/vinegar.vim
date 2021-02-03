@@ -28,7 +28,7 @@ endif
 unlet! s:netrw_up
 
 nnoremap <silent> <Plug>VinegarUp :call <SID>opendir('edit')<CR>
-if empty(maparg('-', 'n'))
+if empty(maparg('-', 'n')) && !hasmapto('<Plug>VinegarUp')
   nmap - <Plug>VinegarUp
 endif
 
@@ -48,7 +48,7 @@ function! s:opendir(cmd) abort
   elseif expand('%') =~# '^$\|^term:[\/][\/]'
     execute a:cmd '.'
   else
-    execute a:cmd '%:h'
+    execute a:cmd '%:h' . s:slash()
     call s:seek(expand('#:t'))
   endif
 endfunction
