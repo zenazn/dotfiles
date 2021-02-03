@@ -7,6 +7,13 @@ _path_prepend() {
   fi
 }
 
+# Homebrew
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval $(/opt/homebrew/bin/brew shellenv)
+elif [ -x /usr/local/bin/brew ]; then
+  eval $(/usr/local/bin/brew shellenv)
+fi
+
 # Environment
 if _has nvim; then
   export EDITOR=nvim
@@ -72,11 +79,14 @@ alias v="$EDITOR -O"
 alias vim="$(whence -p "$EDITOR") -O"
 
 # gcloud
-source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
-# source "/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+if [ -d "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
+  source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+  source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+fi
+
 _has fd && export FZF_DEFAULT_COMMAND='fd --type f'
 
-_has ndoenv && eval "$(nodenv init -)"
+_has nodenv && eval "$(nodenv init -)"
 _has pyenv && eval "$(pyenv init -)"
 _path_prepend "/usr/local/opt/postgresql@11/bin"
 _path_prepend "$HOME/.poetry/bin"
