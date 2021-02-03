@@ -29,7 +29,7 @@ function! go#lsp#message#Initialize(wd) abort
                 \ 'codeAction': {
                 \   'codeActionLiteralSupport': {
                 \     'codeActionKind': {
-                \       'valueSet': ['source.organizeImports'],
+                \       'valueSet': ['source.organizeImports', 'refactor.rewrite'],
                 \     },
                 \   },
                 \ },
@@ -74,6 +74,27 @@ function! go#lsp#message#CodeActionImports(file) abort
   return s:codeAction('source.organizeImports', a:file)
 endfunction
 
+function! go#lsp#message#CodeActionFillStruct(file, line, col) abort
+  return go#lsp#message#CodeActionRefactorRewrite(a:file, a:line, a:col, a:line, a:col)
+endfunction
+
+function! go#lsp#message#CodeActionRefactorRewrite(file, startline, startcol, endline, endcol) abort
+  let l:startpos = s:position(a:startline, a:startcol)
+  let l:endpos = s:position(a:endline, a:endcol)
+
+  let l:request = s:codeAction('refactor.rewrite', a:file)
+
+  let l:request.params = extend(l:request.params,
+        \ {
+          \ 'range': {
+            \ 'start': l:startpos,
+            \ 'end': l:endpos,
+          \ }
+        \ })
+
+  return l:request
+endfunction
+
 function! s:codeAction(name, file) abort
   return {
           \ 'notification': 0,
@@ -83,8 +104,8 @@ function! s:codeAction(name, file) abort
           \       'uri': go#path#ToURI(a:file)
           \   },
           \   'range': {
-          \     'start': {'line': 0, 'character': 0},
-          \     'end': {'line': line('$'), 'character': 0},
+          \     'start': s:position(0, 0),
+          \     'end': s:position(line('$'), 0),
           \   },
           \   'context': {
           \     'only': [a:name],
@@ -217,6 +238,29 @@ function! go#lsp#message#References(file, line, col) abort
        \ }
 endfunction
 
+function! go#lsp#message#PrepareCallHierarchy(file, line, col) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'textDocument/prepareCallHierarchy',
+          \ 'params': {
+          \   'textDocument': {
+          \       'uri': go#path#ToURI(a:file)
+          \   },
+          \   'position': s:position(a:line, a:col),
+          \ }
+       \ }
+endfunction
+
+function! go#lsp#message#IncomingCalls(item) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'callHierarchy/incomingCalls',
+          \ 'params': {
+          \   'item': a:item,
+          \ }
+       \ }
+endfunction
+
 function! go#lsp#message#Hover(file, line, col) abort
   return {
           \ 'notification': 0,
@@ -252,6 +296,7 @@ function! go#lsp#message#ConfigurationResult(items) abort
 
   " results must be in the same order as the items
   for l:item in a:items
+    let l:workspace = go#path#FromURI(l:item.scopeUri)
     let l:config = {
           \ 'buildFlags': [],
           \ 'hoverKind': 'Structured',
@@ -269,6 +314,11 @@ function! go#lsp#message#ConfigurationResult(items) abort
     let l:tempModfile = go#config#GoplsTempModfile()
     let l:analyses = go#config#GoplsAnalyses()
     let l:local = go#config#GoplsLocal()
+    if type(l:local) is v:t_dict
+      let l:local = get(l:local, l:workspace, v:null)
+    endif
+    let l:gofumpt = go#config#GoplsGofumpt()
+    let l:settings = go#config#GoplsSettings()
 
     if l:deepCompletion isnot v:null
       if l:deepCompletion
@@ -319,16 +369,45 @@ function! go#lsp#message#ConfigurationResult(items) abort
     endif
 
     if l:local isnot v:null
-      let l:config.local = l:local
+        let l:config.local = l:local
     endif
 
-    let l:result = add(l:result, l:config)
+    if l:gofumpt isnot v:null
+      if l:gofumpt
+        let l:config.gofumpt = v:true
+      else
+        let l:config.gofumpt = v:false
+      endif
+    endif
+
+    if l:settings isnot v:null
+      let l:config = extend(l:config, l:settings, 'keep')
+    endif
+
+    let l:result = add(l:result, deepcopy(l:config))
   endfor
 
   return l:result
 endfunction
 
-function s:workspaceFolder(key, val) abort
+function! go#lsp#message#ExecuteCommand(cmd, args) abort
+  return {
+          \ 'notification': 0,
+          \ 'method': 'workspace/executeCommand',
+          \ 'params': {
+          \   'command': a:cmd,
+          \   'arguments': a:args,
+          \ }
+       \ }
+endfunction
+
+function! go#lsp#message#ApplyWorkspaceEditResponse(ok) abort
+  return {
+          \ 'applied': a:ok,
+       \ }
+endfunction
+
+function! s:workspaceFolder(key, val) abort
   return {'uri': go#path#ToURI(a:val), 'name': a:val}
 endfunction
 
