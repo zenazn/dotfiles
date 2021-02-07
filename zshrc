@@ -61,6 +61,18 @@ function _prompt_git {
 function _set_prompt {
   # Report exit status of last process if it was unsuccessful
   PROMPT=$'%(?..%F{red}%?%f\n)'
+
+  PREPROMPT=()
+  if [ -n "$VIRTUAL_ENV" ]; then
+    PREPROMPT+="py"
+  fi
+  if [ "$SHLVL" -gt 1 ]; then
+    PREPROMPT+="L$SHLVL"
+  fi
+  if [ "${#PREPROMPT}" -gt 0 ]; then
+    PROMPT+="%F{blue}[$PREPROMPT]%f "
+  fi
+
   # Git branch and modification status, if applicable
   if _has git; then
     PROMPT+=$(_prompt_git)
