@@ -101,10 +101,12 @@ let g:LanguageClient_serverCommands = {
     \ }
 
 function LC_maps()
-  if exists('*LanguageClient#isServerRunning') && LanguageClient#isServerRunning()
+  "if exists('*LanguageClient#isServerRunning') && LanguageClient#isServerRunning()
+  if has_key(g:LanguageClient_serverCommands, &filetype)
     nnoremap <F5> :call LanguageClient_contextMenu()<CR>
     nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
     nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+    nnoremap <silent> <leader>a :call LanguageClient#textDocument_codeAction()<CR>
     setlocal formatexpr=LanguageClient#textDocument_rangeFormatting_sync()
   endif
 endfunction
@@ -151,3 +153,6 @@ augroup LanguageClient_config
   autocmd User LanguageClientStarted setlocal signcolumn=yes
   autocmd User LanguageClientStopped setlocal signcolumn=auto
 augroup END
+
+autocmd FileType typescript syn sync fromstart
+autocmd FileType typescriptreact syn sync fromstart
