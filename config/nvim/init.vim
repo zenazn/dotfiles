@@ -32,7 +32,6 @@ set backupdir=/tmp//,.
 " Consistency
 nnoremap Y y$
 inoremap <C-c> <ESC>
-map Q gq
 
 " Leader maps
 let mapleader = ','
@@ -107,7 +106,6 @@ function LC_maps()
     nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
     nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
     nnoremap <silent> <leader>a :call LanguageClient#textDocument_codeAction()<CR>
-    setlocal formatexpr=LanguageClient#textDocument_rangeFormatting_sync()
   endif
 endfunction
 
