@@ -94,12 +94,28 @@ alias vim="$(whence -p "$EDITOR") -O"
 if [ -d "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
   source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
   source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+elif [ -d "$HOME/bin/google-cloud-sdk" ]; then
+  source "$HOME/bin/google-cloud-sdk/path.zsh.inc"
+  source "$HOME/bin/google-cloud-sdk/completion.zsh.inc"
 fi
 
-_has fd && export FZF_DEFAULT_COMMAND='fd --type f'
+_has rg && export FZF_DEFAULT_COMMAND='rg --files'
+_has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
 _has nodenv && eval "$(nodenv init -)"
 _has pyenv && eval "$(pyenv init -)"
 _path_prepend "/usr/local/opt/postgresql@11/bin"
+_path_prepend "/opt/homebrew/opt/ruby/bin"
+_path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+_fzf_compgen_path() {
+  fd --hidden --follow --exclude ".git" . "$1"
+}
+_fzf_compgen_dir() {
+  fd --type d --hidden --follow --exclude ".git" . "$1"
+}
+
+autoload zmv
