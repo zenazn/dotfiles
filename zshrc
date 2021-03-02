@@ -109,6 +109,7 @@ _path_prepend "/opt/homebrew/opt/ruby/bin"
 _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
+_path_prepend "$HOME/go/bin"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 _fzf_compgen_path() {

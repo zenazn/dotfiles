@@ -32,6 +32,7 @@ set backupdir=/tmp//,.
 " Consistency
 nnoremap Y y$
 inoremap <C-c> <ESC>
+noremap Q gq
 
 " Leader maps
 let mapleader = ','
