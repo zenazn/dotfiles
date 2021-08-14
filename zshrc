@@ -35,9 +35,6 @@ setopt hist_ignore_space
 # Completion
 autoload -Uz compinit && compinit
 
-# Prompt
-RPROMPT='%F{black}%*%f'
-
 function _prompt_git {
   [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = 'true' ] || return
 
@@ -89,6 +86,9 @@ alias gg='git grep'
 alias gs='git status'
 alias v="$EDITOR -O"
 alias vim="$(whence -p "$EDITOR") -O"
+rbrew() {
+  arch -x86_64 /usr/local/bin/brew "$@"
+}
 
 # gcloud
 if [ -d "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
@@ -102,6 +102,7 @@ fi
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
 _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
+_has pyenv && eval "$(pyenv init --path)"
 _has nodenv && eval "$(nodenv init -)"
 _has pyenv && eval "$(pyenv init -)"
 _path_prepend "/usr/local/opt/postgresql@11/bin"
@@ -110,6 +111,11 @@ _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/go/bin"
+
+export PYENV_VERSION=3.9.2
+#export PYENV_VERSION=3.9.6
+#export NODENV_VERSION=15.9.0
+export NODENV_VERSION=16.5.0
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 _fzf_compgen_path() {

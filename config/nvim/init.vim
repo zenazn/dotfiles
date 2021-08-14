@@ -58,10 +58,13 @@ nmap <leader>v  :vsp<CR>
 nmap <leader>q  :q<CR>
 
 nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
+nnoremap <Leader>S :%s/\<<C-r><C-w>\>/
 
 nmap <leader><leader>  :confirm w<CR>
 
 set background=light
+
+set errorformat+="%f:%l:%c - %m%r"
 
 " Trailing whitespace
 highlight ExtraWhitespace ctermbg=red guibg=red
@@ -69,6 +72,13 @@ au ColorScheme * highlight ExtraWhitespace guibg=red
 au BufEnter * match ExtraWhitespace /\s\+$/
 au InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
 au InsertLeave * match ExtraWhiteSpace /\s\+$/
+
+" Colors
+highlight Pmenu ctermbg=darkgray ctermfg=white
+highlight PmenuSel ctermbg=yellow ctermfg=black
+highlight Search ctermbg=yellow ctermfg=black
+highlight SignColumn ctermbg=black
+highlight Whitespace ctermfg=darkgray
 
 if executable("rg")
   set grepprg=rg\ -n
@@ -96,17 +106,22 @@ let g:rust_clip_command = 'pbcopy'
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-    \ 'typescript': ['typescript-language-server', '--stdio'],
-    \ 'typescriptreact': ['typescript-language-server', '--stdio'],
+    \ 'typescript': ['~/bin/ts-language-server', '--stdio'],
+    \ 'typescriptreact': ['~/bin/ts-language-server', '--stdio'],
     \ }
+" Nobody messes with my quickfix!
+let g:LanguageClient_diagnosticsList = 'Disabled'
 
 function LC_maps()
   "if exists('*LanguageClient#isServerRunning') && LanguageClient#isServerRunning()
   if has_key(g:LanguageClient_serverCommands, &filetype)
     nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+    nnoremap <F6> :call LanguageClient#explainErrorAtPoint()<CR>
     nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
     nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
     nnoremap <silent> <leader>a :call LanguageClient#textDocument_codeAction()<CR>
+    nnoremap <silent> <leader>i :call LanguageClient#textDocument_codeAction('_typescript.applyWorkspaceEdit')<CR>
+
   endif
 endfunction
 

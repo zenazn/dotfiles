@@ -14,7 +14,7 @@
   d = diff
   dc = diff --cached
   ff = merge --ff-only
-  fup = !git fetch && git rebase origin/master
+  files = show --pretty="" --name-only
   l = log
   pop = stash pop
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
@@ -93,4 +93,6 @@
   autosquash = true
 
 [rb]
-  branch = origin/master
+  branch = origin/main
+[init]
+  defaultBranch = main
