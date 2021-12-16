@@ -92,11 +92,7 @@ rbrew() {
 
 # gcloud
 if [ -d "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
-  source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
   source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
-elif [ -d "$HOME/bin/google-cloud-sdk" ]; then
-  source "$HOME/bin/google-cloud-sdk/path.zsh.inc"
-  source "$HOME/bin/google-cloud-sdk/completion.zsh.inc"
 fi
 
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
@@ -104,18 +100,12 @@ _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
 _has pyenv && eval "$(pyenv init --path)"
 _has nodenv && eval "$(nodenv init -)"
-_has pyenv && eval "$(pyenv init -)"
 _path_prepend "/usr/local/opt/postgresql@11/bin"
 _path_prepend "/opt/homebrew/opt/ruby/bin"
 _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/go/bin"
-
-export PYENV_VERSION=3.9.2
-#export PYENV_VERSION=3.9.6
-#export NODENV_VERSION=15.9.0
-export NODENV_VERSION=16.5.0
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 _fzf_compgen_path() {
