@@ -2,9 +2,13 @@ _has() {
   whence -p "$1" > /dev/null
 }
 _path_prepend() {
-  if [ -d "$1" ]; then
-    export PATH="$1:$PATH"
-  fi
+  [ -d "$1" ] && export PATH="$1:$PATH"
+}
+_source() {
+  [ -f "$1" ] && source "$1"
+}
+_mac() {
+  [[ $OSTYPE == darwin* ]]
 }
 
 # Homebrew
@@ -90,11 +94,6 @@ rbrew() {
   arch -x86_64 /usr/local/bin/brew "$@"
 }
 
-# gcloud
-if [ -d "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk" ]; then
-  source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
-fi
-
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
 _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
@@ -106,8 +105,13 @@ _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/go/bin"
+_source "~/.fzf.zsh"
+_source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
+_source "~/.config/tabtab/zsh/__tabtab.zsh"
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# Add ssh keys to agent asynchronously
+_mac && (ssh-add -q --apple-load-keychain &) >/dev/null 2>&1
+
 _fzf_compgen_path() {
   fd --hidden --follow --exclude ".git" . "$1"
 }
