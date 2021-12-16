@@ -37,15 +37,13 @@ noremap Q gq
 " Leader maps
 let mapleader = ','
 
-nmap <leader>gb :Gblame<CR>
-nmap <leader>ge :Gedit<CR>
-nmap <leader>gc :Gcommit<CR>
+nmap <leader>gb :Git blame<CR>
 nmap <leader>gd :Gdiff<CR>
 nmap <leader>gg :Ggrep<Space>
-nmap <leader>gs :Gstatus<CR>
+nmap <leader>gs :Git<CR>
 nmap <leader>gw :Gbrowse<CR>
 vmap <leader>gw :Gbrowse<CR>
-nmap <leader>gl :Glog<CR><CR><CR>:copen<CR>
+nmap <leader>gl :Gclog<CR>
 
 nmap <leader>cc :cclose<CR>
 nmap <leader>co :copen<CR>
@@ -58,13 +56,14 @@ nmap <leader>v  :vsp<CR>
 nmap <leader>q  :q<CR>
 
 nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
-nnoremap <Leader>S :%s/\<<C-r><C-w>\>/
+nnoremap <leader>S :%s/\<<C-r><C-w>\>/
 
 nmap <leader><leader>  :confirm w<CR>
 
 set background=light
 
 set errorformat+="%f:%l:%c - %m%r"
+set errorformat+="%f:%l:%m%r"
 
 " Trailing whitespace
 highlight ExtraWhitespace ctermbg=red guibg=red
@@ -104,11 +103,28 @@ let g:javascript_plugin_flow = 1
 let g:rustfmt_autosave = 1
 let g:rust_clip_command = 'pbcopy'
 
+"let g:LanguageClient_serverCommands = {
+"    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+"    \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': {
+"    \   'preferences': { 'importModuleSpecifierPreference': 'non-relative'}
+"    \ }},
+"    \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': {
+"    \   'preferences': { 'importModuleSpecifierPreference': 'non-relative'}
+"    \ }},
+"    \ }
+
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-    \ 'typescript': ['~/bin/ts-language-server', '--stdio'],
-    \ 'typescriptreact': ['~/bin/ts-language-server', '--stdio'],
+    \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
+    \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
     \ }
+
+let g:LanguageClient_rootMarkers = {
+      \ 'rust': ['Cargo.toml'],
+      \ 'typescript': ['package-lock.json'],
+      \ 'typescriptreact': ['package-lock.json'],
+      \ }
+
 " Nobody messes with my quickfix!
 let g:LanguageClient_diagnosticsList = 'Disabled'
 
