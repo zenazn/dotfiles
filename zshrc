@@ -105,9 +105,9 @@ _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/go/bin"
-_source "~/.fzf.zsh"
+_source "$HOME/.fzf.zsh"
 _source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
-_source "~/.config/tabtab/zsh/__tabtab.zsh"
+_source "$HOME/.config/tabtab/zsh/__tabtab.zsh"
 
 # Add ssh keys to agent asynchronously
 _mac && (ssh-add -q --apple-load-keychain &) >/dev/null 2>&1
