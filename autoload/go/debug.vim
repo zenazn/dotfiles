@@ -11,6 +11,7 @@ if !exists('s:state')
         \ 'currentThread': {},
         \ 'localVars': {},
         \ 'functionArgs': {},
+        \ 'registers': {},
         \ 'message': [],
         \ 'resultHandlers': {},
         \ 'kill_on_detach': v:true,
@@ -157,7 +158,7 @@ function! s:update_breakpoint(res) abort
   endif
 
   exe bufs[0][0] 'wincmd w'
-  let filename = state.currentThread.file
+  let filename = s:substituteRemotePath(state.currentThread.file)
   let linenr = state.currentThread.line
   let oldfile = fnamemodify(expand('%'), ':p:gs!\\!/!')
   if oldfile != filename
@@ -201,7 +202,7 @@ function! s:show_stacktrace(check_errors, res) abort
       if loc.file is# '?' || !has_key(loc, 'function')
         continue
       endif
-      call setline(i+1, printf('%s - %s:%d', loc.function.name, fnamemodify(loc.file, ':p'), loc.line))
+      call setline(i+1, printf('%s - %s:%d', loc.function.name, s:substituteRemotePath(fnamemodify(loc.file, ':p')), loc.line))
     endfor
   finally
     setlocal nomodifiable
@@ -218,7 +219,6 @@ function! s:show_variables() abort
 
   let l:cur_win = bufwinnr('')
   exe l:var_win 'wincmd w'
-
   try
     setlocal modifiable
     silent %delete _
@@ -227,7 +227,7 @@ function! s:show_variables() abort
     let v += ['# Local Variables']
     if type(get(s:state, 'localVars', [])) is type([])
       for c in s:state['localVars']
-        let v += split(s:eval_tree(c, 0), "\n")
+        let v += split(s:eval_tree(c, 0, 0), "\n")
       endfor
     endif
 
@@ -235,7 +235,15 @@ function! s:show_variables() abort
     let v += ['# Function Arguments']
     if type(get(s:state, 'functionArgs', [])) is type([])
       for c in s:state['functionArgs']
-        let v += split(s:eval_tree(c, 0), "\n")
+        let v += split(s:eval_tree(c, 0, 0), "\n")
+      endfor
+    endif
+
+    let v += ['']
+    let v += ['# Registers']
+    if type(get(s:state, 'registers', [])) is type([])
+      for c in s:state['registers']
+        let v += [printf("%s = %s", c.Name, c.Value)]
       endfor
     endif
 
@@ -251,6 +259,7 @@ function! s:clearState() abort
   let s:state['currentThread'] = {}
   let s:state['localVars'] = {}
   let s:state['functionArgs'] = {}
+  let s:state['registers'] = {}
   let s:state['message'] = []
 
   silent! sign unplace 9999
@@ -285,6 +294,7 @@ function! go#debug#Stop() abort
   endfor
   command! -nargs=* -complete=customlist,go#package#Complete GoDebugStart call go#debug#Start('debug', <f-args>)
   command! -nargs=* -complete=customlist,go#package#Complete GoDebugTest  call go#debug#Start('test', <f-args>)
+  command! -nargs=? GoDebugConnect call go#debug#Start('connect', <f-args>)
   command! -nargs=* GoDebugTestFunc  call go#debug#TestFunc(<f-args>)
   command! -nargs=1 GoDebugAttach call go#debug#Start('attach', <f-args>)
   command! -nargs=? GoDebugBreakpoint call go#debug#Breakpoint(<f-args>)
@@ -347,7 +357,7 @@ function! s:goto_file() abort
     return
   endif
   exe bufs[0][0] 'wincmd w'
-  let filename = m[1]
+  let filename = s:substituteLocalPath(m[1])
   let linenr = m[2]
   let oldfile = fnamemodify(expand('%'), ':p:gs!\\!/!')
   if oldfile != filename
@@ -473,7 +483,7 @@ function! s:start_cb() abort
     silent file `='__GODEBUG_VARIABLES__'`
     setlocal buftype=nofile bufhidden=wipe nomodified nobuflisted noswapfile nowrap nonumber nocursorline
     setlocal filetype=godebugvariables
-    call append(0, ["# Local Variables", "", "# Function Arguments"])
+    call append(0, ["# Local Variables", "", "# Function Arguments", "", "# Registers"])
     nmap <buffer> <silent> <cr> :<c-u>call <SID>expand_var()<cr>
     nmap <buffer> q <Plug>(go-debug-stop)
   endif
@@ -507,7 +517,9 @@ function! s:start_cb() abort
 
   silent! delcommand GoDebugStart
   silent! delcommand GoDebugTest
+  silent! delcommand GoDebugTestFunc
   silent! delcommand GoDebugAttach
+  silent! delcommand GoDebugConnect
 
   command! -nargs=0 GoDebugContinue   call go#debug#Stack('continue')
   command! -nargs=0 GoDebugStop       call go#debug#Stop()
@@ -552,7 +564,7 @@ function! s:continue()
   call s:restoreMappings()
   augroup vim-go-debug
     autocmd! *
-    call s:configureMappings('(go-debug-breakpoint)', '(go-debug-continue)', '(go-debug-halt)', '(go-debug-next)', '(go-debug-print)', '(go-debug-step)')
+    call s:configureMappings('(go-debug-breakpoint)', '(go-debug-continue)', '(go-debug-halt)', '(go-debug-next)', '(go-debug-print)', '(go-debug-step)', '(go-debug-stepout)')
   augroup END
   doautocmd vim-go-debug BufWinEnter *.go
 endfunction
@@ -575,44 +587,52 @@ function! s:out_cb(ch, msg) abort
   let s:state['message'] += [a:msg]
 
   if stridx(a:msg, go#config#DebugAddress()) != -1
-    let s:state['data'] = []
-    let l:state = {'databuf': ''}
-
-    " explicitly bind callback to state so that within it, self will
-    " always refer to state. See :help Partial for more information.
-    let l:state.on_data = function('s:on_data', [], l:state)
-
-    if has('nvim')
-      let l:ch = sockconnect('tcp', go#config#DebugAddress(), {'on_data': l:state.on_data, 'state': l:state})
-      if l:ch == 0
-        call go#util#EchoError("could not connect to debugger")
-        call go#job#Stop(s:state['job'])
-        return
-      endif
-    else
-      let l:ch = ch_open(go#config#DebugAddress(), {'mode': 'raw', 'timeout': 20000, 'callback': l:state.on_data})
-      if ch_status(l:ch) !=# 'open'
-        call go#util#EchoError("could not connect to debugger")
-        call go#job#Stop(s:state['job'])
-        return
-      endif
-    endif
-
-    let s:state['ch'] = l:ch
-
-    " After this block executes, Delve will be running with all the
-    " breakpoints setup, so this callback doesn't have to run again; just log
-    " future messages.
-    let s:state['ready'] = 1
-
-    " replace all the breakpoints set before delve started so that the ids won't overlap.
-    for l:bt in s:list_breakpoints()
-      call s:sign_unplace(l:bt.id, l:bt.file)
-      call go#debug#Breakpoint(l:bt.line, l:bt.file)
-    endfor
-
-    call s:start_cb()
+    call s:connect(go#config#DebugAddress())
   endif
+endfunction
+
+function! s:connect(addr) abort
+  let s:state['data'] = []
+  let l:state = {'databuf': ''}
+
+  " explicitly bind callback to state so that within it, self will
+  " always refer to state. See :help Partial for more information.
+  let l:state.on_data = function('s:on_data', [], l:state)
+
+  if has('nvim')
+    let l:ch = sockconnect('tcp', a:addr, {'on_data': l:state.on_data, 'state': l:state})
+    if l:ch == 0
+      call go#util#EchoError("could not connect to debugger")
+      if has_key(s:state, 'job')
+        call go#job#Stop(s:state['job'])
+      endif
+      return
+    endif
+  else
+    let l:ch = ch_open(a:addr, {'mode': 'raw', 'waittime': 5000, 'timeout': 20000, 'callback': l:state.on_data})
+    if ch_status(l:ch) !=# 'open'
+      call go#util#EchoError("could not connect to debugger")
+      if has_key(s:state, 'job')
+        call go#job#Stop(s:state['job'])
+      endif
+      return
+    endif
+  endif
+
+  let s:state['ch'] = l:ch
+
+  " After this block executes, Delve will be running with all the
+  " breakpoints setup, so this callback doesn't have to run again; just log
+  " future messages.
+  let s:state['ready'] = 1
+
+  " replace all the breakpoints set before delve started so that the ids won't overlap.
+  for l:bt in s:list_breakpoints()
+    call s:sign_unplace(l:bt.id, l:bt.file)
+    call go#debug#Breakpoint(l:bt.line, l:bt.file)
+  endfor
+
+  call s:start_cb()
 endfunction
 
 " s:on_data's third optional argument is provided, but not used, so that the
@@ -723,8 +743,8 @@ function! go#debug#TestFunc(...) abort
   call call('go#debug#Start', extend(['test', '.', '-test.run', printf('%s$', l:test)], a:000))
 endfunction
 
-" Start the debug mode. The first argument is the package name to compile and
-" debug, anything else will be passed to the running program.
+" Start the debug mode. The first variadic argument is the package name to
+" compile and debug, anything else will be passed to the running program.
 function! go#debug#Start(mode, ...) abort
   call go#cmd#autowrite()
 
@@ -750,56 +770,64 @@ function! go#debug#Start(mode, ...) abort
   endif
 
   try
-
-    let l:cmd = [dlv, a:mode]
-
-    let s:state['kill_on_detach'] = v:true
-    if a:mode is 'debug' || a:mode is 'test'
-      let l:cmd = extend(l:cmd, s:package(a:000))
-      let l:cmd = extend(l:cmd, ['--output', tempname()])
-    elseif a:mode is 'attach'
-      let l:cmd = add(l:cmd, a:1)
+    if a:mode is 'connect'
+      let l:addr = go#config#DebugAddress()
+      if len(a:0) > 0
+        let l:addr = a:1
+      endif
       let s:state['kill_on_detach'] = v:false
+
+      call s:connect(l:addr)
     else
-      call go#util#EchoError('Unknown dlv command')
+      let l:cmd = [dlv, a:mode]
+
+      let s:state['kill_on_detach'] = v:true
+      if a:mode is 'debug' || a:mode is 'test'
+        let l:cmd = extend(l:cmd, s:package(a:000))
+        let l:cmd = extend(l:cmd, ['--output', tempname()])
+      elseif a:mode is 'attach'
+        let l:cmd = add(l:cmd, a:1)
+        let s:state['kill_on_detach'] = v:false
+      else
+        call go#util#EchoError('Unknown dlv command')
+      endif
+
+      let l:cmd += [
+            \ '--headless',
+            \ '--api-version', '2',
+            \ '--listen', go#config#DebugAddress(),
+      \]
+      let l:debugLogOutput = go#config#DebugLogOutput()
+      if l:debugLogOutput != ''
+        let cmd += ['--log', '--log-output', l:debugLogOutput]
+      endif
+
+      let l:buildtags = go#config#BuildTags()
+      if buildtags isnot ''
+        let l:cmd += ['--build-flags', '--tags=' . buildtags]
+      endif
+
+      if len(a:000) > 1
+        let l:cmd += ['--'] + a:000[1:]
+      endif
+
+      let s:state['message'] = []
+      let l:opts = {
+            \ 'for': 'GoDebug',
+            \ 'statustype': 'debug',
+            \ 'complete': function('s:complete'),
+            \ }
+      let l:opts = go#job#Options(l:opts)
+      let l:opts.out_cb = function('s:out_cb')
+      let l:opts.err_cb = function('s:err_cb')
+      let l:opts.stoponexit = 'kill'
+
+      let s:state['job'] = go#job#Start(l:cmd, l:opts)
+      return s:state['job']
     endif
-
-    let l:cmd += [
-          \ '--headless',
-          \ '--api-version', '2',
-          \ '--listen', go#config#DebugAddress(),
-    \]
-    let l:debugLogOutput = go#config#DebugLogOutput()
-    if l:debugLogOutput != ''
-      let cmd += ['--log', '--log-output', l:debugLogOutput]
-    endif
-
-    let l:buildtags = go#config#BuildTags()
-    if buildtags isnot ''
-      let l:cmd += ['--build-flags', '--tags=' . buildtags]
-    endif
-
-    if len(a:000) > 1
-      let l:cmd += ['--'] + a:000[1:]
-    endif
-
-    let s:state['message'] = []
-    let l:opts = {
-          \ 'for': 'GoDebug',
-          \ 'statustype': 'debug',
-          \ 'complete': function('s:complete'),
-          \ }
-    let l:opts = go#job#Options(l:opts)
-    let l:opts.out_cb = function('s:out_cb')
-    let l:opts.err_cb = function('s:err_cb')
-    let l:opts.stoponexit = 'kill'
-
-    let s:state['job'] = go#job#Start(l:cmd, l:opts)
   catch
     call go#util#EchoError(printf('could not start debugger: %s', v:exception))
   endtry
-
-  return s:state['job']
 endfunction
 
 " s:package returns the import path of package name of a :GoDebug(Start|Test)
@@ -867,55 +895,76 @@ function! s:reflect_kind(k)
   \ ][a:k]
 endfunction
 
-function! s:eval_tree(var, nest) abort
+function! s:eval_tree(var, nest, isMapOrSliceChild) abort
   if a:var.name =~ '^\~'
     return ''
   endif
   let nest = a:nest
   let v = ''
   let kind = s:reflect_kind(a:var.kind)
-  if !empty(a:var.name)
-    let v .= repeat(' ', nest) . a:var.name . ': '
+
+  if !empty(a:var.name) || a:isMapOrSliceChild is 1
+    if a:isMapOrSliceChild == 0
+      let v .= repeat(' ', nest) . a:var.name . ': '
+    endif
 
     if kind == 'Bool'
-      let v .= printf("%s\n", a:var.value)
+      let v .= printf("%s", a:var.value)
 
     elseif kind == 'Struct'
       " Anonymous struct
       if a:var.type[:8] == 'struct { '
-        let v .= printf("%s\n", a:var.type)
+        let v .= printf("%s", a:var.type)
       else
-        let v .= printf("%s{...}\n", a:var.type)
+        let v .= printf("%s{...}", a:var.type)
       endif
 
     elseif kind == 'String'
-      let v .= printf("%s[%d]%s\n", a:var.type, a:var.len,
+      let v .= printf("%s[%d]%s", a:var.type, a:var.len,
             \ len(a:var.value) > 0 ? ': ' . a:var.value : '')
 
     elseif kind == 'Slice' || kind == 'String' || kind == 'Map' || kind == 'Array'
-      let v .= printf("%s[%d]\n", a:var.type, a:var.len)
+      let v .= printf("%s[%d]", a:var.type, a:var.len)
 
     elseif kind == 'Chan' || kind == 'Func' || kind == 'Interface'
-      let v .= printf("%s\n", a:var.type)
+      let v .= printf("%s", a:var.type)
 
     elseif kind == 'Ptr'
       " TODO: We can do something more useful here.
-      let v .= printf("%s\n", a:var.type)
+      let v .= printf("%s", a:var.type)
 
     elseif kind == 'Complex64' || kind == 'Complex128'
-      let v .= printf("%s%s\n", a:var.type, a:var.value)
+      let v .= printf("%s%s", a:var.type, a:var.value)
 
     " Int, Float
     else
-      let v .= printf("%s(%s)\n", a:var.type, a:var.value)
+      let v .= printf("%s(%s)", a:var.type, a:var.value)
+    endif
+    if a:isMapOrSliceChild == 0
+      let v = printf("%s\n", v)
     endif
   else
     let nest -= 1
   endif
 
   if index(['Chan', 'Complex64', 'Complex128'], kind) == -1 && a:var.type != 'error'
+    let l:idx = 0
     for c in a:var.children
-      let v .= s:eval_tree(c, nest+1)
+      if kind == 'Map'
+        " Maps alternate children between keys and values. Keys will be even
+        " number indexes.
+        let l:isMapKey = (l:idx % 2) is 0
+        if l:isMapKey == 1
+          let v .= printf("%s%s:\n", repeat(' ', nest + 1), s:eval_tree(c, 0, 1))
+        else
+          let v .= printf("%s%s\n", repeat(' ', nest + 2), s:eval_tree(c, 0, 1))
+        endif
+      elseif kind == 'Slice'
+        let v .= printf("%d: %s\n", l:idx, s:eval_tree(c, nest + 1, 1))
+      else
+        let v .= s:eval_tree(c, nest + 1, 0)
+      endif
+      let l:idx += 1
     endfor
   endif
   return v
@@ -926,21 +975,65 @@ function! s:eval(arg) abort
     let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
     call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.State')
     let l:res = l:promise.await()
-    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
-    call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.Eval', {
+
+    let l:cmd = 'RPCServer.Eval'
+    let l:args = {
           \ 'expr':  a:arg,
           \ 'scope': {'GoroutineID': l:res.result.State.currentThread.goroutineID}
-      \ })
+      \ }
+
+    let l:ResultFn = funcref('s:evalResult', [])
+    if a:arg =~ '^call '
+      let l:cmd = 'RPCServer.Command'
+      let l:args = {
+            \ 'name': 'call',
+            \ 'Expr': a:arg[5:],
+            \ 'ReturnInfoLoadConfig': {
+              \ 'FollowPointers': v:false,
+              \ 'MaxVariableRecurse': 10,
+              \ 'MaxStringLen': 80,
+              \ 'MaxArrayValues': 10,
+              \ 'MaxStructFields': 10,
+            \ },
+          \ }
+
+      let l:ResultFn = funcref('s:callResult', [])
+    endif
+
+    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+    call s:call_jsonrpc(l:promise.wrapper, l:cmd, l:args)
 
     let l:res = l:promise.await()
 
-    return s:eval_tree(l:res.result.Variable, 0)
+    let l:result = call(l:ResultFn, [l:res.result])
+
+    " l:result will be a list when evaluating a call expression.
+    if type(l:result) is type([])
+      let l:result = map(l:result, funcref('s:renameEvalReturnValue'))
+      if len(l:result) isnot 1
+        return map(l:result, 's:eval_tree(v:val, 0, 0)')
+      endif
+      let l:result = l:result[0]
+    endif
+    return s:eval_tree(l:result, 0, 0)
   catch
     call go#util#EchoError(printf('evaluation failed: %s', v:exception))
     return ''
   endtry
 endfunction
 
+function! s:callResult(res) abort
+  return a:res.State.currentThread.ReturnValues
+endfunction
+
+function! s:evalResult(res) abort
+  return a:res.Variable
+endfunction
+
+function! s:renameEvalReturnValue(key, val) abort
+  let a:val.name = printf('[%s]', string(a:key))
+  return a:val
+endfunction
 
 function! go#debug#BalloonExpr() abort
   silent! let l:v = s:eval(v:beval_text)
@@ -949,7 +1042,14 @@ endfunction
 
 function! go#debug#Print(arg) abort
   try
-    echo substitute(s:eval(a:arg), "\n$", "", 0)
+    let l:result = s:eval(a:arg)
+    if type(l:result) is type([])
+      echo join(map(l:result, 'substitute(v:val, "\n$", "", '''')'), "\n")
+      return
+    elseif type(l:result) isnot type('')
+      throw 'unexpected result'
+    endif
+    echo substitute(l:result, "\n$", "", '')
   catch
     call go#util#EchoError(printf('could not print: %s', v:exception))
   endtry
@@ -1040,9 +1140,9 @@ function! s:show_goroutines(currentGoroutineID, res) abort
       " lines is modified, then make sure that go#debug#Goroutine is also
       " changed if needed.
       if l:goroutine.id == a:currentGoroutineID
-        let l:g = printf("* Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, l:loc.file, l:loc.line, l:loc.function.name, l:goroutine.threadID)
+        let l:g = printf("* Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
       else
-        let l:g = printf("  Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, l:loc.file, l:loc.line, l:loc.function.name, l:goroutine.threadID)
+        let l:g = printf("  Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
       endif
       let v += [l:g]
     endfor
@@ -1062,7 +1162,7 @@ function! s:update_variables() abort
   " MaxStructFields is the maximum number of fields read from a struct, -1 will read all fields.
   let l:cfg = {
         \ 'scope': {'GoroutineID': s:goroutineID()},
-        \ 'cfg':   {'MaxStringLen': 20, 'MaxArrayValues': 20}
+        \ 'cfg':   {'MaxStringLen': 20, 'MaxArrayValues': 20, 'MaxVariableRecurse': 10}
         \ }
 
   try
@@ -1075,6 +1175,12 @@ function! s:update_variables() abort
     call s:call_jsonrpc(function('s:handle_list_function_args'), 'RPCServer.ListFunctionArgs', l:cfg)
   catch
     call go#util#EchoError(printf('could not list function arguments: %s', v:exception))
+  endtry
+
+  try
+    call s:call_jsonrpc(function('s:handle_list_registers'), 'RPCServer.ListRegisters', l:cfg)
+  catch
+    call go#util#EchoError(printf('could not list registers: %s', v:exception))
   endtry
 
 endfunction
@@ -1102,6 +1208,20 @@ function! s:handle_list_function_args(check_errors, res) abort
     endif
   catch
     call go#util#EchoWarning(printf('could not list function arguments: %s', v:exception))
+  endtry
+
+  call s:show_variables()
+endfunction
+
+function! s:handle_list_registers(check_errors, res) abort
+  let s:state['registers'] = {}
+  try
+    call a:check_errors()
+    if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res.result)
+      let s:state['registers'] = a:res.result['Regs']
+    endif
+  catch
+    call go#util#EchoWarning(printf('could not list registers: %s', v:exception))
   endtry
 
   call s:show_variables()
@@ -1260,6 +1380,7 @@ function! go#debug#Restart() abort
           \ 'currentThread': {},
           \ 'localVars': {},
           \ 'functionArgs': {},
+          \ 'registers': {},
           \ 'message': [],
           \ 'resultHandlers': {},
           \ 'kill_on_detach': s:state['kill_on_detach'],
@@ -1271,9 +1392,9 @@ function! go#debug#Restart() abort
   endtry
 endfunction
 
-" Report if debugger mode is active.
-function! s:isActive()
-  return len(s:state['message']) > 0
+" Report if debugger mode is ready.
+function! s:isReady()
+  return get(s:state, 'ready', 0) != 0
 endfunction
 
 " Change Goroutine
@@ -1325,18 +1446,18 @@ function! go#debug#Breakpoint(...) abort
     " Remove breakpoint.
     if type(l:found) == v:t_dict && !empty(l:found)
       call s:sign_unplace(l:found.id, l:found.file)
-      if s:isActive()
+      if s:isReady()
         let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
         call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.ClearBreakpoint', {'id': l:found.id})
         let res = l:promise.await()
       endif
     else " Add breakpoint
-      if s:isActive()
+      if s:isReady()
         let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
-        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.CreateBreakpoint', {'Breakpoint': {'file': l:filename, 'line': l:linenr}})
+        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.CreateBreakpoint', {'Breakpoint': {'file': s:substituteLocalPath(l:filename), 'line': l:linenr}})
         let l:res = l:promise.await()
         let l:bt = l:res.result.Breakpoint
-        call s:sign_place(l:bt.id, l:bt.file, l:bt.line)
+        call s:sign_place(l:bt.id, s:substituteRemotePath(l:bt.file), l:bt.line)
       else
         let l:id = len(s:list_breakpoints()) + 1
         call s:sign_place(l:id, l:filename, l:linenr)
@@ -1496,7 +1617,7 @@ function! s:handle_staleness_check_response(filename, check_errors, res) abort
 endfunction
 
 function! s:warn_stale(filename) abort
-  call go#util#EchoWarning(printf('file locations may be incorrect, because  %s has changed since debugging started', a:filename))
+  call go#util#EchoWarning(printf('file locations may be incorrect, because %s has changed since debugging started', a:filename))
 endfunction
 
 
@@ -1614,6 +1735,29 @@ function! s:restore_mapping(maparg)
 
   call mapset('n', 0, a:maparg)
   return
+endfunction
+
+function! s:substituteRemotePath(path) abort
+  return s:substitutePath(a:path, go#config#DebugSubstitutePaths())
+endfunction
+
+function! s:substituteLocalPath(path) abort
+  return s:substitutePath(a:path, map(deepcopy(go#config#DebugSubstitutePaths()), '[v:val[1], v:val[0]]'))
+endfunction
+
+function! s:substitutePath(path, substitutions) abort
+  for [l:from, l:to] in a:substitutions
+    if len(a:path) < len(l:from)
+      continue
+    endif
+    if a:path[0:len(l:from)-1] != l:from
+      continue
+    endif
+
+    return printf('%s%s', l:to, a:path[len(l:from):-1])
+  endfor
+
+  return a:path
 endfunction
 
 " restore Vi compatibility settings

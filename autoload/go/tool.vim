@@ -115,6 +115,15 @@ function! go#tool#Exists(importpath) abort
     return 0
 endfunction
 
+function! go#tool#List(package_path) abort
+  let [l:out, l:err] = go#util#ExecInDir(['go', 'list', '-tags', go#config#BuildTags(), '-f', '{{.ImportPath}}', a:package_path])
+  if l:err != 0
+      return -1
+  endif
+
+  return split(out, '\n')
+endfunction
+
 function! go#tool#DescribeBalloon()
   let l:fname = fnamemodify(bufname(v:beval_bufnr), ':p')
 
@@ -134,8 +143,6 @@ function! s:balloon(msg)
   if has('balloon_eval')
     if has('balloon_multiline')
       let l:msg = join(a:msg, "\n")
-    else
-      let l:msg = substitute(join(map(deepcopy(a:msg), 'substitute(v:val, "\t", "", "")'), '; '), '{;', '{', '')
     endif
   endif
 
