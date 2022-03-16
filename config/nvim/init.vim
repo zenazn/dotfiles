@@ -41,8 +41,8 @@ nmap <leader>gb :Git blame<CR>
 nmap <leader>gd :Gdiff<CR>
 nmap <leader>gg :Ggrep<Space>
 nmap <leader>gs :Git<CR>
-nmap <leader>gw :Gbrowse<CR>
-vmap <leader>gw :Gbrowse<CR>
+nmap <leader>gw :GBrowse<CR>
+vmap <leader>gw :GBrowse<CR>
 nmap <leader>gl :Gclog<CR>
 
 nmap <leader>cc :cclose<CR>
@@ -121,8 +121,8 @@ let g:LanguageClient_serverCommands = {
 
 let g:LanguageClient_rootMarkers = {
       \ 'rust': ['Cargo.toml'],
-      \ 'typescript': ['package-lock.json'],
-      \ 'typescriptreact': ['package-lock.json'],
+      \ 'typescript': ['pnpm-lock.yaml', 'package-lock.json', '.git'],
+      \ 'typescriptreact': ['pnpm-lock.yaml', 'package-lock.json', '.git'],
       \ }
 
 " Nobody messes with my quickfix!
