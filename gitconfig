@@ -7,7 +7,6 @@
   amend = commit --amend
   au = add -u
   br = branch
-  cl = "!f() { git clone \"git@github.com:$1.git\"; }; f"
   co = checkout
   cp = cherry-pick
   cpx = cherry-pick -x
@@ -18,6 +17,7 @@
   l = log
   pop = stash pop
   pp = log --graph --pretty=format:'%C(yellow)%h%Creset %Cgreen%s%Creset - %aN, %ar%Cblue%d%Creset'
+  pr = !"bash -c \"comm -12 <(git for-each-ref --format='%(upstream:trackshort)%09%(refname:strip=2)' refs/heads/ | grep '^=' | cut -f2-) <(git remote prune origin 2>&1 | grep '^ \\\\*'| cut -d/ -f2-) | xargs -I{} git branch -D {}\""
   rb = "!f() { if [ -z \"$1\" ]; then echo You must provide a branch name; exit 1; fi; git checkout -b \"$1\" $(git config rb.branch); git config \"branch.$1.merge\" \"refs/heads/$1\"; }; f"
   re = "!git rebase $(git config rb.branch)"
   s = status
@@ -42,10 +42,13 @@
   remote = green
 
 [color "diff"]
-  meta = yellow bold
+  meta = 11
   frag = magenta bold
+  func = 146 bold
+  commit = yellow bold
   old = red bold
   new = green bold
+  whitespace = red reverse
 
 [color "status"]
   added = yellow
@@ -53,7 +56,7 @@
   untracked = cyan
 
 [core]
-  pager = less -FRS
+	pager = diff-so-fancy | less --tabs=4 -RFX
   whitespace = fix,trailing-space,space-before-tab,cr-at-eol
   editor = vim
   excludesfile = ~/.gitignore
@@ -96,3 +99,5 @@
   branch = origin/main
 [init]
   defaultBranch = main
+[interactive]
+	diffFilter = diff-so-fancy --patch
