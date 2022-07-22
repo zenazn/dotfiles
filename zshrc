@@ -98,6 +98,7 @@ alias gg='git grep'
 alias gs='git status'
 alias v="$EDITOR -O"
 alias vim="$(whence -p "$EDITOR") -O"
+alias ls="ls --color=auto"
 rbrew() {
   arch -x86_64 /usr/local/bin/brew "$@"
 }
