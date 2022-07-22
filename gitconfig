@@ -56,9 +56,8 @@
   untracked = cyan
 
 [core]
-	pager = diff-so-fancy | less --tabs=4 -RFX
+  pager = "if command -v diff-so-fancy &>/dev/null; then diff-so-fancy | less --tabs=4 -RFX; else less --tabs=4 -RFX; fi"
   whitespace = fix,trailing-space,space-before-tab,cr-at-eol
-  editor = vim
   excludesfile = ~/.gitignore
 
 [apply]
@@ -73,6 +72,7 @@
   autosetupmerge = true
 [push]
   default = upstream
+  autoSetupRemote = true
 [rerere]
   enabled = true
 [merge]
@@ -100,4 +100,6 @@
 [init]
   defaultBranch = main
 [interactive]
-	diffFilter = diff-so-fancy --patch
+  diffFilter = less
+  # https://github.com/so-fancy/diff-so-fancy/issues/437
+  #diff-so-fancy --patch
