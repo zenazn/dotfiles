@@ -115,6 +115,7 @@ let g:rust_clip_command = 'pbcopy'
 
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+    \ 'cpp': ['clangd', '--log=verbose', '--compile-commands-dir=.'],
     \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
     \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
     \ }
