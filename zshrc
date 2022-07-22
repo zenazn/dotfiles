@@ -39,6 +39,11 @@ setopt hist_ignore_space
 # Completion
 autoload -Uz compinit && compinit
 
+# Misc
+setopt interactivecomments
+unalias run-help
+autoload run-help
+
 function _prompt_git {
   [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = 'true' ] || return
 
@@ -64,6 +69,9 @@ function _set_prompt {
   PROMPT=$'%(?..%F{red}%?%f\n)'
 
   PREPROMPT=()
+  if ! _mac; then
+    PREPROMPT+="${HOST:-remote}"
+  fi
   if [ -n "$VIRTUAL_ENV" ]; then
     PREPROMPT+="py"
   fi
@@ -99,7 +107,7 @@ _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
 _has pyenv && eval "$(pyenv init --path)"
 _has nodenv && eval "$(nodenv init -)"
-_path_prepend "/usr/local/opt/postgresql@11/bin"
+_path_prepend "/opt/homebrew/opt/postgresql@11/bin"
 _path_prepend "/opt/homebrew/opt/ruby/bin"
 _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
@@ -108,6 +116,9 @@ _path_prepend "$HOME/go/bin"
 _source "$HOME/.fzf.zsh"
 _source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 _source "$HOME/.config/tabtab/zsh/__tabtab.zsh"
+export BUN_INSTALL="/Users/carl/.bun"
+_path_prepend "$BUN_INSTALL/bin"
+_source "$BUN_INSTALL/_bun"
 
 # Add ssh keys to agent asynchronously
 _mac && (ssh-add -q --apple-load-keychain &) >/dev/null 2>&1
@@ -120,3 +131,7 @@ _fzf_compgen_dir() {
 }
 
 autoload zmv
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '^xe' edit-command-line
+bindkey '^x^e' edit-command-line
