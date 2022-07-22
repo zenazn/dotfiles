@@ -41,7 +41,7 @@ autoload -Uz compinit && compinit
 
 # Misc
 setopt interactivecomments
-unalias run-help
+unalias run-help &>/dev/null
 autoload run-help
 
 function _prompt_git {
