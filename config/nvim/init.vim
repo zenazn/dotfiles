@@ -22,6 +22,7 @@ set hidden
 set nofoldenable
 set textwidth=80
 set visualbell
+set mouse=
 
 set tags=./tags;/
 
@@ -58,6 +59,8 @@ nmap <leader>q  :q<CR>
 nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
 nnoremap <leader>S :%s/\<<C-r><C-w>\>/
 
+nmap <leader>r  :Rg<CR>
+
 nmap <leader><leader>  :confirm w<CR>
 
 set background=light
@@ -78,6 +81,10 @@ highlight PmenuSel ctermbg=yellow ctermfg=black
 highlight Search ctermbg=yellow ctermfg=black
 highlight SignColumn ctermbg=black
 highlight Whitespace ctermfg=darkgray
+"highlight NormalFloat ctermbg=none ctermfg=white
+"highlight NormalFloat ctermbg=darkgray ctermfg=white
+highlight link NormalFloat Normal
+highlight link FloatBorder Normal
 
 if executable("rg")
   set grepprg=rg\ -n
@@ -116,33 +123,34 @@ let g:rust_clip_command = 'pbcopy'
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
     \ 'cpp': ['clangd', '--log=verbose', '--compile-commands-dir=.'],
-    \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
-    \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio']},
+    \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
+    \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
+    \ 'zig': {'name': 'zig', 'command': ['~/bin/zls/zls']},
     \ }
 
 let g:LanguageClient_rootMarkers = {
       \ 'rust': ['Cargo.toml'],
-      \ 'typescript': ['pnpm-lock.yaml', 'package-lock.json', '.git'],
-      \ 'typescriptreact': ['pnpm-lock.yaml', 'package-lock.json', '.git'],
+      \ 'typescript': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lockb', '.git'],
+      \ 'typescriptreact': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lockb', '.git'],
       \ }
 
 " Nobody messes with my quickfix!
 let g:LanguageClient_diagnosticsList = 'Disabled'
 
-function LC_maps()
-  "if exists('*LanguageClient#isServerRunning') && LanguageClient#isServerRunning()
-  if has_key(g:LanguageClient_serverCommands, &filetype)
-    nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-    nnoremap <F6> :call LanguageClient#explainErrorAtPoint()<CR>
-    nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-    nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
-    nnoremap <silent> <leader>a :call LanguageClient#textDocument_codeAction()<CR>
-    nnoremap <silent> <leader>i :call LanguageClient#textDocument_codeAction('_typescript.applyWorkspaceEdit')<CR>
-
-  endif
-endfunction
-
-autocmd FileType * call LC_maps()
+"function LC_maps()
+"  "if exists('*LanguageClient#isServerRunning') && LanguageClient#isServerRunning()
+"  if has_key(g:LanguageClient_serverCommands, &filetype)
+"    nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+"    nnoremap <F6> :call LanguageClient#explainErrorAtPoint()<CR>
+"    nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+"    nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+"    nnoremap <silent> <leader>a :call LanguageClient#textDocument_codeAction()<CR>
+"    nnoremap <silent> <leader>i :call LanguageClient#textDocument_codeAction('_typescript.applyWorkspaceEdit')<CR>
+"
+"  endif
+"endfunction
+"
+"autocmd FileType * call LC_maps()
 
 nnoremap <C-p> :Files<CR>
 nnoremap <C-q> :Buffers<CR>
@@ -157,7 +165,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'zenazn/gotodef.vim'
 
-Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
+" Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
 Plug 'ncm2/ncm2'
 Plug 'roxma/nvim-yarp', { 'do': 'pip3 install pynvim' }
 
@@ -174,6 +182,10 @@ Plug 'peitalin/vim-jsx-typescript'
 " Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
 Plug 'jparise/vim-graphql'
 
+Plug 'ziglang/zig.vim'
+
+Plug 'nono/lezer.vim'
+
 call plug#end()
 
 autocmd BufEnter * call ncm2#enable_for_buffer()
@@ -187,3 +199,4 @@ augroup END
 
 autocmd FileType typescript syn sync fromstart
 autocmd FileType typescriptreact syn sync fromstart
+

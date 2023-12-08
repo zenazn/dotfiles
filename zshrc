@@ -37,6 +37,7 @@ setopt hist_ignore_all_dups
 setopt hist_ignore_space
 
 # Completion
+zstyle ':completion:*' completer _expand _complete _ignored
 autoload -Uz compinit && compinit
 
 # Misc
@@ -108,7 +109,7 @@ _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
 _has pyenv && eval "$(pyenv init --path)"
 _has nodenv && eval "$(nodenv init -)"
-_path_prepend "/opt/homebrew/opt/postgresql@11/bin"
+_path_prepend "/opt/homebrew/opt/postgresql@14/bin"
 _path_prepend "/opt/homebrew/opt/ruby/bin"
 _path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
@@ -136,3 +137,6 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^xe' edit-command-line
 bindkey '^x^e' edit-command-line
+
+# bun completions
+[ -s "/Users/carl/.bun/_bun" ] && source "/Users/carl/.bun/_bun"
