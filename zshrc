@@ -137,6 +137,3 @@ autoload -U edit-command-line
 zle -N edit-command-line
 bindkey '^xe' edit-command-line
 bindkey '^x^e' edit-command-line
-
-# bun completions
-[ -s "/Users/carl/.bun/_bun" ] && source "/Users/carl/.bun/_bun"

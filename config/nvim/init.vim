@@ -63,7 +63,7 @@ nmap <leader>r  :Rg<CR>
 
 nmap <leader><leader>  :confirm w<CR>
 
-set background=light
+"set background=light
 
 set errorformat+="%f:%l:%c - %m%r"
 set errorformat+="%f:%l:%m%r"
