@@ -107,7 +107,8 @@ rbrew() {
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
 _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
-_has pyenv && eval "$(pyenv init --path)"
+_has pyenv && eval "$(pyenv init -)"
+_has pyenv-virtualenv && eval "$(pyenv virtualenv-init -)"
 _has nodenv && eval "$(nodenv init -)"
 _path_prepend "/opt/homebrew/opt/postgresql@14/bin"
 _path_prepend "/opt/homebrew/opt/ruby/bin"

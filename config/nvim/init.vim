@@ -156,6 +156,16 @@ nnoremap <C-p> :Files<CR>
 nnoremap <C-q> :Buffers<CR>
 inoremap <expr> <CR> (pumvisible() ? "\<c-y>\<cr>" : "\<CR>")
 
+" pyenv install 3.12.4
+" pyenv virtualenv 3.12.4 neovim
+" pyenv activate neovim
+" python3 -m pip install pynvim
+" pyenv which python  # Note the path
+let py = expand('~/.pyenv/versions/neovim/bin/python')
+if filereadable(py)
+  let g:python3_host_prog = py
+endif
+
 call plug#begin(stdpath('data') . '/plug-data')
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-vinegar'
@@ -167,7 +177,7 @@ Plug 'zenazn/gotodef.vim'
 
 " Plug 'autozimu/LanguageClient-neovim', { 'branch': 'next', 'do': 'bash install.sh' }
 Plug 'ncm2/ncm2'
-Plug 'roxma/nvim-yarp', { 'do': 'pip3 install pynvim' }
+Plug 'roxma/nvim-yarp', { 'do': 'pip install -r requirements.txt' }
 
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'rust-lang/rust.vim'
