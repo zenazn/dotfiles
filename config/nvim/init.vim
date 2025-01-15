@@ -123,8 +123,8 @@ let g:rust_clip_command = 'pbcopy'
 let g:LanguageClient_serverCommands = {
     \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
     \ 'cpp': ['clangd', '--log=verbose', '--compile-commands-dir=.'],
-    \ 'typescript': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
-    \ 'typescriptreact': {'name': 'typescript', 'command': ['~/bin/ts-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
+    \ 'typescript': {'name': 'typescript', 'command': ['bunx', 'typescript-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
+    \ 'typescriptreact': {'name': 'typescript', 'command': ['bunx', 'typescript-language-server', '--stdio'], 'initializationOptions': { 'completionDisableFilterText': v:true }},
     \ 'zig': {'name': 'zig', 'command': ['~/bin/zls/zls']},
     \ }
 
@@ -196,7 +196,14 @@ Plug 'ziglang/zig.vim'
 
 Plug 'nono/lezer.vim'
 
+Plug 'supermaven-inc/supermaven-nvim'
+
 call plug#end()
+
+lua << EOF
+require("supermaven-nvim").setup({ })
+
+EOF
 
 autocmd BufEnter * call ncm2#enable_for_buffer()
 set completeopt=noinsert,menuone,noselect
@@ -206,6 +213,8 @@ augroup LanguageClient_config
   autocmd User LanguageClientStarted setlocal signcolumn=yes
   autocmd User LanguageClientStopped setlocal signcolumn=auto
 augroup END
+
+au BufRead,BufNewFile *.mdx set filetype=markdown
 
 autocmd FileType typescript syn sync fromstart
 autocmd FileType typescriptreact syn sync fromstart

@@ -104,7 +104,7 @@ nmap <leader>q  :q<CR>
 
 nmap <leader>m  :let @/ = '\<'.expand('<cword>').'\>'\|set hlsearch<CR>
 
-nmap <leader><leader>  :confirm w<CR>
+nmap <leader><leader>  :w<CR>
 
 " Colors!
 set t_Co=256

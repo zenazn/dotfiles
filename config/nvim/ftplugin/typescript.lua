@@ -2,8 +2,8 @@
 
 vim.lsp.start({
   name = 'tsserver',
-  cmd = {vim.fn.expand('~/bin/ts-language-server'), '--stdio'},
-  root_dir = vim.fs.dirname(vim.fs.find({'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock'}, { upward = true })[1]),
+  cmd = {'bunx', 'typescript-language-server', '--stdio'},
+  root_dir = vim.fs.dirname(vim.fs.find({'bun.lockb', 'pnpm-lock.yaml', 'package-lock.json', 'yarn.lock'}, { upward = true })[1]),
   -- https://github.com/typescript-language-server/typescript-language-server/issues/711
   init_options = {completionDisableFilterText = true}
 })

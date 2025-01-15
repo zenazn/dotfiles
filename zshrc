@@ -100,9 +100,6 @@ alias gs='git status'
 alias v="$EDITOR -O"
 alias vim="$(whence -p "$EDITOR") -O"
 alias ls="ls --color=auto"
-rbrew() {
-  arch -x86_64 /usr/local/bin/brew "$@"
-}
 
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
 _has fd && export FZF_ALT_C_COMMAND='fd -t d'
@@ -110,9 +107,10 @@ _has fd && export FZF_ALT_C_COMMAND='fd -t d'
 _has pyenv && eval "$(pyenv init -)"
 _has pyenv-virtualenv && eval "$(pyenv virtualenv-init -)"
 _has nodenv && eval "$(nodenv init -)"
-_path_prepend "/opt/homebrew/opt/postgresql@14/bin"
-_path_prepend "/opt/homebrew/opt/ruby/bin"
-_path_prepend "/opt/homebrew/lib/ruby/gems/3.0.0/bin"
+_path_prepend "$HOMEBREW_PREFIX/opt/ruby/bin"
+_has gem && _path_prepend "$(gem environment gemdir)/bin"
+_path_prepend "$HOMEBREW_PREFIX/opt/fzf/bin"
+_path_prepend "$HOMEBREW_PREFIX/lib/ruby/gems/3.0.0/bin"
 _path_prepend "$HOME/.poetry/bin"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/go/bin"
