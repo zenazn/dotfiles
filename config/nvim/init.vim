@@ -130,8 +130,8 @@ let g:LanguageClient_serverCommands = {
 
 let g:LanguageClient_rootMarkers = {
       \ 'rust': ['Cargo.toml'],
-      \ 'typescript': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lockb', '.git'],
-      \ 'typescriptreact': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lockb', '.git'],
+      \ 'typescript': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lock', 'bun.lockb', '.git'],
+      \ 'typescriptreact': ['pnpm-lock.yaml', 'package-lock.json', 'bun.lock', 'bun.lockb', '.git'],
       \ }
 
 " Nobody messes with my quickfix!
@@ -196,14 +196,7 @@ Plug 'ziglang/zig.vim'
 
 Plug 'nono/lezer.vim'
 
-Plug 'supermaven-inc/supermaven-nvim'
-
 call plug#end()
-
-lua << EOF
-require("supermaven-nvim").setup({ })
-
-EOF
 
 autocmd BufEnter * call ncm2#enable_for_buffer()
 set completeopt=noinsert,menuone,noselect
