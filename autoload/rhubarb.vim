@@ -69,10 +69,6 @@ function! rhubarb#HomepageForUrl(url) abort
   return substitute(root, '/$', '', '') . '/' . match[4]
 endfunction
 
-function! rhubarb#homepage_for_url(url) abort
-  return rhubarb#HomepageForUrl(a:url)
-endfunction
-
 function! s:repo_homepage() abort
   if exists('b:rhubarb_homepage')
     return b:rhubarb_homepage
@@ -197,37 +193,34 @@ function! rhubarb#Request(path, ...) abort
   if exists('*FugitiveExecute') && v:version >= 800
     try
       if has_key(options, 'callback')
-        return FugitiveExecute({'argv': args}, { r -> r.exit_status || r.stdout ==# [''] ? '' : options.callback(json_decode(join(r.stdout, ' '))) })
+        return FugitiveExecute({'argv': args},
+              \ { r -> r.exit_status || r.stdout ==# [''] ? '' : call(options.callback, [json_decode(join(r.stdout, ' '))] + get(options, 'callback_args', [])) })
       endif
       let raw = join(FugitiveExecute({'argv': args}).stdout, ' ')
-      return empty(raw) ? raw : json_decode(raw)
+      if empty(raw)
+        throw 'rhubarb: bug? empty response from ' . path
+      else
+        return json_decode(raw)
+      endif
     catch /^fugitive:/
     endtry
   endif
-  let raw = system(join(map(copy(args), 's:shellesc(v:val)'), ' '))
+  silent let raw = system(join(map(copy(args), 's:shellesc(v:val)'), ' '))
   if has_key(options, 'callback')
     if !v:shell_error && !empty(raw)
-      call options.callback(rhubarb#JsonDecode(raw))
+      call call(options.callback, [rhubarb#JsonDecode(raw)] + get(options, 'callback_args', []))
     endif
     return {}
   endif
-  if raw ==# ''
-    return raw
+  if empty(raw)
+    throw 'rhubarb: bug? empty response from ' . path
   else
     return rhubarb#JsonDecode(raw)
   endif
 endfunction
 
-function! rhubarb#request(...) abort
-  return call('rhubarb#Request', a:000)
-endfunction
-
 function! rhubarb#RepoRequest(...) abort
   return rhubarb#Request('repos/%s' . (a:0 && a:1 !=# '' ? '/' . a:1 : ''), a:0 > 1 ? a:2 : {})
-endfunction
-
-function! rhubarb#repo_request(...) abort
-  return call('rhubarb#RepoRequest', a:000)
 endfunction
 
 function! s:url_encode(str) abort
@@ -238,11 +231,22 @@ function! rhubarb#RepoSearch(type, q, ...) abort
   return call('rhubarb#Request', ['search/'.a:type.'?per_page=100&q=repo:%s'.s:url_encode(' '.a:q)] + a:000)
 endfunction
 
-function! rhubarb#repo_search(...) abort
-  return call('rhubarb#RepoSearch', a:000)
-endfunction
-
 " Section: Issues
+
+function! s:CompleteAddIssues(response, prefix) abort
+  for issue in get(a:response, 'items', [])
+    call complete_add({
+          \ 'word': empty(a:prefix) ? issue.html_url : a:prefix . issue.number,
+          \ 'abbr': '#' . issue.number,
+          \ 'menu': issue.title,
+          \ 'info': substitute(empty(issue.body) ? "\n" : issue.body,'\r','','g'),
+          \ })
+  endfor
+  if !has_key(a:response, 'message')
+    return
+  endif
+  throw 'rhubarb: ' . a:response.message
+endfunction
 
 let s:reference = '\<\%(\c\%(clos\|resolv\|referenc\)e[sd]\=\|\cfix\%(e[sd]\)\=\)\>'
 function! rhubarb#Complete(findstart, base) abort
@@ -258,32 +262,25 @@ function! rhubarb#Complete(findstart, base) abort
         let prefix = '#'
         let query = ''
       else
-        let prefix = s:repo_homepage().'/issues/'
+        let prefix = ''
         let query = a:base
       endif
-      let response = rhubarb#RepoSearch('issues', 'state:open '.query)
-      if type(response) != type({})
-        call s:throw('unknown error')
-      elseif has_key(response, 'message')
-        call s:throw(response.message)
-      else
-        let issues = get(response, 'items', [])
-      endif
-      return map(issues, '{"word": prefix.v:val.number, "abbr": "#".v:val.number, "menu": v:val.title, "info": substitute(empty(v:val.body) ? "\n" : v:val.body,"\\r","","g")}')
+      let issues = rhubarb#RepoSearch('issues', 'state:open is:issue ' . query)
+      call s:CompleteAddIssues(issues, prefix)
+      let prs = rhubarb#RepoSearch('issues', 'state:open is:pr ' . query)
+      call s:CompleteAddIssues(prs, prefix)
     endif
   catch /^rhubarb:.*is not a GitHub repository/
-    return []
   catch /^\%(fugitive\|rhubarb\):/
-    echoerr v:errmsg
+    echoerr v:exception
   endtry
-endfunction
-
-function! rhubarb#omnifunc(findstart, base) abort
-  return rhubarb#Complete(a:findstart, a:base)
+  return []
 endfunction
 
 " Section: Fugitive :GBrowse support
 
+" https://github.com/github/markup
+let s:markup_exts = ['markdown', 'mdown', 'mkdn', 'md', 'textile', 'rdoc', 'org', 'creole', 'mediawiki', 'wiki', 'rst', 'asciidoc', 'adoc', 'asc', 'pod']
 function! rhubarb#FugitiveUrl(...) abort
   if a:0 == 1 || type(a:1) == type({})
     let opts = a:1
@@ -295,15 +292,14 @@ function! rhubarb#FugitiveUrl(...) abort
     return ''
   endif
   let path = substitute(opts.path, '^/', '', '')
-  if path =~# '^\.git/refs/heads/'
-    return root . '/commits/' . path[16:-1]
-  elseif path =~# '^\.git/refs/tags/'
-    return root . '/releases/tag/' . path[15:-1]
-  elseif path =~# '^\.git/refs/remotes/[^/]\+/.'
-    return root . '/commits/' . matchstr(path,'remotes/[^/]\+/\zs.*')
-  elseif path =~# '^\.git/\%(config$\|hooks\>\)'
-    return root . '/admin'
-  elseif path =~# '^\.git\>'
+  let ref = matchstr(opts.path, '^/\=\.git/\zsrefs/.*')
+  if ref =~# '^refs/heads/'
+    return root . '/commits/' . ref[11:-1]
+  elseif ref =~# '^refs/tags/'
+    return root . '/releases/tag/' . ref[10:-1]
+  elseif ref =~# '^refs/remotes/[^/]\+/.'
+    return root . '/commits/' . matchstr(ref,'remotes/[^/]\+/\zs.*')
+  elseif opts.path =~# '^/\=\.git\>'
     return root
   endif
   let commit = opts.commit
@@ -312,6 +308,9 @@ function! rhubarb#FugitiveUrl(...) abort
   elseif get(opts, 'type', '') ==# 'blob' || opts.path =~# '[^/]$'
     let escaped_commit = substitute(commit, '#', '%23', 'g')
     let url = root . '/blob/' . escaped_commit . '/' . path
+    if get(opts, 'line1') > 0 && index(s:markup_exts, fnamemodify(path, ':e')) >= 0
+      let url .= '?plain=1'
+    endif
     if get(opts, 'line2') > 0 && get(opts, 'line1') == opts.line2
       let url .= '#L' . opts.line1
     elseif get(opts, 'line1') > 0 && get(opts, 'line2') > 0
@@ -321,10 +320,6 @@ function! rhubarb#FugitiveUrl(...) abort
     let url = root . '/commit/' . commit
   endif
   return url
-endfunction
-
-function! rhubarb#fugitive_url(...) abort
-  return call('rhubarb#FugitiveUrl', a:000)
 endfunction
 
 " Section: End
