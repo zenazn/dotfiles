@@ -21,7 +21,7 @@ func! Test_SetBuildTags() abort
 
     let l:expectedfilename = printf('%s/foo.go', l:dir)
 
-    let l:expected = [0, 5, 1, 0]
+    let l:expected = [0, 5, 6, 0]
     call assert_notequal(l:expected, l:jumpstart)
 
     call go#def#Jump('', 0)
@@ -49,7 +49,6 @@ func! Test_SetBuildTags() abort
       sleep 50m
       let l:lsplog = getbufline('__GOLSP_LOG__', 1, '$')
     endwhile
-    unlet g:go_debug
     " close the __GOLSP_LOG__ window
     only
 
@@ -58,7 +57,7 @@ func! Test_SetBuildTags() abort
     call assert_equal(l:jumpstart, getpos('.'))
 
     let l:expectedfilename = printf('%s/constrainedfoo.go', l:dir)
-    let l:expected = [0, 6, 1, 0]
+    let l:expected = [0, 6, 6, 0]
     call assert_notequal(l:expected, l:jumpstart)
 
     call go#def#Jump('', 0)
@@ -75,7 +74,6 @@ func! Test_SetBuildTags() abort
 
   finally
     call go#config#SetBuildTags('')
-    unlet g:go_def_mode
   endtry
 endfunc
 
@@ -84,6 +82,7 @@ func! Test_GoplsEnabled_Clear() abort
     return
   endif
 
+  let l:wd = getcwd()
   try
     let g:go_gopls_enabled = 0
 
@@ -96,10 +95,11 @@ func! Test_GoplsEnabled_Clear() abort
           \ ] )
 
   finally
-    unlet g:go_gopls_enabled
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
   endtry
 endfunc
+
 " restore Vi compatibility settings
 let &cpo = s:cpo_save
 unlet s:cpo_save

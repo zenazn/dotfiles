@@ -1,6 +1,171 @@
 ## unplanned
 
 BACKWARDS INCOMPATIBILITIES:
+* Update golangci-lint support to expect golangci-lint/v2.
+  [[GH-3710]](https://github.com/fatih/vim-go/pull/3710)
+
+IMPROVEMENTS:
+
+BUG FIXES:
+* Fix delay when listing breakpoints when stepping in Neovim.
+  [[GH-3714]](https://github.com/fatih/vim-go/pull/3714)
+* Fix :GoReportGitHubIssue after GitHub changed template URL behaviors.
+  [[GH-3736]](https://github.com/fatih/vim-go/pull/3736)
+* Add support for GNUMakefile to compiler settings.
+  [[GH-3723]](https://github.com/fatih/vim-go/pull/3723)
+* Bring back go-callers mappings, its documentation, and :GoCallers
+  documentation.
+  [[GH-3741]](https://github.com/fatih/vim-go/pull/3741)
+
+
+## v1.29 - (April 18, 2025)
+
+BACKWARDS INCOMPATIBILITIES:
+* Drop support for [guru](https://docs.google.com/document/d/1_Y9xCEMj5S-7rv2ooHpZNH15JgRT5iM742gJkw5LtmQ/edit?pli=1&tab=t.0#heading=h.ojv16z1d1gas).
+  [[GH-3650]](https://github.com/fatih/vim-go/pull/3650)
+  [[GH-3654]](https://github.com/fatih/vim-go/pull/3654)
+* Drop support for `keyify`.
+  [[GH-3665]](https://github.com/fatih/vim-go/pull/3665)
+
+IMPROVEMENTS:
+* Change the group that godebugStracktrace is default linked to.
+  [[GH-3483]](https://github.com/fatih/vim-go/pull/3483)
+* Add `:GoCoverageOverlay`.
+  [[GH-3485]](https://github.com/fatih/vim-go/pull/3485)
+* Add `:GoTestFile`.
+  [[GH-3486]](https://github.com/fatih/vim-go/pull/3486)
+  [[GH-3487]](https://github.com/fatih/vim-go/pull/3487)
+* Add `(go-fill-struct)` mapping.
+  [[GH-3502]](https://github.com/fatih/vim-go/pull/3502)
+  [[GH-3503]](https://github.com/fatih/vim-go/pull/3503)
+* Output an error message when `g:go_fillstruct_mode` and `g:go_gopls_enabled`
+  conflict.
+  [[GH-3504]](https://github.com/fatih/vim-go/pull/3504)
+* Add `:GoExtract` command and related mapping.
+  [[GH-3506]](https://github.com/fatih/vim-go/pull/3506)
+  [[GH-3617]](https://github.com/fatih/vim-go/pull/3617)
+  [[GH-3626]](https://github.com/fatih/vim-go/pull/3626)
+* Halt the debugger after a connection is establish with `:GoDebugConnect`.
+  [[GH-3514]](https://github.com/fatih/vim-go/pull/3514)
+  [[GH-3520]](https://github.com/fatih/vim-go/pull/3520)
+  [[GH-3570]](https://github.com/fatih/vim-go/pull/3570)
+* Clarify `:GoImpl` usage message.
+  [[GH-3522]](https://github.com/fatih/vim-go/pull/3522)
+* Add commands and mappings related to godoc to the godoc preview window.
+  [[GH-3527]](https://github.com/fatih/vim-go/pull/3527)
+  [[GH-3532]](https://github.com/fatih/vim-go/pull/3532)
+  [[GH-3559]](https://github.com/fatih/vim-go/pull/3559)
+* Link goPredefinedIdentifiers to Constant instead of goBoolean by default.
+  [[GH-3528]](https://github.com/fatih/vim-go/pull/3528)
+* Add `gD` mapping for `:GoDefType`.
+  [[GH-3531]](https://github.com/fatih/vim-go/pull/3531)
+* Use Vim's native tag stack when possible.
+  [[GH-3548]](https://github.com/fatih/vim-go/pull/3548)
+  [[GH-3554]](https://github.com/fatih/vim-go/pull/3554)
+  [[GH-3556]](https://github.com/fatih/vim-go/pull/3556)
+  [[GH-3557]](https://github.com/fatih/vim-go/pull/3557)
+  [[GH-3558]](https://github.com/fatih/vim-go/pull/3558)
+* Update codeAction response handling to work with gopls v0.12.0.
+  [[GH-3555]](https://github.com/fatih/vim-go/pull/3555)
+* Drop support for Vim 8.0.
+  [[GH-3538]](https://github.com/fatih/vim-go/pull/3538)
+* Set gopls clientInfo field.
+  [[GH-3567]](https://github.com/fatih/vim-go/pull/3567)
+* Add support for the Go 1.21's new builtin functions.
+  [[GH-3578]](https://github.com/fatih/vim-go/pull/3578)
+* Add syntax support for the toolchain directive in go.mod.
+  [[GH-3633]](https://github.com/fatih/vim-go/pull/3633)
+* Add fuzz snippet.
+  [[GH-3636]](https://github.com/fatih/vim-go/pull/3636)
+* Update gopls code action handling.
+  [[GH-3695]](https://github.com/fatih/vim-go/pull/3695)
+* Remove installation of `gorename`.
+  [[GH-3697]](https://github.com/fatih/vim-go/pull/3697)
+* Add support for `gopls rename`.
+  [[GH-3698]](https://github.com/fatih/vim-go/pull/3698)
+* Use a double border around doc popup.
+  [[GH-3705]](https://github.com/fatih/vim-go/pull/3705)
+
+
+BUG FIXES:
+* Update [impl](https://github.com/josharian/impl) source path after its default branch was changed from master to main.
+  [[GH-3477]](https://github.com/fatih/vim-go/pull/3477)
+* Update `:GoMetaLinter` help.
+  [[GH-3534]](https://github.com/fatih/vim-go/pull/3534)
+* Update syntax file for empty const, var, and import lists.
+  [[GH-3577]](https://github.com/fatih/vim-go/pull/3577)
+  [[GH-3579]](https://github.com/fatih/vim-go/pull/3579)
+* Fix sameids highlighting when id is preceded with multi-byte characters.
+  [[GH-3587]](https://github.com/fatih/vim-go/pull/3587)
+* Avoid creating an anonymous snippet when selected completion lacks
+  placeholders.
+  [[GH-3603]](https://github.com/fatih/vim-go/pull/3603)
+* Fix sameids highlighting when identifier immediately precedes newline.
+  [[GH-3606]](https://github.com/fatih/vim-go/pull/3606)
+* Fix Python escape sequence in UltiSnips/go.snippets.
+  [[GH-3614]](https://github.com/fatih/vim-go/pull/3614)
+* Do not attempt to use gopls for documentation when gopls is disabled.
+  [[GH-3610]](https://github.com/fatih/vim-go/pull/3610)
+* Fix spelling of go#util#EchoWarning in a few calls.
+  [[GH-3613]](https://github.com/fatih/vim-go/pull/3613)
+* Improve matching of package comments.
+  [[GH-3637]](https://github.com/fatih/vim-go/pull/3637)
+* Fix editing of lines with multibyte characters.
+  [[GH-3644]](https://github.com/fatih/vim-go/pull/3644)
+* Swallow delve errors when trying to place a breakpoint at an invalid location.
+  [[GH-3652]](https://github.com/fatih/vim-go/pull/3652)
+* Fix parsing of gopls error message to determine debug port.
+  [[GH-3672]](https://github.com/fatih/vim-go/pull/3672)
+* Handle unexpected code action commands from `gopls`.
+  [[GH-3678]](https://github.com/fatih/vim-go/pull/3678)
+* Fix substitution paths in debug stacktrace window.
+  [[GH-3675]](https://github.com/fatih/vim-go/pull/3675)
+* Fix handling of gopls restarts.
+  [[GH-3685]](https://github.com/fatih/vim-go/pull/3685)
+* Fix :GoDocBrowser's handling of arguments.
+  [[GH-3703]](https://github.com/fatih/vim-go/pull/3703)
+
+## v1.28 - (December 17, 2022)
+
+BUG FIXES:
+* Remove diagnostic message used during development.
+  [[GH-3476]](https://github.com/fatih/vim-go/pull/3476)
+
+## v1.27 - (December 17, 2022)
+
+BACKWARDS INCOMPATIBILITIES:
+
+IMPROVEMENTS:
+* Update documentation for installing tools.
+  [[GH-3413]](https://github.com/fatih/vim-go/pull/3413)
+* Show diagnostics via go#tool#DescribeBalloon().
+  [[GH-3415]](https://github.com/fatih/vim-go/pull/3415)
+  [[GH-3417]](https://github.com/fatih/vim-go/pull/3417)
+* Allow version of individual tools to be installed with `:GoUpdateBinaries`
+  and `:GoInstallBinaries` to be overridden by users.
+  [[GH-3435]](https://github.com/fatih/vim-go/pull/3435)
+  [[GH-3436]](https://github.com/fatih/vim-go/pull/3436)
+* Highlight numeric formats introduced in Go 1.13.
+  [[GH-3440]](https://github.com/fatih/vim-go/pull/3440)
+
+BUG FIXES:
+* Fix quoting of arguments when shell is set to pwsh on Windows.
+  [[GH-3422]](https://github.com/fatih/vim-go/pull/3422)
+* Use -mod=mod instead of -mod=readonly when installing tools.
+  [[GH-3449]](https://github.com/fatih/vim-go/pull/3449)
+* Remove support for /* */ comments in go.mod files.
+  [[GH-3460]](https://github.com/fatih/vim-go/pull/3460)
+* Fix go.work syntax support.
+  [[GH-3461]](https://github.com/fatih/vim-go/pull/3461)
+* Split the buffer without considering the current buffer when a mapping to
+  split and jump to definition is used.
+  [[GH-3462]](https://github.com/fatih/vim-go/pull/3462)
+* Fix hilighting of package references via `:GoSameIds`.
+  [[GH-3469]](https://github.com/fatih/vim-go/pull/3469)
+
+## v1.26 - (April 23, 2022)
+
+BACKWARDS INCOMPATIBILITIES:
 
 IMPROVEMENTS:
 * Add mapping for formatting, `(go-fmt)`.
@@ -24,6 +189,7 @@ IMPROVEMENTS:
   [[GH-3252]](https://github.com/fatih/vim-go/pull/3252)
 * Default to using `revive` in place of `golint`.
   [[GH-3248]](https://github.com/fatih/vim-go/pull/3248)
+  [[GH-3401]](https://github.com/fatih/vim-go/pull/3401)
 * Teach `:GoDebugPrint` to show function call return values.
   [[GH-3256]](https://github.com/fatih/vim-go/pull/3256)
 * Do not enable keyify unless in GOPATH.
@@ -54,6 +220,18 @@ IMPROVEMENTS:
   [[GH-3344]](https://github.com/fatih/vim-go/pull/3344)
 * Add syntax elements for `any` and `comparable` types.
   [[GH-3351]](https://github.com/fatih/vim-go/pull/3351)
+* Add syntax support for go.work files.
+  [[GH-3375]](https://github.com/fatih/vim-go/pull/3375)
+* Show the current goroutine at the top of the list of goroutines when debugging.
+  [[GH-3379]](https://github.com/fatih/vim-go/pull/3379)
+* Add `:GoModReload` and autocmd events to reload go.mod when it changes on
+  disk and is open in a buffer.
+  [[GH-3387]](https://github.com/fatih/vim-go/pull/3387)
+  [[GH-3391]](https://github.com/fatih/vim-go/pull/3391)
+* Add syntax support for generics.
+  [[GH-3397]](https://github.com/fatih/vim-go/pull/3397)
+* Remove invalid numeric literal highlighting.
+  [[GH-3404]](https://github.com/fatih/vim-go/pull/3404)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
@@ -81,6 +259,10 @@ BUG FIXES:
   [[GH-3343]](https://github.com/fatih/vim-go/pull/3343)
 * Resolve symlinks in autocmd events.
   [[GH-3353]](https://github.com/fatih/vim-go/pull/3353)
+* Fix `:GoRename` in Neovim so that it does not take 10 seconds to complete.
+  [[GH-3386]](https://github.com/fatih/vim-go/pull/3386)
+* Fix `:GoDebugConnect` argument handling.
+  [[GH-3400]](https://github.com/fatih/vim-go/pull/3400)
 
 ## v1.25 - (April 18, 2021)
 

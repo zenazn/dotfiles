@@ -47,14 +47,17 @@ hi def link     goFloats            Type
 hi def link     goComplexes         Type
 
 " Predefined functions and values
-syn keyword     goBuiltins                 append cap close complex copy delete imag len
-syn keyword     goBuiltins                 make new panic print println real recover
+syn keyword     goBuiltins                 append cap clear close complex copy delete imag len
+syn keyword     goBuiltins                 make max min new panic print println real recover
 syn keyword     goBoolean                  true false
 syn keyword     goPredefinedIdentifiers    nil iota
 
 hi def link     goBuiltins                 Identifier
+hi def link     goPredefinedIdentifiers    Constant
+" Boolean links to Constant by default by vim: goBoolean and goPredefinedIdentifiers
+" will be highlighted the same, but having the separate allows users to have
+" separate highlighting for them if they desire.
 hi def link     goBoolean                  Boolean
-hi def link     goPredefinedIdentifiers    goBoolean
 
 " Comments; their contents
 syn keyword     goTodo              contained TODO FIXME XXX BUG
@@ -104,7 +107,7 @@ else
   syn region      goRawString         start=+`+ end=+`+
 endif
 
-syn match       goImportString      /^\%(\s\+\|import \)\(\h\w* \)\?\zs"[^"]\+"$/ contained containedin=goImport
+syn match       goImportString      /^\%(\s\+\|import \)\(\h\w* \)\?\zs"[^"]\+"/ contained containedin=goImport
 
 if go#config#HighlightFormatStrings()
   " [n] notation is valid for specifying explicit argument indexes
@@ -144,35 +147,41 @@ endif
 " import
 if go#config#FoldEnable('import')
   syn region    goImport            start='import (' end=')' transparent fold contains=goImport,goImportString,goComment
+  syn match     goImport            /^import ()/ transparent fold contains=goImport
 else
   syn region    goImport            start='import (' end=')' transparent contains=goImport,goImportString,goComment
+  syn match     goImport            /^import ()/ transparent contains=goImport
 endif
 
 " var, const
 if go#config#FoldEnable('varconst')
   syn region    goVar               start='var ('   end='^\s*)$' transparent fold
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+                                  \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+  syn match     goVar               /var ()/ transparent fold
+                                  \ contains=goVar
   syn region    goConst             start='const (' end='^\s*)$' transparent fold
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+                                  \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+  syn match     goConst             /const ()/ transparent fold
+                                  \ contains=goConst
 else
   syn region    goVar               start='var ('   end='^\s*)$' transparent
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+                                  \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+  syn match     goVar               /var ()/ transparent
+                                  \ contains=goVar
   syn region    goConst             start='const (' end='^\s*)$' transparent
-                        \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+                                  \ contains=ALLBUT,goParen,goBlock,goFunction,goTypeName,goReceiverType,goReceiverVar,goParamName,goParamType,goSimpleParams,goPointerOperator
+  syn match     goConst             /const ()/ transparent
+                                  \ contains=goConst
 endif
 
 " Single-line var, const, and import.
 syn match       goSingleDecl        /\%(import\|var\|const\) [^(]\@=/ contains=goImport,goVar,goConst
 
 " Integers
-syn match       goDecimalInt        "\<-\=\(0\|[1-9]_\?\(\d\|\d\+_\?\d\+\)*\)\%([Ee][-+]\=\d\+\)\=\>"
-syn match       goDecimalError      "\<-\=\(_\(\d\+_*\)\+\|\([1-9]\d*_*\)\+__\(\d\+_*\)\+\|\([1-9]\d*_*\)\+_\+\)\%([Ee][-+]\=\d\+\)\=\>"
-syn match       goHexadecimalInt    "\<-\=0[xX]_\?\(\x\+_\?\)\+\>"
-syn match       goHexadecimalError  "\<-\=0[xX]_\?\(\x\+_\?\)*\(\([^ \t0-9A-Fa-f_)]\|__\)\S*\|_\)\>"
-syn match       goOctalInt          "\<-\=0[oO]\?_\?\(\o\+_\?\)\+\>"
-syn match       goOctalError        "\<-\=0[0-7oO_]*\(\([^ \t0-7oOxX_/)\]\}\:;]\|[oO]\{2,\}\|__\)\S*\|_\|[oOxX]\)\>"
-syn match       goBinaryInt         "\<-\=0[bB]_\?\([01]\+_\?\)\+\>"
-syn match       goBinaryError       "\<-\=0[bB]_\?[01_]*\([^ \t01_)]\S*\|__\S*\|_\)\>"
+syn match       goDecimalInt        "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)\>"
+syn match       goHexadecimalInt    "\<-\=0[xX]_\?\%(\x\|\x_\x\)\+\>"
+syn match       goOctalInt          "\<-\=0[oO]\?_\?\%(\o\|\o_\o\)\+\>"
+syn match       goBinaryInt         "\<-\=0[bB]_\?\%([01]\|[01]_[01]\)\+\>"
 
 hi def link     goDecimalInt        Integer
 hi def link     goDecimalError      Error
@@ -185,19 +194,55 @@ hi def link     goBinaryError       Error
 hi def link     Integer             Number
 
 " Floating point
-syn match       goFloat             "\<-\=\d\+\.\d*\%([Ee][-+]\=\d\+\)\=\>"
-syn match       goFloat             "\<-\=\.\d\+\%([Ee][-+]\=\d\+\)\=\>"
+"float_lit         = decimal_float_lit | hex_float_lit .
+"
+"decimal_float_lit = decimal_digits "." [ decimal_digits ] [ decimal_exponent ] |
+"                    decimal_digits decimal_exponent |
+"                    "." decimal_digits [ decimal_exponent ] .
+"decimal_exponent  = ( "e" | "E" ) [ "+" | "-" ] decimal_digits .
+"
+"hex_float_lit     = "0" ( "x" | "X" ) hex_mantissa hex_exponent .
+"hex_mantissa      = [ "_" ] hex_digits "." [ hex_digits ] |
+"                    [ "_" ] hex_digits |
+"                    "." hex_digits .
+"hex_exponent      = ( "p" | "P" ) [ "+" | "-" ] decimal_digits .
+" decimal floats with a decimal point
+syn match       goFloat             "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)\.\%(\%(\%(\d\|\d_\d\)\+\)\=\%([Ee][-+]\=\%(\d\|\d_\d\)\+\)\=\>\)\="
+syn match       goFloat             "\s\zs-\=\.\%(\d\|\d_\d\)\+\%(\%([Ee][-+]\=\%(\d\|\d_\d\)\+\)\>\)\="
+" decimal floats without a decimal point
+syn match       goFloat             "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)[Ee][-+]\=\%(\d\|\d_\d\)\+\>"
+" hexadecimal floats with a decimal point
+syn match       goHexadecimalFloat  "\<-\=0[xX]\%(_\x\|\x\)\+\.\%(\%(\x\|\x_\x\)\+\)\=\%([Pp][-+]\=\%(\d\|\d_\d\)\+\)\=\>"
+syn match       goHexadecimalFloat  "\<-\=0[xX]\.\%(\x\|\x_\x\)\+\%([Pp][-+]\=\%(\d\|\d_\d\)\+\)\=\>"
+" hexadecimal floats without a decimal point
+syn match       goHexadecimalFloat  "\<-\=0[xX]\%(_\x\|\x\)\+[Pp][-+]\=\%(\d\|\d_\d\)\+\>"
 
 hi def link     goFloat             Float
+hi def link     goHexadecimalFloat  Float
 
 " Imaginary literals
-syn match       goImaginary         "\<-\=\d\+i\>"
-syn match       goImaginary         "\<-\=\d\+[Ee][-+]\=\d\+i\>"
-syn match       goImaginaryFloat    "\<-\=\d\+\.\d*\%([Ee][-+]\=\d\+\)\=i\>"
-syn match       goImaginaryFloat    "\<-\=\.\d\+\%([Ee][-+]\=\d\+\)\=i\>"
+syn match       goImaginaryDecimal        "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)i\>"
+syn match       goImaginaryHexadecimal    "\<-\=0[xX]_\?\%(\x\|\x_\x\)\+i\>"
+syn match       goImaginaryOctal          "\<-\=0[oO]\?_\?\%(\o\|\o_\o\)\+i\>"
+syn match       goImaginaryBinary         "\<-\=0[bB]_\?\%([01]\|[01]_[01]\)\+i\>"
 
-hi def link     goImaginary         Number
-hi def link     goImaginaryFloat    Float
+" imaginary decimal floats with a decimal point
+syn match       goImaginaryFloat             "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)\.\%(\%(\%(\d\|\d_\d\)\+\)\=\%([Ee][-+]\=\%(\d\|\d_\d\)\+\)\=\)\=i\>"
+syn match       goImaginaryFloat             "\s\zs-\=\.\%(\d\|\d_\d\)\+\%([Ee][-+]\=\%(\d\|\d_\d\)\+\)\=i\>"
+" imaginary decimal floats without a decimal point
+syn match       goImaginaryFloat             "\<-\=\%(0\|\%(\d\|\d_\d\)\+\)[Ee][-+]\=\%(\d\|\d_\d\)\+i\>"
+" imaginary hexadecimal floats with a decimal point
+syn match       goImaginaryHexadecimalFloat  "\<-\=0[xX]\%(_\x\|\x\)\+\.\%(\%(\x\|\x_\x\)\+\)\=\%([Pp][-+]\=\%(\d\|\d_\d\)\+\)\=i\>"
+syn match       goImaginaryHexadecimalFloat  "\<-\=0[xX]\.\%(\x\|\x_\x\)\+\%([Pp][-+]\=\%(\d\|\d_\d\)\+\)\=i\>"
+" imaginary hexadecimal floats without a decimal point
+syn match       goImaginaryHexadecimalFloat  "\<-\=0[xX]\%(_\x\|\x\)\+[Pp][-+]\=\%(\d\|\d_\d\)\+i\>"
+
+hi def link     goImaginaryDecimal             Number
+hi def link     goImaginaryHexadecimal         Number
+hi def link     goImaginaryOctal               Number
+hi def link     goImaginaryBinary              Number
+hi def link     goImaginaryFloat               Float
+hi def link     goImaginaryHexadecimalFloat    Float
 
 " Spaces after "[]"
 if go#config#HighlightArrayWhitespaceError()
@@ -266,6 +311,8 @@ if go#config#HighlightOperators()
   syn match goOperator /\%(<<\|>>\|&^\)=\?/
   " match remaining two-char operators: := && || <- ++ --
   syn match goOperator /:=\|||\|<-\|++\|--/
+  " match ~
+  syn match goOperator /\~/
   " match ...
 
   hi def link     goPointerOperator   goOperator
@@ -273,14 +320,37 @@ if go#config#HighlightOperators()
 endif
 hi def link     goOperator          Operator
 
+"                               -> type constraint opening bracket
+"                               |-> start non-counting group
+"                               ||  -> any word character
+"                               ||  |  -> at least one, as many as possible
+"                               ||  |  |    -> start non-counting group
+"                               ||  |  |    |   -> match ~
+"                               ||  |  |    |   | -> at most once
+"                               ||  |  |    |   | |     -> allow a slice type
+"                               ||  |  |    |   | |     |      -> any word character
+"                               ||  |  |    |   | |     |      | -> start a non-counting group
+"                               ||  |  |    |   | |     |      | | -> that matches word characters and |
+"                               ||  |  |    |   | |     |      | | |     -> close the non-counting group
+"                               ||  |  |    |   | |     |      | | |     | -> close the non-counting group
+"                               ||  |  |    |   | |     |      | | |     | |-> any number of matches
+"                               ||  |  |    |   | |     |      | | |     | || -> start a non-counting group
+"                               ||  |  |    |   | |     |      | | |     | || | -> a comma and whitespace
+"                               ||  |  |    |   | |     |      | | |     | || | |      -> at most once
+"                               ||  |  |    |   | |     |      | | |     | || | |      | -> close the non-counting group
+"                               ||  |  |    |   | |     |      | | |     | || | |      | | -> at least one of those non-counting groups, as many as possible
+"                               ||  |  |    |   | | --------   | | |     | || | |      | | | -> type constraint closing bracket
+"                               ||  |  |    |   | ||        |  | | |     | || | |      | | | |
+syn match goTypeParams        /\[\%(\w\+\s\+\%(\~\?\%(\[]\)\?\w\%(\w\||\)\)*\%(,\s*\)\?\)\+\]/ nextgroup=goSimpleParams,goDeclType contained
+
 " Functions;
 if go#config#HighlightFunctions() || go#config#HighlightFunctionParameters()
   syn match goDeclaration       /\<func\>/ nextgroup=goReceiver,goFunction,goSimpleParams skipwhite skipnl
-  syn match goReceiverDecl      /(\s*\zs\%(\%(\w\+\s\+\)\?\*\?\w\+\)\ze\s*)/ contained contains=goReceiverVar,goReceiverType,goPointerOperator
+  syn match goReceiverDecl      /(\s*\zs\%(\%(\w\+\s\+\)\?\*\?\w\+\%(\[\%(\%(\[\]\)\?\w\+\%(,\s*\)\?\)\+\]\)\?\)\ze\s*)/ contained contains=goReceiverVar,goReceiverType,goPointerOperator
   syn match goReceiverVar       /\w\+\ze\s\+\%(\w\|\*\)/ nextgroup=goPointerOperator,goReceiverType skipwhite skipnl contained
   syn match goPointerOperator   /\*/ nextgroup=goReceiverType contained skipwhite skipnl
-  syn match goFunction          /\w\+/ nextgroup=goSimpleParams contained skipwhite skipnl
-  syn match goReceiverType      /\w\+\ze\s*)/ contained
+  syn match goFunction          /\w\+/ nextgroup=goSimpleParams,goTypeParams contained skipwhite skipnl
+  syn match goReceiverType      /\w\+\%(\[\%(\%(\[\]\)\?\w\+\%(,\s*\)\?\)\+\]\)\?\ze\s*)/ contained
   if go#config#HighlightFunctionParameters()
     syn match goSimpleParams      /(\%(\w\|\_s\|[*\.\[\],\{\}<>-]\)*)/ contained contains=goParamName,goType nextgroup=goFunctionReturn skipwhite skipnl
     syn match goFunctionReturn   /(\%(\w\|\_s\|[*\.\[\],\{\}<>-]\)*)/ contained contains=goParamName,goType skipwhite skipnl
@@ -290,7 +360,7 @@ if go#config#HighlightFunctions() || go#config#HighlightFunctionParameters()
     hi def link   goReceiverVar    goParamName
     hi def link   goParamName      Identifier
   endif
-  syn match goReceiver          /(\s*\%(\w\+\s\+\)\?\*\?\s*\w\+\s*)\ze\s*\w/ contained nextgroup=goFunction contains=goReceiverDecl skipwhite skipnl
+  syn match goReceiver          /(\s*\%(\w\+\s\+\)\?\*\?\s*\w\+\%(\[\%(\%(\[\]\)\?\w\+\%(,\s*\)\?\)\+\]\)\?\s*)\ze\s*\w/ contained nextgroup=goFunction contains=goReceiverDecl skipwhite skipnl
 else
   syn keyword goDeclaration func
 endif
@@ -298,7 +368,7 @@ hi def link     goFunction          Function
 
 " Function calls;
 if go#config#HighlightFunctionCalls()
-  syn match goFunctionCall      /\w\+\ze(/ contains=goBuiltins,goDeclaration
+  syn match goFunctionCall      /\w\+\ze\%(\[\%(\%(\[]\)\?\w\+\(,\s*\)\?\)\+\]\)\?(/ contains=goBuiltins,goDeclaration
 endif
 hi def link     goFunctionCall      Type
 
@@ -325,7 +395,7 @@ hi def link    goField              Identifier
 if go#config#HighlightTypes()
   syn match goTypeConstructor      /\<\w\+{\@=/
   syn match goTypeDecl             /\<type\>/ nextgroup=goTypeName skipwhite skipnl
-  syn match goTypeName             /\w\+/ contained nextgroup=goDeclType skipwhite skipnl
+  syn match goTypeName             /\w\+/ contained nextgroup=goDeclType,goTypeParams skipwhite skipnl
   syn match goDeclType             /\<\%(interface\|struct\)\>/ skipwhite skipnl
   hi def link     goReceiverType      Type
 else
@@ -378,12 +448,12 @@ if go#config#HighlightBuildConstraints() || go#config#FoldEnable('package_commen
   " matched as comments to avoid looking like working build constraints.
   " The he, me, and re options let the "package" itself be highlighted by
   " the usual rules.
-  exe 'syn region  goPackageComment    start=/\v(\/\/.*\n)+\s*package/'
-        \ . ' end=/\v\n\s*package/he=e-7,me=e-7,re=e-7'
+  exe 'syn region  goPackageComment    start=/\v(\/\/.*\n)+\s*package\s/'
+        \ . ' end=/\v\n\s*package\s/he=e-8,me=e-8,re=e-8'
         \ . ' contains=@goCommentGroup,@Spell'
         \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
-  exe 'syn region  goPackageComment    start=/\v^\s*\/\*.*\n(.*\n)*\s*\*\/\npackage/'
-        \ . ' end=/\v\*\/\n\s*package/he=e-7,me=e-7,re=e-7'
+  exe 'syn region  goPackageComment    start=/\v^\s*\/\*.*\n(.*\n)*\s*\*\/\npackage\s/'
+        \ . ' end=/\v\*\/\n\s*package\s/he=e-8,me=e-8,re=e-8'
         \ . ' contains=@goCommentGroup,@Spell'
         \ . (go#config#FoldEnable('package_comment') ? ' fold' : '')
   hi def link goPackageComment    Comment

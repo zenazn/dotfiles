@@ -6,6 +6,8 @@ function! Test_gomodVersion_highlight() abort
   try
     syntax on
 
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
     let l:dir = gotest#write_file('gomodtest/go.mod', [
           \ 'module github.com/fatih/vim-go',
           \ '',
@@ -50,6 +52,7 @@ function! Test_gomodVersion_highlight() abort
       let l:lineno += 1
     endwhile
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunc
@@ -58,6 +61,8 @@ function! Test_gomodVersion_incompatible_highlight() abort
   try
     syntax on
 
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
     let l:dir = gotest#write_file('gomodtest/go.mod', [
           \ 'module github.com/fatih/vim-go',
           \ '',
@@ -94,60 +99,64 @@ function! Test_gomodVersion_incompatible_highlight() abort
       let l:lineno += 1
     endwhile
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunc
 
 function! Test_numeric_literal_highlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
-  let tests = {
+  let l:tests = {
         \ 'lone zero': {'group': 'goDecimalInt', 'value': '0'},
+        \ 'float loan zero': {'group': 'goFloat', 'value': '0.'},
         \ 'integer': {'group': 'goDecimalInt', 'value': '1234567890'},
         \ 'integerGrouped': {'group': 'goDecimalInt', 'value': '1_234_567_890'},
-        \ 'integerErrorLeadingUnderscore': {'group': 'goDecimalError', 'value': '_1234_567_890'},
-        \ 'integerErrorTrailingUnderscore': {'group': 'goDecimalError', 'value': '1_234_567890_'},
-        \ 'integerErrorDoubleUnderscore': {'group': 'goDecimalError', 'value': '1_234__567_890'},
-        \ 'hexadecimal': {'group': 'goHexadecimalInt', 'value': '0x0123456789abdef'},
-        \ 'hexadecimalGrouped': {'group': 'goHexadecimalInt', 'value': '0x012_345_678_9ab_def'},
-        \ 'hexadecimalErrorLeading': {'group': 'goHexadecimalError', 'value': '0xg0123456789abdef'},
-        \ 'hexadecimalErrorTrailing': {'group': 'goHexadecimalError', 'value': '0x0123456789abdefg'},
-        \ 'hexadecimalErrorDoubleUnderscore': {'group': 'goHexadecimalError', 'value': '0x__0123456789abdef'},
-        \ 'hexadecimalErrorTrailingUnderscore': {'group': 'goHexadecimalError', 'value': '0x0123456789abdef_'},
-        \ 'heXadecimal': {'group': 'goHexadecimalInt', 'value': '0X0123456789abdef'},
-        \ 'heXadecimalErrorLeading': {'group': 'goHexadecimalError', 'value': '0Xg0123456789abdef'},
-        \ 'heXadecimalErrorTrailing': {'group': 'goHexadecimalError', 'value': '0X0123456789abdefg'},
+        \ 'hexadecimal': {'group': 'goHexadecimalInt', 'value': '0x0123456789abcdef'},
+        \ 'hexadecimalGrouped': {'group': 'goHexadecimalInt', 'value': '0x012_345_678_9abc_def'},
+        \ 'heXadecimal': {'group': 'goHexadecimalInt', 'value': '0X0123456789abcdef'},
+        \ 'hexadecimalFloatUp': {'group': 'goHexadecimalFloat', 'value': '0x0123456789abcdef.0123456789abcdefp2'},
+        \ 'hexadecimalFloatDown': {'group': 'goHexadecimalFloat', 'value': '0x0123456789abcdef.0123456789abcdefp-2'},
         \ 'octal': {'group': 'goOctalInt', 'value': '01234567'},
         \ 'octalPrefix': {'group': 'goOctalInt', 'value': '0o1234567'},
         \ 'octalGrouped': {'group': 'goOctalInt', 'value': '0o1_234_567'},
-        \ 'octalErrorLeading': {'group': 'goOctalError', 'value': '081234567'},
-        \ 'octalErrorTrailing': {'group': 'goOctalError', 'value': '012345678'},
-        \ 'octalErrorDoubleUnderscore': {'group': 'goOctalError', 'value': '0o__1234567'},
-        \ 'octalErrorTrailingUnderscore': {'group': 'goOctalError', 'value': '0o_123456_7_'},
-        \ 'octalErrorTrailingO': {'group': 'goOctalError', 'value': '0o_123456_7o'},
-        \ 'octalErrorTrailingX': {'group': 'goOctalError', 'value': '0o_123456_7x'},
-        \ 'octalErrorTrailingB': {'group': 'goOctalError', 'value': '0o_123456_7b'},
         \ 'OctalPrefix': {'group': 'goOctalInt', 'value': '0O1234567'},
         \ 'binaryInt': {'group': 'goBinaryInt', 'value': '0b0101'},
         \ 'binaryIntGrouped': {'group': 'goBinaryInt', 'value': '0b_01_01'},
-        \ 'binaryErrorLeading': {'group': 'goBinaryError', 'value': '0b20101'},
-        \ 'binaryErrorTrailing': {'group': 'goBinaryError', 'value': '0b01012'},
-        \ 'binaryErrorDoubleUnderscore': {'group': 'goBinaryError', 'value': '0b_01__01'},
-        \ 'binaryOverrideOctal': {'group': 'goBinaryError', 'value': '0b1234567'},
-        \ 'binaryErrorTrailingUnderscore': {'group': 'goBinaryError', 'value': '0b_01_01_'},
         \ 'BinaryInt': {'group': 'goBinaryInt', 'value': '0B0101'},
-        \ 'BinaryErrorLeading': {'group': 'goBinaryError', 'value': '0B20101'},
-        \ 'BinaryErrorTrailing': {'group': 'goBinaryError', 'value': '0B01012'},
+        \ 'floatFractionalOnly': {'group': 'goFloat', 'value': '.1'},
+        \ 'hexadecimalFloatFractionalOnly': {'group': 'goHexadecimalFloat', 'value': '0x.1'},
+        \ 'floatIntegerOnly': {'group': 'goFloat', 'value': '1e6'},
         \ }
 
-  for kv in items(tests)
-    let l:actual = s:numericHighlightGroupInAssignment(kv[0], kv[1].value)
-    call assert_equal(kv[1].group, l:actual, kv[0])
+  for l:kv in items(copy(l:tests))
+    let l:value = deepcopy(l:kv[1])
+    let l:value.group = substitute(l:value.group, 'go', 'goImaginary', '')
+    let l:value.group = substitute(l:value.group, 'Int$', '', '')
+    let l:value.value = printf('%si', l:value.value)
+    let l:tests[printf('imaginary %s', l:kv[0])] = l:value
+  endfor
+
+  for l:kv in items(copy(l:tests))
+    let l:value = deepcopy(l:kv[1])
+    let l:value.value = printf('-%s', l:value.value)
+    let l:tests[printf('negative %s', l:kv[0])] = l:value
+  endfor
+
+  for l:kv in items(tests)
+    let l:actual = s:numericHighlightGroupInAssignment(l:kv[0], l:kv[1].value)
+    call assert_equal(l:kv[1].group, l:actual, l:kv[1].value)
+
+    let l:groupName = 'goString'
+    let l:actual = s:stringHighlightGroupInAssignment(l:kv[0], l:kv[1].value)
+    call assert_equal('goString', l:actual, printf('"%s"', l:kv[1].value))
   endfor
 endfunction
 
 function! Test_zero_as_index_element() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceElement('zero-element', '0')
   call assert_equal('goDecimalInt', l:actual)
@@ -157,6 +166,7 @@ endfunction
 
 function! Test_zero_as_slice_index() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceIndex('zero-index', '0')
   call assert_equal('goDecimalInt', l:actual)
@@ -167,12 +177,14 @@ endfunction
 
 function! Test_zero_as_start_slicing_slice() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:actual = s:numericHighlightGroupInSliceSlicing('slice-slicing', '0', '1')
   call assert_equal('goDecimalInt', l:actual)
 endfunction
 
 function! s:numericHighlightGroupInAssignment(testname, value)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -184,11 +196,31 @@ function! s:numericHighlightGroupInAssignment(testname, value)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunction
+
+function! s:stringHighlightGroupInAssignment(testname, value)
+  let l:wd = getcwd()
+  let l:dir = gotest#write_file(printf('numeric/%s.go', a:testname), [
+        \ 'package numeric',
+        \ '',
+        \ printf("var v = \"%s\x1f\"", a:value),
+        \ ])
+
+  try
+    let l:pos = getcurpos()
+    let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
+    return l:actual
+  finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
 
 function! s:numericHighlightGroupInSliceElement(testname, value)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/slice-element/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -200,11 +232,13 @@ function! s:numericHighlightGroupInSliceElement(testname, value)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
 
 function! s:numericHighlightGroupInMultidimensionalSliceElement(testname, value)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/slice-multidimensional-element/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -216,11 +250,13 @@ function! s:numericHighlightGroupInMultidimensionalSliceElement(testname, value)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
 
 function! s:numericHighlightGroupInSliceIndex(testname, value)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/slice-index/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -233,11 +269,13 @@ function! s:numericHighlightGroupInSliceIndex(testname, value)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
 
 function! s:numericHighlightGroupInMultidimensionalSliceIndex(testname, first, second)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/slice-multidimensional-index/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -250,11 +288,13 @@ function! s:numericHighlightGroupInMultidimensionalSliceIndex(testname, first, s
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
 
 function! s:numericHighlightGroupInSliceSlicing(testname, from, to)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('numeric/slice-slicing/%s.go', a:testname), [
         \ 'package numeric',
         \ '',
@@ -266,6 +306,7 @@ function! s:numericHighlightGroupInSliceSlicing(testname, from, to)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
@@ -284,7 +325,6 @@ function! Test_diagnostic_after_fmt() abort
           \ '}',
           \ ], [])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
@@ -303,7 +343,6 @@ function! Test_diagnostic_after_fmt_change() abort
           \ '}',
           \ ], [])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
@@ -322,12 +361,12 @@ function! Test_diagnostic_after_fmt_cleared() abort
           \ '}',
           \ ], ['hello := "hello, vim-go"'])
   finally
-    unlet g:go_fmt_command
   endtry
 endfunction
 
 function! Test_diagnostic_after_reload() abort
   let g:go_diagnostics_level = 2
+  let l:wd = getcwd()
   let l:dir = gotest#write_file('diagnostic/after-reload.go', [
               \ 'package main',
               \ 'import "fmt"',
@@ -344,6 +383,7 @@ function! Test_diagnostic_after_reload() abort
     call setpos('.', l:pos)
     call s:check_diagnostics('', 'goDiagnosticError', 'after-reload')
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
@@ -352,6 +392,7 @@ function! s:diagnostic_after_write(contents, changes) abort
   syntax on
 
   let g:go_diagnostics_level = 2
+  let l:wd = getcwd()
   let l:dir = gotest#write_file('diagnostic/after-write.go', a:contents)
 
   try
@@ -374,6 +415,7 @@ function! s:diagnostic_after_write(contents, changes) abort
 
     call s:check_diagnostics(l:actual, l:expected, 'after-write')
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunction
@@ -425,7 +467,9 @@ endfunction
 
 function! Test_goStringHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
+  let l:wd = getcwd()
   let l:dir = gotest#write_file('highlight/gostring.go', [
         \ 'package highlight',
         \ '',
@@ -441,13 +485,16 @@ function! Test_goStringHighlight() abort
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     call assert_equal('goString', l:actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunc
 
 function! Test_goImportStringHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
+  let l:wd = getcwd()
   let l:dir = gotest#write_file('highlight/import.go', [
         \ 'package highlight',
         \ '',
@@ -463,12 +510,14 @@ function! Test_goImportStringHighlight() abort
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     call assert_equal('goImportString', l:actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunc
 
 function! Test_goReceiverHighlight() abort
   syntax on
+  let g:go_gopls_enabled = 0
 
   let l:tests = {
       \ 'PointerReceiverVar': {'group': 'goReceiverVar', 'value': "t\x1f *T"},
@@ -477,6 +526,12 @@ function! Test_goReceiverHighlight() abort
       \ 'ValueReceiverType': {'group': 'goReceiverType', 'value': "t T\x1f"},
       \ 'PointerReceiverTypeOmittedVar': {'group': 'goReceiverType', 'value': "*T\x1f"},
       \ 'ValueReceiverTypeOmittedVar': {'group': 'goReceiverType', 'value': "T\x1f"},
+      \ 'GenericPointerReceiverVar': {'group': 'goReceiverVar', 'value': "g\x1f *G[int]"},
+      \ 'GenericValueReceiverVar': {'group': 'goReceiverVar', 'value': "g\x1f G[int]"},
+      \ 'GenericPointerReceiverType': {'group': 'goReceiverType', 'value': "g *G\x1f[int]"},
+      \ 'GenericValueReceiverType': {'group': 'goReceiverType', 'value': "g G\x1f[int]"},
+      \ 'GenericPointerReceiverTypeOmittedVar': {'group': 'goReceiverType', 'value': "*G\x1f[int]"},
+      \ 'GenericValueReceiverTypeOmittedVar': {'group': 'goReceiverType', 'value': "G\x1f[int]"},
       \ }
 
   let g:go_highlight_function_parameters = 1
@@ -484,15 +539,16 @@ function! Test_goReceiverHighlight() abort
     let l:actual = s:receiverHighlightGroup(l:kv[0], l:kv[1].value)
     call assert_equal(l:kv[1].group, l:actual, l:kv[0])
   endfor
-  unlet g:go_highlight_function_parameters
 endfunc
 
 function! s:receiverHighlightGroup(testname, value)
   let l:package = tolower(a:testname)
+  let l:wd = getcwd()
   let l:dir = gotest#write_file(printf('%s/%s.go', l:package, a:testname), [
         \ printf('package %s', l:package),
         \ '',
         \ 'type T struct{}',
+        \ 'type G[T any] struct{}',
         \ printf('func (%s) Foo() {}', a:value),
         \ ])
 
@@ -501,6 +557,345 @@ function! s:receiverHighlightGroup(testname, value)
     let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
     return l:actual
   finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_GoTypeHighlight() abort
+  syntax on
+  let g:go_gopls_enabled = 0
+
+  let l:tests = {
+      \ 'StandardType': {'group': 'goTypeName', 'value': "T\x1f"},
+      \ 'GenericType': {'group': 'goTypeName', 'value': "G\x1f[T any]"},
+      \ }
+
+  let g:go_highlight_types = 1
+  for l:kv in items(l:tests)
+    let l:actual = s:typeHighlightGroup(l:kv[0], l:kv[1].value)
+    call assert_equal(l:kv[1].group, l:actual, l:kv[0])
+  endfor
+endfunc
+
+function! s:typeHighlightGroup(testname, value)
+  let l:package = tolower(a:testname)
+  let l:wd = getcwd()
+  let l:dir = gotest#write_file(printf('%s/%s.go', l:package, a:testname), [
+        \ printf('package %s', l:package),
+        \ '',
+        \ printf('type %s struct{}', a:value),
+        \ ])
+
+  try
+    let l:pos = getcurpos()
+    let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
+    return l:actual
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_goFunction() abort
+  syntax on
+  let g:go_gopls_enabled = 0
+
+  let l:tests = {
+        \ 'StandardFunction': {'group': 'goFunction', 'value': "F\x1f(){}"},
+        \ 'GenericFunction': {'group': 'goFunction', 'value': "G\x1f[T any](_ T){}"},
+      \ }
+
+  let g:go_highlight_functions = 1
+  for l:kv in items(l:tests)
+    let l:actual = s:functionHighlightGroup(l:kv[0], l:kv[1].value)
+    call assert_equal(l:kv[1].group, l:actual, l:kv[0])
+  endfor
+endfunc
+
+function! s:functionHighlightGroup(testname, value)
+  let l:package = tolower(a:testname)
+  let l:wd = getcwd()
+  let l:dir = gotest#write_file(printf('%s/%s.go', l:package, a:testname), [
+        \ printf('package %s', l:package),
+        \ '',
+        \ printf('func %s', a:value),
+        \ ])
+
+  try
+    let l:pos = getcurpos()
+    let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
+    return l:actual
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_goFunctionCall() abort
+  syntax on
+  let g:go_gopls_enabled = 0
+
+  let l:tests = {
+      \ 'StandardFunctionCall': {'group': 'goFunctionCall', 'value': "f\x1f()"},
+      \ 'GenericFunctionCall': {'group': 'goFunctionCall', 'value': "g\x1f[int](i)"},
+      \ }
+
+  let g:go_highlight_function_calls = 1
+  for l:kv in items(l:tests)
+    let l:actual = s:functionCallHighlightGroup(l:kv[0], l:kv[1].value)
+    call assert_equal(l:kv[1].group, l:actual, l:kv[0])
+  endfor
+endfunc
+
+function! s:functionCallHighlightGroup(testname, value)
+  let l:package = tolower(a:testname)
+  let l:wd = getcwd()
+  let l:dir = gotest#write_file(printf('%s/%s.go', l:package, a:testname), [
+        \ printf('package %s', l:package),
+        \ '',
+        \ 'func f() {}',
+        \ 'func g[T any](i T) {}',
+        \ 'func init() {',
+        \ printf("\t%s", a:value),
+        \ '}',
+        \ ])
+
+  try
+    let l:pos = getcurpos()
+    let l:actual = synIDattr(synID(l:pos[1], l:pos[2], 1), 'name')
+    return l:actual
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_gomodToolchainVersion_highlight() abort
+  try
+    syntax on
+
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
+    let l:dir = gotest#write_file('gomodtest/go.mod', [
+          \ 'module github.com/fatih/vim-go',
+          \ '',
+          \ 'toolchain default',
+          \ 'toolchain go1',
+          \ 'toolchain go1',
+          \ 'toolchain go1.21',
+          \ 'toolchain go1.21rc3',
+          \ 'toolchain go1.21.3-somesuffix',
+          \ 'toolchain go1.21rc2-somesuffix',
+          \ 'toolchain go1.21 some-suffix',
+          \ ''])
+
+    let l:lineno = 3
+    let l:lineclose = line('$')
+    while l:lineno < l:lineclose
+      let l:line = getline(l:lineno)
+      let l:split_idx = stridx(l:line, ' ')
+      let l:idx = 0
+      let l:col = 1
+
+      while l:idx < len(l:line) - 1
+        call cursor(l:lineno, l:col)
+        let l:synname = synIDattr(synID(l:lineno, l:col, 1), 'name')
+        let l:errlen = len(v:errors)
+
+        if l:idx < l:split_idx
+          call assert_equal('gomodToolchain', l:synname, 'toolchain on line ' . l:lineno . ' and col ' . l:col)
+        elseif l:idx > l:split_idx
+          call assert_equal('gomodToolchainVersion', l:synname, 'version on line ' . l:lineno . ' and col ' . l:col)
+        endif
+
+        if l:errlen < len(v:errors)
+          break
+        endif
+
+        let l:col += 1
+        let l:idx += 1
+      endwhile
+      let l:lineno += 1
+    endwhile
+
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_gomodToolchainVersion_invalid_highlight() abort
+  try
+    syntax on
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
+
+    " 1. No release candidate for patch versions
+    " 2+3. Release version can only be followed by 'rcN' or a valid suffix
+    " 4+5. toolchain version must start with 'go'
+    let l:dir = gotest#write_file('gomodtest/go.mod', [
+          \ 'module github.com/fatih/vim-go',
+          \ '',
+          \ 'toolchain go2',
+          \ 'toolchain go1.21.1.4',
+          \ 'toolchain go1.21.1blah',
+          \ 'toolchain go1.21!some-suffix',
+          \ 'toolchain something-else',
+          \ ''])
+
+    let l:lineno = 3
+    let l:lineclose = line('$')
+    while l:lineno < l:lineclose
+      let l:line = getline(l:lineno)
+      let l:col = col([l:lineno, '$']) - 1
+      let l:idx = len(l:line) - 1
+      " e.g. go1.21.1rc2 is valid until 'rc2'
+      " each 'go*' test above has last version number '1'
+      let l:valid_version_start_idx = strridx(l:line, '1')
+
+      if l:valid_version_start_idx != -1
+        let l:end_idx = l:valid_version_start_idx
+      else
+        " the whole version is invalid
+        let l:end_idx = stridx(l:line, ' ') + 1
+      endif
+
+      while l:idx > l:end_idx
+        call cursor(l:lineno, l:col)
+        let l:synname = synIDattr(synID(l:lineno, l:col, 1), 'name')
+        let l:errlen = len(v:errors)
+
+        call assert_notequal('gomodToolchainVersion', l:synname, 'version on line ' . l:lineno . ' and col ' . l:col)
+
+        if l:errlen < len(v:errors)
+          break
+        endif
+
+        let l:col -= 1
+        let l:idx -= 1
+      endwhile
+      let l:lineno += 1
+    endwhile
+
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+function! Test_gomodGoVersion() abort
+  try
+    syntax on
+
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
+    let l:dir = gotest#write_file('gomodtest/go.mod', [
+          \ 'module github.com/fatih/vim-go',
+          \ '',
+          \ 'go 1.20',
+          \ 'go 1.21',
+          \ 'go 1.21rc2',
+          \ 'go 1.21.1',
+          \ ''])
+
+    let l:lineno = 3
+    let l:lineclose = line('$')
+    while l:lineno < l:lineclose
+      let l:line = getline(l:lineno)
+      let l:split_idx = stridx(l:line, ' ')
+      let l:idx = len(l:line) - 1
+      let l:col = col([l:lineno, '$']) - 1
+
+      while l:idx > l:split_idx
+        call cursor(l:lineno, l:col)
+        let l:synname = synIDattr(synID(l:lineno, l:col, 1), 'name')
+        let l:errlen = len(v:errors)
+
+        call assert_equal('gomodGoVersion', l:synname, 'version on line ' . l:lineno . ' and col ' . l:col)
+        if l:errlen < len(v:errors)
+          break
+        endif
+
+        let l:col -= 1
+        let l:idx -= 1
+      endwhile
+      let l:lineno += 1
+    endwhile
+
+  finally
+    call go#util#Chdir(l:wd)
+    call delete(l:dir, 'rf')
+  endtry
+endfunc
+
+
+function! Test_goPackageComment_highlight() abort
+  try
+    syntax on
+
+    let g:go_gopls_enabled = 0
+    let l:wd = getcwd()
+    let l:dir = gotest#write_file('packageTest.go', [
+          \ '// this is a package comment',
+          \ 'package somepkg',
+          \ '',
+          \ '/*',
+          \ 'this is also a package comment',
+          \ '*/',
+          \ 'package somepkg',
+          \ '',
+          \ 'var (',
+          \ '\t// this is a regular comment',
+          \ '\tpackages []string',
+          \ ')',
+          \ ''])
+
+    let l:package_comment_lines =  [1, 4, 5, 6]
+    for l:lineno in package_comment_lines
+      let l:line = getline(l:lineno)
+      let l:idx = 0
+      let l:end = len(l:line) - 1
+      let l:col = 1
+
+      while l:idx <= l:end
+        call cursor(l:lineno, l:col)
+        let l:synname = synIDattr(synID(l:lineno, l:col, 1), 'name')
+        let l:errlen = len(v:errors)
+
+        call assert_equal('goPackageComment', l:synname, 'version on line ' . l:lineno . ' and col ' . l:col)
+
+        if l:errlen < len(v:errors)
+          break
+        endif
+
+        let l:col += 1
+        let l:idx += 1
+      endwhile
+    endfor
+
+    let l:lineno = 10
+    let l:col = col([l:lineno, '$']) - 1
+    let l:end_idx = stridx(l:line, '\t')
+    let l:idx = len(l:line - 1)
+
+    while l:idx > l:end_idx
+      call cursor(l:lineno, l:col)
+      let l:synname = synIDattr(synID(l:lineno, l:col, 1), 'name')
+      let l:errlen = len(v:errors)
+
+      call assert_equal('goComment', l:synname, 'version on line ' . l:lineno . ' and col ' . l:col)
+
+      if l:errlen < len(v:errors)
+        break
+      endif
+
+      let l:col -= 1
+      let l:idx -= 1
+    endwhile
+
+  finally
+    call go#util#Chdir(l:wd)
     call delete(l:dir, 'rf')
   endtry
 endfunc

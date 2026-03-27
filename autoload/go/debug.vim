@@ -6,7 +6,7 @@ scriptencoding utf-8
 
 if !exists('s:state')
   let s:state = {
-        \ 'rpcid': 1,
+        \ 'rpcid': 0,
         \ 'running': 0,
         \ 'currentThread': {},
         \ 'localVars': {},
@@ -35,10 +35,9 @@ function! s:goroutineID() abort
 endfunction
 
 function! s:complete(job, exit_status, data) abort
-  let l:gotready = get(s:state, 'ready', 0)
   " copy messages to a:data _only_ when dlv exited non-zero and it was never
   " detected as ready (e.g. there was a compiler error).
-  if a:exit_status > 0 && !l:gotready
+  if a:exit_status > 0 && !s:isReady()
       " copy messages to data so that vim-go's usual handling of errors from
       " async jobs will occur.
       call extend(a:data, s:state['message'])
@@ -65,26 +64,54 @@ function! s:complete(job, exit_status, data) abort
   call s:clearState()
 endfunction
 
-function! s:logger(prefix, ch, msg) abort
-  let l:cur_win = bufwinnr('')
-  let l:log_win = bufwinnr(bufnr('__GODEBUG_OUTPUT__'))
-  if l:log_win == -1
-    return
-  endif
-  exe l:log_win 'wincmd w'
-
+let s:log = []
+let s:logtimer = 0
+function! s:logasync(timer) abort
+  let s:logtimer = 0
   try
-    setlocal modifiable
-    if getline(1) == ''
-      call setline('$', a:prefix . a:msg)
-    else
-      call append('$', a:prefix . a:msg)
+    let l:name = '__GODEBUG_OUTPUT__'
+    let l:log_winid = bufwinid(l:name)
+    if l:log_winid == -1
+      if !s:isReady() && !has_key(s:state, 'job')
+        return
+      endif
+      let s:logtimer = timer_start(go#config#DebugLogDelay(), function('s:logasync', []))
+      return
     endif
-    normal! G
-    setlocal nomodifiable
+
+    try
+      call setbufvar(l:name, '&modifiable', 1)
+      for [l:prefix, l:data] in s:log
+        call remove(s:log, 0)
+        if getbufline(l:name, 1)[0] == ''
+          call setbufline(l:name, '$', printf('%s%s', l:prefix, l:data))
+        else
+          call appendbufline(l:name, '$', printf('%s%s', l:prefix, l:data))
+        endif
+      endfor
+
+      " Move the window's cursor position without switching to the window
+      call win_execute(l:log_winid, 'normal! G')
+      call setbufvar(l:name, '&modifiable', 0)
+    finally
+    endtry
+  catch
+    call go#util#EchoError(printf('at %s: %s', v:throwpoint, v:exception))
   finally
-    exe l:cur_win 'wincmd w'
+    " retry when there's an exception.
+    if len(s:log) != 0
+      let s:logtimer = timer_start(go#config#DebugLogDelay(), function('s:logasync', []))
+    endif
   endtry
+endfunction
+
+function! s:logger(prefix, ch, data) abort
+  let l:shouldStart = s:logtimer is 0
+  let s:log = add(s:log, [a:prefix, a:data])
+
+  if l:shouldStart
+    let s:logtimer = timer_start(go#config#DebugLogDelay(), function('s:logasync', []))
+  endif
 endfunction
 
 " s:call_jsonrpc will call method, passing all of s:call_jsonrpc's optional
@@ -120,7 +147,7 @@ function! s:call_jsonrpc(handle_result, method, ...) abort
 
     if go#util#HasDebug('debugger-commands')
       let g:go_debug_commands = add(go#config#DebugCommands(), {
-            \ 'request':  l:req_json,
+            \ 'request':  json_decode(l:req_json)
       \ })
     endif
 
@@ -152,17 +179,23 @@ function! s:update_breakpoint(res) abort
   endif
 
   let s:state['currentThread'] = state.currentThread
+  let filename = s:substituteRemotePath(state.currentThread.file)
+  if filename == ''
+    return
+  endif
   let bufs = filter(map(range(1, winnr('$')), '[v:val,bufname(winbufnr(v:val))]'), 'v:val[1]=~"\.go$"')
   if len(bufs) == 0
     return
   endif
 
-  exe bufs[0][0] 'wincmd w'
-  let filename = s:substituteRemotePath(state.currentThread.file)
+  call win_gotoid(win_getid(bufs[0][0]))
   let linenr = state.currentThread.line
   let oldfile = fnamemodify(expand('%'), ':p:gs!\\!/!')
   if oldfile != filename
     silent! exe 'edit' filename
+    " synchronize breakpoints in case the new filename is not already loaded
+    " in a buffer.
+    call s:sync_breakpoints()
   endif
   silent! exe 'norm!' linenr.'G'
   silent! normal! zvzz
@@ -290,7 +323,13 @@ endfunction
 function! go#debug#Stop() abort
   " Remove all commands and add back the default commands.
   for k in map(split(execute('command GoDebug'), "\n")[1:], 'matchstr(v:val, "^\\s*\\zs\\S\\+")')
-    exe 'delcommand' k
+    try
+      if k is 'Name'
+        continue
+      endif
+      execute(printf('delcommand %s', k))
+    catch
+    endtry
   endfor
   command! -nargs=* -complete=customlist,go#package#Complete GoDebugStart call go#debug#Start('debug', <f-args>)
   command! -nargs=* -complete=customlist,go#package#Complete GoDebugTest  call go#debug#Start('test', <f-args>)
@@ -304,14 +343,17 @@ function! go#debug#Stop() abort
 
   " remove plug mappings
   for k in map(split(execute('nmap <Plug>(go-debug-'), "\n"), 'matchstr(v:val, "^n\\s\\+\\zs\\S\\+")')
-    execute(printf('nunmap %s', k))
+    try
+      execute(printf('nunmap %s', k))
+    catch
+    endtry
   endfor
 
   call s:stop()
 
   let bufs = filter(map(range(1, winnr('$')), '[v:val,bufname(winbufnr(v:val))]'), 'v:val[1]=~"\.go$"')
   if len(bufs) > 0
-    exe bufs[0][0] 'wincmd w'
+    call win_gotoid(win_getid(bufs[0][0]))
   else
     wincmd p
   endif
@@ -356,12 +398,15 @@ function! s:goto_file() abort
   if len(bufs) == 0
     return
   endif
-  exe bufs[0][0] 'wincmd w'
-  let filename = s:substituteLocalPath(m[1])
+  call win_gotoid(win_getid(bufs[0][0]))
+  let filename = m[1]
   let linenr = m[2]
   let oldfile = fnamemodify(expand('%'), ':p:gs!\\!/!')
   if oldfile != filename
     silent! exe 'edit' filename
+    " synchronize breakpoints in case the new filename is not already loaded
+    " in a buffer.
+    call s:sync_breakpoints()
   endif
   silent! exe 'norm!' linenr.'G'
   silent! normal! zvzz
@@ -464,7 +509,7 @@ function! s:expand_var() abort
   endif
 endfunction
 
-function! s:start_cb() abort
+function! s:create_layout() abort
   let l:winid = win_getid()
   let l:debugwindows = go#config#DebugWindows()
   let l:debugpreservelayout = go#config#DebugPreserveLayout()
@@ -523,11 +568,13 @@ function! s:start_cb() abort
 
   command! -nargs=0 GoDebugContinue   call go#debug#Stack('continue')
   command! -nargs=0 GoDebugStop       call go#debug#Stop()
+  command! -nargs=0 GoDebugHalt       call go#debug#Stack('halt')
 
   nnoremap <silent> <Plug>(go-debug-breakpoint) :<C-u>call go#debug#Breakpoint()<CR>
   nnoremap <silent> <Plug>(go-debug-continue)   :<C-u>call go#debug#Stack('continue')<CR>
   nnoremap <silent> <Plug>(go-debug-stop)       :<C-u>call go#debug#Stop()<CR>
 
+  call s:restoreMappings()
   augroup vim-go-debug
     autocmd! *
     call s:configureMappings('(go-debug-breakpoint)', '(go-debug-continue)')
@@ -542,7 +589,6 @@ function! s:continue()
   command! -nargs=0 GoDebugRestart    call go#debug#Restart()
   command! -nargs=* GoDebugSet        call go#debug#Set(<f-args>)
   command! -nargs=1 GoDebugPrint      call go#debug#Print(<q-args>)
-  command! -nargs=0 GoDebugHalt       call go#debug#Stack('halt')
 
   nnoremap <silent> <Plug>(go-debug-next)       :<C-u>call go#debug#Stack('next')<CR>
   nnoremap <silent> <Plug>(go-debug-step)       :<C-u>call go#debug#Stack('step')<CR>
@@ -570,7 +616,7 @@ function! s:continue()
 endfunction
 
 function! s:err_cb(ch, msg) abort
-  if get(s:state, 'ready', 0) != 0
+  if s:isReady()
     call s:logger('ERR: ', a:ch, a:msg)
     return
   endif
@@ -579,7 +625,7 @@ function! s:err_cb(ch, msg) abort
 endfunction
 
 function! s:out_cb(ch, msg) abort
-  if get(s:state, 'ready', 0) != 0
+  if s:isReady()
     call s:logger('OUT: ', a:ch, a:msg)
     return
   endif
@@ -621,18 +667,93 @@ function! s:connect(addr) abort
 
   let s:state['ch'] = l:ch
 
-  " After this block executes, Delve will be running with all the
-  " breakpoints setup, so this callback doesn't have to run again; just log
-  " future messages.
+  " Set running so that the next go#debug#Stack call doesn't change operation
+  " to continue.
+  let s:state['running'] = 0
+
+  " It is ok to halt whether whether delve was started with connect, debug, or
+  " test and regardless of whether the the process is already halted.
+  call go#debug#Stack('halt')
+
+  " Set ready so that breakpoints will be setup and all output from dlv's
+  " stdout and stderr will be logged.
   let s:state['ready'] = 1
 
-  " replace all the breakpoints set before delve started so that the ids won't overlap.
-  for l:bt in s:list_breakpoints()
-    call s:sign_unplace(l:bt.id, l:bt.file)
-    call go#debug#Breakpoint(l:bt.line, l:bt.file)
-  endfor
+  call s:sync_breakpoints()
 
-  call s:start_cb()
+  call s:create_layout()
+endfunction
+
+function! s:sync_breakpoints()
+  try
+    " get the breakpoints
+    call s:call_jsonrpc(function('s:handle_list_breakpoints'), 'RPCServer.ListBreakpoints', {'All': v:true})
+  catch
+    call go#util#EchoError(printf('failed to sync breakpoints (%s): %s', v:throwpoint, v:exception))
+  finally
+  endtry
+endfunction
+
+function! s:handle_list_breakpoints(check_errors, res)
+  try
+    call a:check_errors()
+
+    let l:res = a:res
+    if type(l:res) != v:t_dict || !has_key(l:res, 'result') || type(l:res.result) != v:t_dict || !has_key(l:res.result, 'Breakpoints')
+      call go#util#EchoError('could not list breakpoints')
+    endif
+    let l:breakpoints = l:res.result.Breakpoints
+
+    let l:signs = s:list_breakpointsigns()
+
+    " the breakpoints with a sign
+    let l:signsByBreakpointID = {}
+    " the signs with a breakpoint
+    let l:breakpointsBySignID = {}
+
+    " replace the sign when the id of the breakpoint and the sign are
+    " different
+    for l:sign in l:signs
+      for l:breakpoint in l:breakpoints
+        if l:sign.file == s:substituteRemotePath(l:breakpoint.file) && l:sign.line == l:breakpoint.line
+          if l:sign.id != l:breakpoint.id
+            call s:sign_unplace(l:sign.id, l:sign.file)
+            call s:sign_place(l:breakpoint.id, s:substituteRemotePath(l:breakpoint.file), l:breakpoint.line)
+          endif
+
+          let l:signsByBreakpointID[l:breakpoint.id] = l:sign.id
+          let l:breakpointsBySignID[l:sign.id] = l:breakpoint.id
+          break
+        endif
+      endfor
+    endfor
+
+    " add a sign for each breakpoint without a sign
+    for l:breakpoint in l:breakpoints
+      if empty(get(l:signsByBreakpointID, l:breakpoint.id, ''))
+        " ignore breakpoints in files not yet associated with a buffer.
+        let l:localpath = s:substituteRemotePath(l:breakpoint.file)
+        let l:bufname = bufname(fnamemodify(l:localpath, ':.'))
+        if l:bufname is ''
+          continue
+        endif
+
+        call s:sign_place(l:breakpoint.id, l:localpath, l:breakpoint.line)
+      endif
+    endfor
+
+    " add a breakpoint for each sign without a breakpoint
+    for l:sign in l:signs
+      if empty(get(l:breakpointsBySignID, l:sign.id, ''))
+        let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.CreateBreakpoint', {'Breakpoint': {'file': s:substituteLocalPath(l:sign.file), 'line': l:sign.line}})
+        "let l:res = l:promise.await()
+      endif
+    endfor
+  catch
+    call go#util#EchoError(printf('failed to sync breakpoints (%s): %s', v:throwpoint, v:exception))
+  finally
+  endtry
 endfunction
 
 " s:on_data's third optional argument is provided, but not used, so that the
@@ -654,15 +775,14 @@ function! s:on_data(ch, data, ...) dict abort
       " in if s:handleRPCResult sleeps will be appended correctly.
       "
       " Because the current message is removed in the try immediately after
-      " decoding,  that l:messages contains all the messages that have not
-      " yet been decoded including the current message if decoding it
-      " failed.
+      " decoding, l:messages contains all the messages that have not yet been
+      " decoded including the current message if decoding it failed.
       let self.databuf = join(l:messages, "\n")
     endtry
 
     if go#util#HasDebug('debugger-commands')
       let g:go_debug_commands = add(go#config#DebugCommands(), {
-            \ 'response': l:data,
+            \ 'response': l:res,
       \ })
     endif
     call s:handleRPCResult(l:res)
@@ -696,7 +816,6 @@ function! s:message(buf, data) abort
     " and
     "     for every list you receive in a callback, all items except the first
     "     represent newlines.
-
     let l:data = printf('%s%s', a:buf, a:data[0])
     for l:msg in a:data[1:]
       let l:data = printf("%s\n%s", l:data, l:msg)
@@ -726,7 +845,7 @@ function! s:handleRPCResult(resp) abort
     " response.
     call call(s:state.resultHandlers[l:id], [function('s:check_errors', [a:resp]), a:resp])
   catch
-    throw v:exception
+    throw substitute(v:exception, '^Vim', '', '')
   finally
     if has_key(s:state.resultHandlers, l:id)
       call remove(s:state.resultHandlers, l:id)
@@ -737,7 +856,7 @@ endfunction
 function! go#debug#TestFunc(...) abort
   let l:test = go#util#TestName()
   if l:test is ''
-    call go#util#Warn("vim-go: [debug] no test found immediate to cursor")
+    call go#util#EchoWarning("vim-go: [debug] no test found immediate to cursor")
     return
   endif
   call call('go#debug#Start', extend(['test', '.', '-test.run', printf('%s$', l:test)], a:000))
@@ -772,7 +891,7 @@ function! go#debug#Start(mode, ...) abort
   try
     if a:mode is 'connect'
       let l:addr = go#config#DebugAddress()
-      if len(a:0) > 0
+      if a:0 > 0
         let l:addr = a:1
       endif
       let s:state['kill_on_detach'] = v:false
@@ -1100,7 +1219,7 @@ function! s:show_goroutines(currentGoroutineID, res) abort
     setlocal modifiable
     silent %delete _
 
-    let v = ['# Goroutines']
+    let v = []
 
     if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res['result'])
       call setline(1, v)
@@ -1114,6 +1233,7 @@ function! s:show_goroutines(currentGoroutineID, res) abort
       return
     endif
 
+    let l:currentGoroutine = []
     for l:idx in range(len(l:goroutines))
       let l:goroutine = l:goroutines[l:idx]
       let l:goroutineType = ""
@@ -1141,11 +1261,15 @@ function! s:show_goroutines(currentGoroutineID, res) abort
       " changed if needed.
       if l:goroutine.id == a:currentGoroutineID
         let l:g = printf("* Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
+        let l:currentGoroutine = [l:g]
+        continue
       else
         let l:g = printf("  Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
       endif
       let v += [l:g]
     endfor
+
+    let v = ['# Goroutines'] + l:currentGoroutine + v
 
     call setline(1, v)
   finally
@@ -1263,7 +1387,7 @@ function! s:update_stacktrace() abort
   endtry
 endfunction
 
-function! s:stack_cb(res) abort
+function! s:update_windows(res) abort
   let s:stack_name = ''
 
   if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res.result)
@@ -1288,14 +1412,16 @@ function! go#debug#Stack(name) abort
 
   " Run continue if the program hasn't started yet.
   if s:state.running is 0
-    let s:state.running = 1
-    let l:name = 'continue'
-    call s:continue()
+    if l:name != 'halt'
+      let l:name = 'continue'
+      let s:state.running = 1
+      call s:continue()
+    endif
   endif
 
   " Add a breakpoint to the main.Main if the user didn't define any.
   " TODO(bc): actually set the breakpoint in main.Main
-  if len(s:list_breakpoints()) is 0
+  if len(s:list_breakpointsigns()) is 0
     if go#debug#Breakpoint() isnot 0
       let s:state.running = 0
       return
@@ -1303,7 +1429,7 @@ function! go#debug#Stack(name) abort
   endif
 
   try
-    " s:stack_name is reset in s:stack_cb(). While its value is 'next', the
+    " s:stack_name is reset in s:update_windows(). While its value is 'next', the
     " current operation being performed by delve is a next operation and it
     " must be cancelled before another next operation can start. See
     " https://github.com/go-delve/delve/blob/ab5713d3ec5d12754f4b2edf85e4b36a08b67c48/Documentation/api/ClientHowto.md#special-continue-commands-and-asynchronous-breakpoints
@@ -1334,11 +1460,15 @@ function! s:handle_stack_response(command, check_errors, res) abort
   try
     call a:check_errors()
 
+    if s:state.running is 0 && a:command is# 'halt'
+      return
+    endif
+
     if a:command is# 'next'
       call s:handleNextInProgress(a:res)
     endif
 
-    call s:stack_cb(a:res)
+    call s:update_windows(a:res)
   catch
     call go#util#EchoError(printf('rpc failure: %s', v:exception))
     call s:clearState()
@@ -1363,7 +1493,7 @@ function! s:handleNextInProgress(res)
       endif
     endwhile
   catch
-    throw v:exception
+    throw substitute(v:exception, '^Vim', '', '')
   endtry
 endfunction
 
@@ -1375,7 +1505,7 @@ function! go#debug#Restart() abort
     call s:stop()
 
     let s:state = {
-          \ 'rpcid': 1,
+          \ 'rpcid': 0,
           \ 'running': 0,
           \ 'currentThread': {},
           \ 'localVars': {},
@@ -1409,7 +1539,7 @@ function! go#debug#Goroutine() abort
     let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
     call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.Command', {'Name': 'switchGoroutine', 'GoroutineID': l:goroutineID})
     let l:res = l:promise.await()
-    call s:stack_cb(l:res)
+    call s:update_windows(l:res)
     call go#util#EchoInfo("Switched goroutine to: " . l:goroutineID)
   catch
     call go#util#EchoError(printf('could not switch goroutine: %s', v:exception))
@@ -1436,7 +1566,7 @@ function! go#debug#Breakpoint(...) abort
   try
     " Check if we already have a breakpoint for this line.
     let l:found = {}
-    for l:bt in s:list_breakpoints()
+    for l:bt in s:list_breakpointsigns()
       if l:bt.file is# l:filename && l:bt.line is# l:linenr
         let l:found = l:bt
         break
@@ -1459,7 +1589,7 @@ function! go#debug#Breakpoint(...) abort
         let l:bt = l:res.result.Breakpoint
         call s:sign_place(l:bt.id, s:substituteRemotePath(l:bt.file), l:bt.line)
       else
-        let l:id = len(s:list_breakpoints()) + 1
+        let l:id = len(s:list_breakpointsigns()) + 1
         call s:sign_place(l:id, l:filename, l:linenr)
       endif
     endif
@@ -1481,6 +1611,11 @@ function! s:sign_unplace(id, file) abort
 endfunction
 
 function! s:sign_place(id, expr, lnum) abort
+  " Check if lnum is less than 1 or expr is empty or null
+  if a:lnum < 1 || empty(a:expr)
+    return
+  endif
+
   if !exists('*sign_place')
     exe 'sign place ' . a:id . ' line=' . a:lnum . ' name=godebugbreakpoint file=' . a:expr
     return
@@ -1489,12 +1624,16 @@ function! s:sign_place(id, expr, lnum) abort
   call sign_place(a:id, 'vim-go-debug', 'godebugbreakpoint', a:expr, {'lnum': a:lnum})
 endfunction
 
-function! s:list_breakpoints()
+function! s:list_breakpointsigns()
   let l:breakpoints = []
   let l:signs = s:sign_getplaced()
   for l:item in l:signs
     let l:file = fnamemodify(bufname(l:item.bufnr), ':p')
     for l:sign in l:item.signs
+      " ignore the current location sign
+      if l:sign.id is 9999
+        continue
+      endif
       call add(l:breakpoints, {
             \ 'id': l:sign.id,
             \ 'file': l:file,

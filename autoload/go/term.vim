@@ -65,7 +65,7 @@ function! go#term#newmode(bang, cmd, errorformat, mode) abort
     " horizontal split.
     if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
       exe 'vertical resize ' . l:width
-    elseif mode =~ "split" || mode =~ "new"
+    elseif l:mode =~ "split" || l:mode =~ "new"
       exe 'resize ' . l:height
     endif
     " we also need to resize the pty, so there you go...
@@ -88,8 +88,9 @@ function! go#term#newmode(bang, cmd, errorformat, mode) abort
       let l:term["vertical"] = l:mode
     endif
 
-    let l:state.id = term_start(a:cmd, l:term)
-    let l:state.termwinid = win_getid(bufwinnr(l:state.id))
+    let l:termbufnr = term_start(a:cmd, l:term)
+    let l:state.id = term_getjob(l:termbufnr)
+    let l:state.termwinid = win_getid(bufwinnr(l:termbufnr))
     let s:lasttermwinid = l:state.termwinid
     call go#util#Chdir(l:dir)
 
@@ -101,7 +102,7 @@ function! go#term#newmode(bang, cmd, errorformat, mode) abort
     " horizontal split.
     if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
       exe 'vertical resize ' . l:width
-    elseif mode =~ "split" || mode =~ "new"
+    elseif l:mode =~ "split" || l:mode =~ "new"
       exe 'resize ' . l:height
     endif
     "if exists(*term_setsize)
@@ -245,7 +246,7 @@ function! s:closeterm()
 
     let l:info = l:info[0]
 
-    if !get(l:info, 'terminal', 0) is 1
+    if get(l:info, 'terminal', 0) isnot 1
       return
     endif
 

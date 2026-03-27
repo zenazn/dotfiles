@@ -21,6 +21,7 @@ function! s:getinfo(str, name)
     return
   endif
 
+  let l:wd = getcwd()
   try
     let g:go_info_mode = 'gopls'
 
@@ -37,12 +38,13 @@ function! s:getinfo(str, name)
     let l:actual = go#lsp#GetInfo()
     call assert_equal(l:expected, l:actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
-    unlet g:go_info_mode
   endtry
 endfunction
 
 func! Test_Format() abort
+  let l:wd = getcwd()
   try
     let expected = join(readfile("test-fixtures/lsp/fmt/format_golden.go"), "\n")
     let l:tmp = gotest#load_fixture('lsp/fmt/format.go')
@@ -54,11 +56,13 @@ func! Test_Format() abort
 
     call assert_equal(expected, actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
   endtry
 endfunc
 
 func! Test_Format_SingleNewline() abort
+  let l:wd = getcwd()
   try
     let expected = join(readfile("test-fixtures/lsp/fmt/format_golden.go"), "\n")
     let l:tmp = gotest#load_fixture('lsp/fmt/newline.go')
@@ -70,11 +74,31 @@ func! Test_Format_SingleNewline() abort
 
     call assert_equal(expected, actual)
   finally
+    call go#util#Chdir(l:wd)
+    call delete(l:tmp, 'rf')
+  endtry
+endfunc
+
+func! Test_Format_Multibyte() abort
+  let l:wd = getcwd()
+  try
+    let expected = join(readfile("test-fixtures/lsp/fmt/multibyte_golden.go"), "\n")
+    let l:tmp = gotest#load_fixture('lsp/fmt/multibyte.go')
+
+    call go#lsp#Format()
+
+    " this should now contain the formatted code
+    let actual = join(go#util#GetLines(), "\n")
+
+    call assert_equal(expected, actual)
+  finally
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
   endtry
 endfunc
 
 func! Test_Imports() abort
+  let l:wd = getcwd()
   try
     let expected = join(readfile("test-fixtures/lsp/imports/imports_golden.go"), "\n")
     let l:tmp = gotest#load_fixture('lsp/imports/imports.go')
@@ -86,6 +110,7 @@ func! Test_Imports() abort
 
     call assert_equal(expected, actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
   endtry
 endfunc
