@@ -3,7 +3,9 @@ fu! s:init()
 endfu
 
 fu! s:win_leave()
-  let g:laststack = w:tagstack
+  if exists("w:tagstack")
+    let g:laststack = w:tagstack
+  end
 endfu
 
 fu! s:win_enter()
