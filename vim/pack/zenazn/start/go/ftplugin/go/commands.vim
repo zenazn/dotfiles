@@ -1,25 +1,12 @@
 " -- gorename
 command! -nargs=? -complete=customlist,go#rename#Complete GoRename call go#rename#Rename(<bang>0, <f-args>)
 
-" -- guru
-" do not configure commands that _require_ guru when not in GOPATH mode.
-"if go#package#InGOPATH()
-  command! -nargs=* -complete=customlist,go#package#Complete GoGuruScope call go#guru#Scope(<f-args>)
-  command! -range=% GoPointsTo call go#guru#PointsTo(<count>)
-  command! -range=% GoWhicherrs call go#guru#Whicherrs(<count>)
-  command! -range=% GoCallees call go#guru#Callees(<count>)
-  command! -range=% GoDescribe call go#guru#Describe(<count>)
-  command! -range=% GoCallstack call go#guru#Callstack(<count>)
-  command! -range=% GoFreevars call go#guru#Freevars(<count>)
-  command! -range=% GoChannelPeers call go#guru#ChannelPeers(<count>)
-"endif
-
 command! -range=% GoImplements call go#implements#Implements(<count>)
 command! -range=% GoReferrers call go#referrers#Referrers(<count>)
-command! -range=0 GoSameIds call go#guru#SameIds(1)
-command! -range=0 GoSameIdsClear call go#guru#ClearSameIds()
-command! -range=0 GoSameIdsToggle call go#guru#ToggleSameIds()
-command! -range=0 GoSameIdsAutoToggle call go#guru#AutoToggleSameIds()
+command! -range=0 GoSameIds call go#sameids#SameIds(1)
+command! -range=0 GoSameIdsClear call go#sameids#ClearSameIds()
+command! -range=0 GoSameIdsToggle call go#sameids#ToggleSameIds()
+command! -range=0 GoSameIdsAutoToggle call go#sameids#AutoToggleSameIds()
 
 " -- calls
 command! -nargs=0 GoCallers call go#calls#Callers()
@@ -46,14 +33,16 @@ command! -nargs=* -bang GoInstall call go#cmd#Install(<bang>0, <f-args>)
 
 " -- test
 command! -nargs=* -bang GoTest call go#test#Test(<bang>0, 0, <f-args>)
-command! -nargs=* -bang GoTestFunc call go#test#Func(<bang>0, <f-args>)
 command! -nargs=* -bang GoTestCompile call go#test#Test(<bang>0, 1, <f-args>)
+command! -nargs=* -bang GoTestFile call go#test#File(<bang>0, <f-args>)
+command! -nargs=* -bang GoTestFunc call go#test#Func(<bang>0, <f-args>)
 
 " -- cover
 command! -nargs=* -bang GoCoverage call go#coverage#Buffer(<bang>0, <f-args>)
 command! -nargs=* -bang GoCoverageClear call go#coverage#Clear()
 command! -nargs=* -bang GoCoverageToggle call go#coverage#BufferToggle(<bang>0, <f-args>)
 command! -nargs=* -bang GoCoverageBrowser call go#coverage#Browser(<bang>0, <f-args>)
+command! -nargs=1 -complete=file GoCoverageOverlay call go#coverage#Overlay(<f-args>)
 
 " -- play
 command! -nargs=0 -range=% GoPlay call go#play#Share(<count>, <line1>, <line2>)
@@ -102,11 +91,6 @@ command! -nargs=* -complete=customlist,go#impl#Complete GoImpl call go#impl#Impl
 " -- template
 command! -nargs=0 GoTemplateAutoCreateToggle call go#template#ToggleAutoCreate()
 
-" -- keyify
-if go#package#InGOPATH()
-  command! -nargs=0 GoKeyify call go#keyify#Keyify()
-endif
-
 " -- fillstruct
 command! -nargs=0 GoFillStruct call go#fillstruct#FillStruct()
 
@@ -130,8 +114,12 @@ command! -nargs=0 GoIfErr call go#iferr#Generate()
 command! -nargs=+ -complete=dir GoAddWorkspace call go#lsp#AddWorkspaceDirectory(<f-args>)
 command! -nargs=0 GoLSPDebugBrowser call go#lsp#DebugBrowser()
 command! -nargs=* -bang GoDiagnostics call go#lint#Diagnostics(<bang>0, <f-args>)
+command! -nargs=? GoModReload call go#lsp#ModReload()
 
 " -- term
 command! GoToggleTermCloseOnExit call go#term#ToggleCloseOnExit()
+
+" -- extract
+command! -range GoExtract call go#extract#Extract(<line1>, <line2>)
 
 " vim: sw=2 ts=2 et

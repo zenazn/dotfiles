@@ -3,7 +3,9 @@ let s:cpo_save = &cpo
 set cpo&vim
 
 func! Test_SwitchImportAddIgnoresCommented()
+  let l:wd = getcwd()
   try
+    let g:go_gopls_enabled = 0
     let l:tmp = gotest#write_file('import/import.go', [
           \ 'package import',
           \ '',
@@ -24,6 +26,7 @@ func! Test_SwitchImportAddIgnoresCommented()
     let l:actual = getline(4)
     call assert_equal("\t" . '"fmt"', l:actual)
   finally
+    call go#util#Chdir(l:wd)
     call delete(l:tmp, 'rf')
   endtry
 endfunc

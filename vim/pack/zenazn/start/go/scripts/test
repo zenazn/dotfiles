@@ -26,7 +26,7 @@ uploadcoverage=""
 while getopts "hvcur:" option; do
   case "$option" in
       h) _usage; exit 0 ;;
-      v) verbose=1; ;;
+      v) verbose=1 ;;
       r) run=$OPTARG ;;
       c) coverage="-c" ;;
       u) uploadcoverage=1 ;;
@@ -43,7 +43,7 @@ shift $((OPTIND - 1))
 #####################################
 if [ -z "${1:-}" ]; then
   echo "unknown version: '${1:-}'"
-  echo "First argument must be 'vim-8.0' or 'nvim'."
+  echo "First argument must be 'vim-8.2', 'vim-9.1', or 'nvim'."
   exit 1
 fi
 

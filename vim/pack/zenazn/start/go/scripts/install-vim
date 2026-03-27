@@ -15,32 +15,39 @@ cd "$vimgodir"
 vim=${1:-}
 
 case "$vim" in
-  "vim-8.0")
+  "vim-8.2")
     # This follows the version in Ubuntu LTS. Vim's master branch isn't always
     # stable, and we don't want to have the build fail because Vim introduced a
     # bug.
-    tag="v8.0.1453"
+    # Currently, 8.2.5072 is actually the greatest patch number applied in the
+    # vim installed by Ubuntu 22.04 LTS's package, so arguably v8.2.5072 should
+    # be used here, but there's a fix in v8.2.5135 that we need to compile on
+    # trixie and the distance between 8.2.5072 and 8.2.5135 is not too great,
+    # so use that instead.
+    # ref: https://stackoverflow.com/a/79376005
+    tag="v8.2.5135"
     giturl="https://github.com/vim/vim"
+
     ;;
 
-  "vim-8.2")
+  "vim-9.1")
     # This is the version that's installed by homebrew currently. It doesn't
     # have to stay up to date with homebrew, and is only chosen here because
     # that's what homebrew was using at the the time and we need a version to
     # vimlint with.
-    tag="v8.2.0200"
+    tag="v9.1.1300"
     giturl="https://github.com/vim/vim"
     ;;
 
   "nvim")
     # Use latest stable version.
-    tag="v0.4.0"
+    tag="v0.9.1"
     giturl="https://github.com/neovim/neovim"
     ;;
 
   *)
     echo "unknown version: '${1:-}'"
-    echo "First argument must be 'vim-8.0', vim-8.2, or 'nvim'."
+    echo "First argument must be 'vim-8.1', vim-8.2, or 'nvim'."
     exit 1
     ;;
 esac

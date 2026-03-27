@@ -14,17 +14,17 @@ function! s:checkVersion() abort
     if has('nvim')
       let l:unsupported = !has('nvim-0.4.0')
     else
-      let l:unsupported = !has('patch-8.0.1453')
+      let l:unsupported = !has('patch-8.2.5072')
     endif
 
     if l:unsupported == 1
       echohl Error
-      echom "vim-go requires at least Vim 8.0.1453 or Neovim 0.4.0, but you're using an older version."
+      echom "vim-go requires at least Vim 8.2.5072 or Neovim 0.4.0, but you're using an older version."
       echom "Please update your Vim for the best vim-go experience."
       echom "If you really want to continue you can set this to make the error go away:"
       echom "    let g:go_version_warning = 0"
       echom "Note that some features may error out or behave incorrectly."
-      echom "Please do not report bugs unless you're using at least Vim 8.0.1453 or Neovim 0.4.0."
+      echom "Please do not report bugs unless you're using at least Vim 8.2.5072 or Neovim 0.4.0."
       echohl None
 
       " Make sure people see this.
@@ -46,17 +46,13 @@ let s:packages = {
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct@master'],
       \ 'godef':         ['github.com/rogpeppe/godef@latest'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports@master'],
-      \ 'golint':        ['golang.org/x/lint/golint@master'],
       \ 'revive':        ['github.com/mgechev/revive@latest'],
       \ 'gopls':         ['golang.org/x/tools/gopls@latest', {}, {'after': function('go#lsp#Restart', [])}],
-      \ 'golangci-lint': ['github.com/golangci/golangci-lint/cmd/golangci-lint@latest'],
+      \ 'golangci-lint': ['github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest'],
       \ 'staticcheck':   ['honnef.co/go/tools/cmd/staticcheck@latest'],
       \ 'gomodifytags':  ['github.com/fatih/gomodifytags@latest'],
-      \ 'gorename':      ['golang.org/x/tools/cmd/gorename@master'],
       \ 'gotags':        ['github.com/jstemmer/gotags@master'],
-      \ 'guru':          ['golang.org/x/tools/cmd/guru@master'],
-      \ 'impl':          ['github.com/josharian/impl@master'],
-      \ 'keyify':        ['honnef.co/go/tools/cmd/keyify@master'],
+      \ 'impl':          ['github.com/josharian/impl@main'],
       \ 'motion':        ['github.com/fatih/motion@latest'],
       \ 'iferr':         ['github.com/koron/iferr@master'],
 \ }
@@ -108,16 +104,26 @@ function! s:GoInstallBinaries(updateBinaries, ...)
     set noshellslash
   endif
 
-  let l:get_base_cmd = ['go', 'install', '-v', '-mod=readonly']
+  let l:get_base_cmd = ['go', 'install', '-v', '-mod=mod']
 
   " Filter packages from arguments (if any).
   let l:packages = {}
   if a:0 > 0
     for l:bin in a:000
+      let l:version = substitute(l:bin, '.*@', '', '')
+      if l:version == l:bin
+        let l:version = ''
+      endif
+      let l:bin = substitute(l:bin, '@.*', '', '')
+
       let l:pkg = get(s:packages, l:bin, [])
       if len(l:pkg) == 0
         call go#util#EchoError('unknown binary: ' . l:bin)
         return
+      endif
+
+      if l:version isnot ''
+        let l:pkg[0] = substitute(l:pkg[0], '@\zs.*', l:version, '')
       endif
       let l:packages[l:bin] = l:pkg
     endfor
