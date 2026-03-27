@@ -2,8 +2,6 @@ tap "homebrew/cask"
 brew "mas"
 
 brew "csvkit"
-brew "ctags"
-brew "fd"
 brew "fzf"
 brew "git"
 brew "go"

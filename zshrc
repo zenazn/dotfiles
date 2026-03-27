@@ -102,7 +102,6 @@ alias gemini="bunx gemini"
 alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
-_has fd && export FZF_ALT_C_COMMAND='fd -t d'
 
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
@@ -129,13 +128,6 @@ _path_prepend "$HOME/zig"
 
 # Add ssh keys to agent asynchronously
 _mac && (ssh-add -q --apple-load-keychain &) >/dev/null 2>&1
-
-_fzf_compgen_path() {
-  fd --hidden --follow --exclude ".git" . "$1"
-}
-_fzf_compgen_dir() {
-  fd --type d --hidden --follow --exclude ".git" . "$1"
-}
 
 autoload zmv
 autoload -U edit-command-line
