@@ -97,9 +97,6 @@ alias gs='git status'
 alias v="$EDITOR -O"
 alias vim="$(whence -p "$EDITOR") -O"
 alias ls="ls --color=auto"
-alias claude="bunx claude"
-alias gemini="bunx gemini"
-alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
 _has rg && export FZF_DEFAULT_COMMAND='rg --files'
 
@@ -117,13 +114,14 @@ _path_prepend "$HOME/go/bin"
 _source "$HOME/.fzf.zsh"
 _source "$HOMEBREW_PREFIX/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc"
 _source "$HOME/.config/tabtab/zsh/__tabtab.zsh"
-export BUN_INSTALL="/Users/carl/.bun"
+export BUN_INSTALL="$HOME/.bun"
 _path_prepend "$BUN_INSTALL/bin"
 _source "$BUN_INSTALL/_bun"
 _path_prepend "$HOME/.local/bin"
 _path_prepend "$HOME/.cargo/env"
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/zig"
+_path_prepend "$HOME/zig-0.16.0"
 
 
 # Add ssh keys to agent asynchronously
